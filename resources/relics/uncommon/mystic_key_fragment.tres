@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="RelicData" load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/data/relic_data.gd" id="1_relic"]
+[resource]
+script = ExtResource("1_relic")
+relic_id = "mystic_key_fragment"
+display_name = "秘境钥匙碎片"
+rarity = 2
+description = "精英战奖励升级：选卡变为 4 选 1"

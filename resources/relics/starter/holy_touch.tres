@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="RelicData" load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/data/relic_data.gd" id="1_relic"]
+[resource]
+script = ExtResource("1_relic")
+relic_id = "holy_touch"
+display_name = "神圣之触"
+rarity = 0
+character = "金英"
+trigger_timing = "ON_HEAL"
+description = "每回复4HP，对随机敌人造成3点神圣伤害(无视格挡)"

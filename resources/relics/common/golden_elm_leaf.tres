@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="RelicData" load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/data/relic_data.gd" id="1_relic"]
+[resource]
+script = ExtResource("1_relic")
+relic_id = "golden_elm_leaf"
+display_name = "金榆树叶"
+rarity = 1
+trigger_timing = "ON_TURN_END"
+trigger_condition = "player_hp_full"
+description = "回合结束时若HP满，回复 2 HP"

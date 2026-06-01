@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="RelicData" load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/data/relic_data.gd" id="1_relic"]
+[resource]
+script = ExtResource("1_relic")
+relic_id = "broken_wheel"
+display_name = "破损轮盘"
+rarity = 6
+description = "最大HP-5 · 轮盘消费永久-2魔晶"

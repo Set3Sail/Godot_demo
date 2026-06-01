@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="RelicData" load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/data/relic_data.gd" id="1_relic"]
+[resource]
+script = ExtResource("1_relic")
+relic_id = "mech_armor_core"
+display_name = "机械战甲核心"
+rarity = 0
+character = "莉莲"
+trigger_timing = "ON_TURN_START"
+description = "每回合可免费切换1次战甲模式（额外切换1精神力）"

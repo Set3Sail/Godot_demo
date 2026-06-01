@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="RelicData" load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/data/relic_data.gd" id="1_relic"]
+[resource]
+script = ExtResource("1_relic")
+relic_id = "holy_water"
+display_name = "圣水"
+rarity = 2
+description = "每章可使用 1 次：回复 40% 最大HP（Boss战前自动提示）"

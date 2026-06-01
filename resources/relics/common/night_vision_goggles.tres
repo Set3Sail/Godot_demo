@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="RelicData" load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/data/relic_data.gd" id="1_relic"]
+[resource]
+script = ExtResource("1_relic")
+relic_id = "night_vision_goggles"
+display_name = "夜视护目镜"
+rarity = 1
+trigger_timing = "ON_TURN_START"
+trigger_condition = "round <= 3"
+description = "前3回合敌人意图显示精确伤害值（无波动）"

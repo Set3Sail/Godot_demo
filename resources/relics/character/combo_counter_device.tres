@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="RelicData" load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/data/relic_data.gd" id="1_relic"]
+[resource]
+script = ExtResource("1_relic")
+relic_id = "combo_counter_device"
+display_name = "连击计数器"
+rarity = 5
+character = "温静"
+description = "连击触发阈值从3降为2"

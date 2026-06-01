@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="RelicData" load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/data/relic_data.gd" id="1_relic"]
+[resource]
+script = ExtResource("1_relic")
+relic_id = "rose_mark"
+display_name = "玫瑰印记"
+rarity = 0
+character = "温静"
+trigger_timing = "ON_DAMAGE_DEALT"
+description = "每回合首次对被标记敌人造成伤害时追加3伤"

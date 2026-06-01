@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="RelicData" load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/data/relic_data.gd" id="1_relic"]
+[resource]
+script = ExtResource("1_relic")
+relic_id = "enchanting_table"
+display_name = "附魔台"
+rarity = 2
+trigger_timing = "ON_EQUIP"
+description = "获得装备卡时，随机附加 1 个属性（+1力/+1敏/+2甲）"

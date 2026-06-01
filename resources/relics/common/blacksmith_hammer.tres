@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="RelicData" load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/data/relic_data.gd" id="1_relic"]
+[resource]
+script = ExtResource("1_relic")
+relic_id = "blacksmith_hammer"
+display_name = "铁匠之锤"
+rarity = 1
+description = "在营地升级卡牌时，可额外升级 1 张（共2张）"

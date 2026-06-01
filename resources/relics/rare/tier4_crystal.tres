@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="RelicData" load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/data/relic_data.gd" id="1_relic"]
+[resource]
+script = ExtResource("1_relic")
+relic_id = "tier4_crystal"
+display_name = "四级魔晶"
+rarity = 3
+description = "每章初始获得 10 魔晶 · 轮盘奖励品质 +1 级"

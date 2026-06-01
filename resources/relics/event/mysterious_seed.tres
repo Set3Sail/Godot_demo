@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="RelicData" load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/data/relic_data.gd" id="1_relic"]
+[resource]
+script = ExtResource("1_relic")
+relic_id = "mysterious_seed"
+display_name = "神秘种子"
+rarity = 6
+description = "每3场战斗后升级牌组中随机1张卡（永久）"

@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="RelicData" load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/data/relic_data.gd" id="1_relic"]
+[resource]
+script = ExtResource("1_relic")
+relic_id = "willow_bark_armor"
+display_name = "柳树皮护甲"
+rarity = 2
+trigger_timing = "ON_TURN_END"
+trigger_condition = "no_damage_this_turn"
+description = "回合结束时若本回合未受到伤害，获得 3 格挡"

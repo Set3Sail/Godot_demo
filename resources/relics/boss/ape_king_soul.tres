@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="RelicData" load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/data/relic_data.gd" id="1_relic"]
+[resource]
+script = ExtResource("1_relic")
+relic_id = "ape_king_soul"
+display_name = "尸猿之魂"
+rarity = 4
+cost_description = "每回合开始随机弃 1 张牌"
+description = "所有攻击伤害 +25% · 代价：每回合开始随机弃 1 张牌"

@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="RelicData" load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/data/relic_data.gd" id="1_relic"]
+[resource]
+script = ExtResource("1_relic")
+relic_id = "complete_mystic_key"
+display_name = "完整秘境钥匙"
+rarity = 3
+description = "宝箱/事件奖励双倍（金钱+魔晶）"

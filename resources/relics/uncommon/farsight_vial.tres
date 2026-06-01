@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="RelicData" load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/data/relic_data.gd" id="1_relic"]
+[resource]
+script = ExtResource("1_relic")
+relic_id = "farsight_vial"
+display_name = "远视药水瓶"
+rarity = 2
+trigger_timing = "ON_TURN_START"
+trigger_condition = "round <= 2"
+description = "每场战斗前 2 回合，精神力 +1"

@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="RelicData" load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/data/relic_data.gd" id="1_relic"]
+[resource]
+script = ExtResource("1_relic")
+relic_id = "holy_city_seal"
+display_name = "圣城之印"
+rarity = 4
+cost_description = "普通战不再奖励卡牌选择"
+description = "精英战后奖励选 2 次 · 代价：普通战不再奖励卡牌选择"

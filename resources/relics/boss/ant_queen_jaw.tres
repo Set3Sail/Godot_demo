@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="RelicData" load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/data/relic_data.gd" id="1_relic"]
+[resource]
+script = ExtResource("1_relic")
+relic_id = "ant_queen_jaw"
+display_name = "蚁后之颚"
+rarity = 4
+trigger_timing = "ON_TURN_START"
+cost_description = "营地无法回复HP"
+description = "每回合精神力 +1 · 代价：营地无法回复HP"

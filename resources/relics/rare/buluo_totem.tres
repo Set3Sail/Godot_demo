@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="RelicData" load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/data/relic_data.gd" id="1_relic"]
+[resource]
+script = ExtResource("1_relic")
+relic_id = "buluo_totem"
+display_name = "布落图腾"
+rarity = 3
+trigger_timing = "ON_CARD_PLAYED"
+description = "每使用 3 张能力卡，获得 1 点精神力"

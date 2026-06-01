@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="RelicData" load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/data/relic_data.gd" id="1_relic"]
+[resource]
+script = ExtResource("1_relic")
+relic_id = "ice_crystal_amulet"
+display_name = "冰晶护符"
+rarity = 0
+character = "墨夜"
+trigger_timing = "ON_STATUS_APPLIED"
+description = "每施加3层冰霜，获得1精神力（每回合最多2次）"

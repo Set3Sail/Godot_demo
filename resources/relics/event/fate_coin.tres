@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="RelicData" load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/data/relic_data.gd" id="1_relic"]
+[resource]
+script = ExtResource("1_relic")
+relic_id = "fate_coin"
+display_name = "命运硬币"
+rarity = 6
+trigger_timing = "ON_BATTLE_START"
+description = "每场战斗开始: 50%+1精神力/50%-1精神力"

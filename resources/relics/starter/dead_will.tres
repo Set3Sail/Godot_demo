@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="RelicData" load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/data/relic_data.gd" id="1_relic"]
+[resource]
+script = ExtResource("1_relic")
+relic_id = "dead_will"
+display_name = "亡者意志"
+rarity = 0
+character = "盛元"
+trigger_timing = "ON_TURN_START"
+trigger_condition = "HP < 50%"
+description = "HP<50%:+1精神力/回合 · HP<25%:+2精神力/回合"

@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="RelicData" load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/data/relic_data.gd" id="1_relic"]
+[resource]
+script = ExtResource("1_relic")
+relic_id = "nature_staff_replica"
+display_name = "自然之杖(复制品)"
+rarity = 3
+trigger_timing = "ON_BATTLE_START"
+description = "每场战斗随机获得 1 张 0 费临时卡"
