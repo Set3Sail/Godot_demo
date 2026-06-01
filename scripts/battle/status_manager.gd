@@ -12,6 +12,7 @@ signal status_applied(entity: Node, status_id: String, stacks: int)
 signal status_removed(entity: Node, status_id: String)
 signal status_stacks_changed(entity: Node, status_id: String, current_stacks: int)
 signal status_expired(entity: Node, expired_ids: Array)
+signal tick_effect_triggered(entity: Node, effect: EffectData)
 signal freeze_triggered(entity: Node)
 signal thorn_damage(source: Node, damage: int)
 
@@ -110,7 +111,7 @@ func tick_statuses(entity: Node) -> void:
 		var data: StatusEffectData = entry["data"]
 
 		for effect in data.tick_effects:
-			pass  # tick effects handled by EffectResolver
+			tick_effect_triggered.emit(entity, effect)
 
 		if entry["duration"] > 0:
 			entry["duration"] -= 1

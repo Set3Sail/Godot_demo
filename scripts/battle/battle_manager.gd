@@ -18,6 +18,7 @@ extends Node
 var _player_deck: Array[CardData] = []
 var _enemy_configs: Array[EnemyData] = []
 var _battle_reward: Dictionary = {}
+var _battle_ended: bool = false
 
 
 func _ready() -> void:
@@ -96,6 +97,9 @@ func _on_player_turn_end() -> void:
 	_card_mgr.discard_hand()
 	_resource_mgr.on_turn_end()
 	_status_mgr.tick_statuses(_get_player_node())
+	# Tick enemy statuses too
+	for enemy in _enemy_mgr.get_alive_enemies():
+		_status_mgr.tick_statuses(enemy)
 	_turn_sm._go_to_enemy_turn()
 
 
@@ -116,6 +120,8 @@ func _on_round_end() -> void:
 
 
 func _on_battle_victory() -> void:
+	if _battle_ended and _turn_sm.current_state == TurnStateMachine.BattleState.BATTLE_WIN:
+		return
 	var total_crystals: int = 0
 	for enemy in _enemy_mgr._enemies:
 		total_crystals += _enemy_mgr.get_crystal_drop(enemy)
@@ -135,7 +141,10 @@ func _on_enemy_died(entity: Node, killer: Node) -> void:
 
 
 func _check_all_enemies_dead() -> void:
+	if _battle_ended:
+		return
 	if _enemy_mgr.get_alive_enemies().is_empty():
+		_battle_ended = true
 		_on_battle_victory()
 
 

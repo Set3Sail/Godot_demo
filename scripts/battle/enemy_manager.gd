@@ -10,6 +10,7 @@ var _enemies: Array[Node] = []               # 存活敌人列表（按 slot 顺
 var _allies: Array[Node] = []                # 友方随从（红发丧尸）
 var _enemy_data_map: Dictionary = {}          # Node -> EnemyData
 var _enemy_ai_map: Dictionary = {}            # Node -> IntentData
+var _enemy_pattern_index: Dictionary = {}     # Node -> int
 var _crystal_drops: Dictionary = {}           # Node -> crystal count
 
 signal enemy_intent_revealed(enemy: Node, intent: IntentData)
@@ -53,6 +54,7 @@ func remove_enemy(enemy: Node) -> void:
 	_enemy_data_map.erase(enemy)
 	_crystal_drops.erase(enemy)
 	_enemy_ai_map.erase(enemy)
+	_enemy_pattern_index.erase(enemy)
 	if is_instance_valid(enemy):
 		enemy.queue_free()
 
@@ -116,8 +118,10 @@ func get_crystal_drop(enemy: Node) -> int:
 func _generate_and_reveal_intent(enemy: Node, data: EnemyData) -> void:
 	if data.intent_pattern.is_empty():
 		return
-	var intent: IntentData = data.intent_pattern[0]
+	var idx: int = _enemy_pattern_index.get(enemy, 0)
+	var intent: IntentData = data.intent_pattern[idx]
 	_enemy_ai_map[enemy] = intent
+	_enemy_pattern_index[enemy] = (idx + 1) % data.intent_pattern.size()
 	enemy_intent_revealed.emit(enemy, intent)
 
 

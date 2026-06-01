@@ -98,7 +98,6 @@ func _go_to_enemy_turn() -> void:
 ## 回合结束
 func _go_to_round_end() -> void:
 	_transition_to(BattleState.ROUND_END)
-	_go_to_player_turn()
 
 
 ## 胜利/失败
