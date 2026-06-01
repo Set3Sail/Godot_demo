@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=4 format=3]
+[ext_resource type="Script" path="res://scripts/data/card_data.gd" id="1_card"]
+[ext_resource type="Script" path="res://scripts/data/effect_data.gd" id="2_e"]
+
+[sub_resource type="Resource" id="ef0"]
+script = ExtResource("2_e")
+type = 6
+target = 0
+base_value = 5
+cost_hp = 2
+
+[resource]
+script = ExtResource("1_card")
+card_id = "shengyuan_blood_recovery"
+card_name = "血液回收"
+character = "盛元"
+card_type = 1
+rarity = 0
+cost = 1
+effects = Array[ExtResource("2_e")]([SubResource("ef0")])
+keywords = Array[String](["血祭"])
+description = "消耗2HP，回复5HP（净回复3HP）"

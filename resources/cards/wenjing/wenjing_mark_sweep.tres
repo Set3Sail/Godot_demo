@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=5 format=3]
+[ext_resource type="Script" path="res://scripts/data/card_data.gd" id="1_card"]
+[ext_resource type="Script" path="res://scripts/data/effect_data.gd" id="2_e"]
+
+[sub_resource type="Resource" id="ef0"]
+script = ExtResource("2_e")
+type = 0
+target = 2
+base_value = 5
+
+[sub_resource type="Resource" id="ef1"]
+script = ExtResource("2_e")
+type = 5
+target = 2
+base_value = 1
+status_id = "mark"
+status_stacks = 1
+
+[resource]
+script = ExtResource("1_card")
+card_id = "wenjing_mark_sweep"
+card_name = "横扫标记"
+character = "温静"
+card_type = 0
+rarity = 0
+cost = 2
+effects = Array[ExtResource("2_e")]([SubResource("ef0"), SubResource("ef1")])
+keywords = Array[String](["标记"])
+description = "全体5点伤害，施加标记"

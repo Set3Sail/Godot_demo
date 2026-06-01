@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=5 format=3]
+[ext_resource type="Script" path="res://scripts/data/card_data.gd" id="1_card"]
+[ext_resource type="Script" path="res://scripts/data/effect_data.gd" id="2_e"]
+
+[sub_resource type="Resource" id="ef0"]
+script = ExtResource("2_e")
+type = 0
+target = 2
+base_value = 12
+
+[sub_resource type="Resource" id="ef1"]
+script = ExtResource("2_e")
+type = 5
+target = 2
+base_value = 1
+status_id = "frost"
+status_stacks = 3
+
+[resource]
+script = ExtResource("1_card")
+card_id = "moye_ice_age"
+card_name = "冰河时代"
+character = "墨夜"
+card_type = 0
+rarity = 2
+cost = 3
+effects = Array[ExtResource("2_e")]([SubResource("ef0"), SubResource("ef1")])
+keywords = Array[String](["冰霜"])
+description = "全体12点伤害，施加3层冰霜"

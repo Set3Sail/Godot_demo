@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=5 format=3]
+[ext_resource type="Script" path="res://scripts/data/card_data.gd" id="1_card"]
+[ext_resource type="Script" path="res://scripts/data/effect_data.gd" id="2_e"]
+
+[sub_resource type="Resource" id="ef0"]
+script = ExtResource("2_e")
+type = 0
+target = 1
+base_value = 14
+
+[sub_resource type="Resource" id="ef1"]
+script = ExtResource("2_e")
+type = 6
+target = 0
+base_value = 7
+cost_hp = 2
+
+[resource]
+script = ExtResource("1_card")
+card_id = "shengyuan_life_siphon"
+card_name = "生命虹吸"
+character = "盛元"
+card_type = 0
+rarity = 2
+cost = 2
+effects = Array[ExtResource("2_e")]([SubResource("ef0"), SubResource("ef1")])
+keywords = Array[String](["血祭"])
+description = "消耗2HP，造成14伤害，回复7HP"

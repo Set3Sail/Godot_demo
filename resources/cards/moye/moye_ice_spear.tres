@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=4 format=3]
+[ext_resource type="Script" path="res://scripts/data/card_data.gd" id="1_card"]
+[ext_resource type="Script" path="res://scripts/data/effect_data.gd" id="2_e"]
+
+[sub_resource type="Resource" id="ef0"]
+script = ExtResource("2_e")
+type = 0
+target = 1
+base_value = 8
+scale_stat = "strength"
+
+[resource]
+script = ExtResource("1_card")
+card_id = "moye_ice_spear"
+card_name = "冰枪术"
+character = "墨夜"
+card_type = 0
+rarity = 1
+cost = 2
+effects = Array[ExtResource("2_e")]([SubResource("ef0")])
+keywords = Array[String](["冰霜"])
+description = "造成8(+力量)点伤害"

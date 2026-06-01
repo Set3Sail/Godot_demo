@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=5 format=3]
+[ext_resource type="Script" path="res://scripts/data/card_data.gd" id="1_card"]
+[ext_resource type="Script" path="res://scripts/data/effect_data.gd" id="2_e"]
+
+[sub_resource type="Resource" id="ef0"]
+script = ExtResource("2_e")
+type = 1
+target = 4
+base_value = 6
+
+[sub_resource type="Resource" id="ef1"]
+script = ExtResource("2_e")
+type = 9
+target = 2
+base_value = 3
+status_id = "holy_damage"
+
+[resource]
+script = ExtResource("1_card")
+card_id = "jinying_radiant_barrier"
+card_name = "光耀屏障"
+character = "金英"
+card_type = 1
+rarity = 1
+cost = 2
+effects = Array[ExtResource("2_e")]([SubResource("ef0"), SubResource("ef1")])
+keywords = Array[String](["神罚"])
+description = "全体获得6点格挡，全体3点神圣伤害"

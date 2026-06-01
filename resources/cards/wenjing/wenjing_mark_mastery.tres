@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=4 format=3]
+[ext_resource type="Script" path="res://scripts/data/card_data.gd" id="1_card"]
+[ext_resource type="Script" path="res://scripts/data/effect_data.gd" id="2_e"]
+
+[sub_resource type="Resource" id="ef0"]
+script = ExtResource("2_e")
+type = 9
+target = 0
+base_value = 1
+status_id = "mark_mastery"
+
+[resource]
+script = ExtResource("1_card")
+card_id = "wenjing_mark_mastery"
+card_name = "标记专精"
+character = "温静"
+card_type = 2
+rarity = 2
+cost = 1
+effects = Array[ExtResource("2_e")]([SubResource("ef0")])
+keywords = Array[String](["标记"])
+description = "标记造成伤害+3"

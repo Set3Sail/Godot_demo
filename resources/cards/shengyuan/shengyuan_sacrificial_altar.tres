@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=5 format=3]
+[ext_resource type="Script" path="res://scripts/data/card_data.gd" id="1_card"]
+[ext_resource type="Script" path="res://scripts/data/effect_data.gd" id="2_e"]
+
+[sub_resource type="Resource" id="ef0"]
+script = ExtResource("2_e")
+type = 9
+target = 0
+base_value = 1
+status_id = "blood_to_power"
+
+[sub_resource type="Resource" id="ef1"]
+script = ExtResource("2_e")
+type = 0
+target = 0
+base_value = 10
+cost_hp = 10
+
+[resource]
+script = ExtResource("1_card")
+card_id = "shengyuan_sacrificial_altar"
+card_name = "牺牲祭坛"
+character = "盛元"
+card_type = 1
+rarity = 3
+cost = 3
+effects = Array[ExtResource("2_e")]([SubResource("ef0"), SubResource("ef1")])
+keywords = Array[String](["血祭"])
+description = "消耗10HP，获得永久力量+2"

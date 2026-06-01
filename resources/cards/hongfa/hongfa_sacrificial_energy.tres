@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=5 format=3]
+[ext_resource type="Script" path="res://scripts/data/card_data.gd" id="1_card"]
+[ext_resource type="Script" path="res://scripts/data/effect_data.gd" id="2_e"]
+
+[sub_resource type="Resource" id="ef0"]
+script = ExtResource("2_e")
+type = 9
+target = 0
+base_value = 1
+status_id = "dark_pact"
+
+[sub_resource type="Resource" id="ef1"]
+script = ExtResource("2_e")
+type = 3
+target = 0
+base_value = 1
+
+[resource]
+script = ExtResource("1_card")
+card_id = "hongfa_sacrificial_energy"
+card_name = "牺牲能量"
+character = "红发"
+card_type = 1
+rarity = 1
+cost = 1
+effects = Array[ExtResource("2_e")]([SubResource("ef0"), SubResource("ef1")])
+keywords = Array[String](["牺牲"])
+description = "牺牲1只丧尸，获得1点能量"

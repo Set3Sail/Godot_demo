@@ -1,0 +1,36 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=6 format=3]
+[ext_resource type="Script" path="res://scripts/data/card_data.gd" id="1_card"]
+[ext_resource type="Script" path="res://scripts/data/effect_data.gd" id="2_e"]
+
+[sub_resource type="Resource" id="ef0"]
+script = ExtResource("2_e")
+type = 0
+target = 1
+base_value = 8
+
+[sub_resource type="Resource" id="ef1"]
+script = ExtResource("2_e")
+type = 5
+target = 1
+base_value = 1
+status_id = "mark"
+status_stacks = 5
+
+[sub_resource type="Resource" id="ef2"]
+script = ExtResource("2_e")
+type = 9
+target = 1
+base_value = 0
+status_id = "detonate_mark"
+
+[resource]
+script = ExtResource("1_card")
+card_id = "wenjing_death_mark"
+card_name = "死亡标记"
+character = "温静"
+card_type = 0
+rarity = 3
+cost = 3
+effects = Array[ExtResource("2_e")]([SubResource("ef0"), SubResource("ef1"), SubResource("ef2")])
+keywords = Array[String](["标记"])
+description = "造成8点伤害，施加5层标记后引爆"

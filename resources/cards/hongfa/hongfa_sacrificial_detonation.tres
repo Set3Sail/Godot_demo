@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=4 format=3]
+[ext_resource type="Script" path="res://scripts/data/card_data.gd" id="1_card"]
+[ext_resource type="Script" path="res://scripts/data/effect_data.gd" id="2_e"]
+
+[sub_resource type="Resource" id="ef0"]
+script = ExtResource("2_e")
+type = 9
+target = 2
+base_value = 1
+status_id = "sacrifice_all_damage"
+
+[resource]
+script = ExtResource("1_card")
+card_id = "hongfa_sacrificial_detonation"
+card_name = "牺牲爆裂"
+character = "红发"
+card_type = 0
+rarity = 1
+cost = 2
+effects = Array[ExtResource("2_e")]([SubResource("ef0")])
+keywords = Array[String](["牺牲"])
+description = "牺牲所有丧尸，每只造成5点全体伤害"

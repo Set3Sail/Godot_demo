@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=5 format=3]
+[ext_resource type="Script" path="res://scripts/data/card_data.gd" id="1_card"]
+[ext_resource type="Script" path="res://scripts/data/effect_data.gd" id="2_e"]
+
+[sub_resource type="Resource" id="ef0"]
+script = ExtResource("2_e")
+type = 1
+target = 0
+base_value = 12
+cost_hp = 3
+
+[sub_resource type="Resource" id="ef1"]
+script = ExtResource("2_e")
+type = 1
+target = 0
+base_value = 8
+
+[resource]
+script = ExtResource("1_card")
+card_id = "shengyuan_blood_armor"
+card_name = "血肉铠甲"
+character = "盛元"
+card_type = 1
+rarity = 1
+cost = 2
+effects = Array[ExtResource("2_e")]([SubResource("ef0"), SubResource("ef1")])
+keywords = Array[String](["血祭"])
+description = "消耗3HP获得12点格挡+8点额外格挡"

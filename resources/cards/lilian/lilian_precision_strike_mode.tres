@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=4 format=3]
+[ext_resource type="Script" path="res://scripts/data/card_data.gd" id="1_card"]
+[ext_resource type="Script" path="res://scripts/data/effect_data.gd" id="2_e"]
+
+[sub_resource type="Resource" id="ef0"]
+script = ExtResource("2_e")
+type = 9
+target = 1
+base_value = 8
+status_id = "dual_strike"
+
+[resource]
+script = ExtResource("1_card")
+card_id = "lilian_precision_strike_mode"
+card_name = "模式精准打击"
+character = "莉莲"
+card_type = 0
+rarity = 1
+cost = 2
+effects = Array[ExtResource("2_e")]([SubResource("ef0")])
+keywords = Array[String](["战甲"])
+description = "攻击：8伤 / 防御：6伤+4甲"

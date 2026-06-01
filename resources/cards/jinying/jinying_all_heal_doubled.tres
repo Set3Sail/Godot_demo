@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=4 format=3]
+[ext_resource type="Script" path="res://scripts/data/card_data.gd" id="1_card"]
+[ext_resource type="Script" path="res://scripts/data/effect_data.gd" id="2_e"]
+
+[sub_resource type="Resource" id="ef0"]
+script = ExtResource("2_e")
+type = 9
+target = 0
+base_value = 0
+status_id = "double_healing"
+
+[resource]
+script = ExtResource("1_card")
+card_id = "jinying_all_heal_doubled"
+card_name = "众生愈"
+character = "金英"
+card_type = 2
+rarity = 4
+cost = 4
+effects = Array[ExtResource("2_e")]([SubResource("ef0")])
+keywords = Array[String](["亲和"])
+description = "所有治疗量翻倍
+消耗"
+exhaust_on_use = true
