@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="AscensionData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/ascension_data.gd" id="1_ad"]
+
+[resource]
+script = ExtResource("1_ad")
+level = 8
+extra_elites = 1
+enemy_damage_bonus = 2
+enemy_hp_mult = 1.10
+wheel_cost_increase = 2
+camp_heal_pct = 0.20
+elite_extra_skills = true
+initial_hp_penalty = 5
+boss_hp_mult = 1.0
+burning_nodes = false
+boss_extra_skills = false
+no_uncommon_plus_drops = false
+dual_boss_chance = 0.0
+description = "Ascension 8: 初始HP -5"

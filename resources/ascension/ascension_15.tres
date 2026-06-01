@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="AscensionData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/ascension_data.gd" id="1_ad"]
+
+[resource]
+script = ExtResource("1_ad")
+level = 15
+extra_elites = 1
+enemy_damage_bonus = 4
+enemy_hp_mult = 1.10
+wheel_cost_increase = 7
+camp_heal_pct = 0.50
+elite_extra_skills = true
+initial_hp_penalty = 13
+boss_hp_mult = 1.15
+burning_nodes = true
+boss_extra_skills = true
+no_uncommon_plus_drops = true
+dual_boss_chance = 0.0
+description = "Ascension 15: 营地回复50%, HP-13"
