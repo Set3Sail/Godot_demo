@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="RelicData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/relic_data.gd" id="1_relic"]
+
+[resource]
+script = ExtResource("1_relic")
+relic_id = "first_aid_kit"
+display_name = "急救包"
+rarity = 1
+trigger_timing = "ON_BATTLE_WIN"
+description = "每场非Boss战斗胜利后回复 3 HP"

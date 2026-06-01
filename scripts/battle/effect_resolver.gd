@@ -7,8 +7,8 @@ extends Node
 var _resource_manager: ResourceManager
 var _card_manager: CardManager
 var _status_manager: StatusManager
-var _enemy_manager: Node  # EnemyManager 引用
-var _relic_manager: Node  # RelicManager 引用
+var _enemy_manager: EnemyManager  # EnemyManager 引用
+var _relic_manager: RelicManager  # RelicManager 引用
 
 
 signal effect_about_to_execute(effect: EffectData, target: Node)
@@ -25,8 +25,8 @@ func setup(
     rm: ResourceManager,
     cm: CardManager,
     sm: StatusManager,
-    em: Node,
-    rem: Node
+    em: EnemyManager,
+    rem: RelicManager
 ) -> void:
     _resource_manager = rm
     _card_manager = cm

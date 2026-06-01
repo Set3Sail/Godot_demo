@@ -14,8 +14,8 @@ signal card_played(card: CardData, target: Node)
 signal card_discarded(card: CardData)
 signal card_exhausted(card: CardData)
 signal deck_shuffled
-signal deck_cycle
-signal hand_empty
+signal deck_cycled
+signal hand_emptied
 signal card_upgraded(card: CardData, source: String)
 
 
@@ -72,7 +72,7 @@ func play_card(card: CardData, target: Node) -> void:
 		card_discarded.emit(card)
 
 	if hand.is_empty():
-		hand_empty.emit()
+\t\thand_emptied.emit()
 
 
 ## 弃所有手牌
@@ -157,4 +157,4 @@ func _cycle_discard_to_draw() -> void:
 	draw_pile = discard_pile.duplicate()
 	discard_pile.clear()
 	shuffle_deck()
-	deck_cycle.emit()
+	deck_cycled.emit()

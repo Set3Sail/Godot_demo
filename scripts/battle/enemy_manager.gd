@@ -13,6 +13,8 @@ var _enemy_ai_map: Dictionary = {}            # Node -> IntentData
 var _enemy_pattern_index: Dictionary = {}     # Node -> int
 var _crystal_drops: Dictionary = {}           # Node -> crystal count
 
+	var _resource_manager: ResourceManager
+	var _status_manager: StatusManager
 signal enemy_intent_revealed(enemy: Node, intent: IntentData)
 signal enemy_acted(enemy: Node, intent: IntentData, result: Dictionary)
 signal enemy_spawned(enemy: Node, slot_index: int)
@@ -23,13 +25,19 @@ signal ally_acted(ally: Node, target: Node, damage: int)
 signal ally_killed(ally: Node)
 
 
+## 注入依赖
+func setup(rm: ResourceManager, sm: StatusManager) -> void:
+	_resource_manager = rm
+	_status_manager = sm
+
+
 ## 根据 EnemyData 生成敌人并加入敌方格
 func spawn_enemy(data: EnemyData, slot_index: int = -1) -> Node:
 	var enemy := Node.new()
 	enemy.set_meta("enemy_id", data.enemy_id)
 	enemy.set_meta("display_name", data.display_name)
 	add_child(enemy)
-	var rm: ResourceManager = _get_resource_manager()
+	var rm: ResourceManager = _resource_manager
 	rm.register_enemy(enemy, data.base_hp)
 	_enemy_data_map[enemy] = data
 	_crystal_drops[enemy] = data.crystal_drop
@@ -49,7 +57,7 @@ func remove_enemy(enemy: Node) -> void:
 	var idx: int = _enemies.find(enemy)
 	if idx != -1:
 		_enemies.remove_at(idx)
-	var rm: ResourceManager = _get_resource_manager()
+	var rm: ResourceManager = _resource_manager
 	rm.unregister_enemy(enemy)
 	_enemy_data_map.erase(enemy)
 	_crystal_drops.erase(enemy)
@@ -89,14 +97,14 @@ func ally_auto_attack_all() -> void:
 func get_alive_enemies() -> Array[Node]:
 	var alive: Array[Node] = []
 	for enemy in _enemies:
-		if is_instance_valid(enemy) and _get_resource_manager().get_enemy_hp(enemy) > 0:
+		if is_instance_valid(enemy) and _resource_manager.get_enemy_hp(enemy) > 0:
 			alive.append(enemy)
 	return alive
 
 
 func get_frontmost_enemy() -> Node:
 	for enemy in _enemies:
-		if is_instance_valid(enemy) and _get_resource_manager().get_enemy_hp(enemy) > 0:
+		if is_instance_valid(enemy) and _resource_manager.get_enemy_hp(enemy) > 0:
 			return enemy
 	return null
 
@@ -127,7 +135,7 @@ func _generate_and_reveal_intent(enemy: Node, data: EnemyData) -> void:
 
 func _execute_intent(enemy: Node, intent: IntentData) -> void:
 	var result: Dictionary = {}
-	var rm: ResourceManager = _get_resource_manager()
+	var rm: ResourceManager = _resource_manager
 	match intent.type:
 		IntentData.IntentType.ATTACK:
 			var target: Node = _get_player_node()
@@ -139,11 +147,11 @@ func _execute_intent(enemy: Node, intent: IntentData) -> void:
 			rm.modify_enemy_block(enemy, block_amount)
 			result = {"block": block_amount}
 		IntentData.IntentType.BUFF:
-			var sm: StatusManager = _get_status_manager()
+			var sm: StatusManager = _status_manager
 			sm.apply_status(enemy, intent.status_id, intent.secondary_value, intent.status_duration)
 			result = {"status": intent.status_id, "stacks": intent.secondary_value}
 		IntentData.IntentType.DEBUFF:
-			var sm: StatusManager = _get_status_manager()
+			var sm: StatusManager = _status_manager
 			var target: Node = _get_player_node()
 			sm.apply_status(target, intent.status_id, intent.secondary_value, intent.status_duration)
 			result = {"status": intent.status_id, "stacks": intent.secondary_value}
@@ -160,12 +168,6 @@ func _calculate_actual_value(base: int, variance: float) -> int:
 	return randi_range(min_val, max_val)
 
 
-func _get_resource_manager() -> ResourceManager:
-	return get_parent().get_node("ResourceManager") as ResourceManager
-
-
-func _get_status_manager() -> StatusManager:
-	return get_parent().get_node("StatusManager") as StatusManager
 
 
 func _get_player_node() -> Node:

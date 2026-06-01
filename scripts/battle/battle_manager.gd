@@ -13,7 +13,7 @@ extends Node
 @onready var _status_mgr: StatusManager = $StatusManager
 @onready var _effect_resolver: EffectResolver = $EffectResolver
 @onready var _enemy_mgr: EnemyManager = $EnemyManager
-@onready var _relic_mgr: Node = $RelicManager
+@onready var _relic_mgr: RelicManager = $RelicManager
 
 var _player_deck: Array[CardData] = []
 var _enemy_configs: Array[EnemyData] = []
@@ -48,7 +48,10 @@ func play_card(card: CardData, target: Node) -> void:
 			_resource_mgr.modify_player_hp(-effect.cost_hp, "normal")
 
 	_resource_mgr.modify_player_energy(-effective_cost)
+	if _relic_mgr:
+		_relic_mgr.trigger("ON_CARD_PLAYED", {"card": card, "target": target})
 	_effect_resolver.resolve_effects_on_target(card.effects, target, self, true)
+	# RelicManager post-trigger handled inside EffectResolver
 	_card_mgr.play_card(card, target)
 
 
