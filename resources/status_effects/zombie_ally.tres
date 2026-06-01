@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="StatusEffectData" load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/data/status_effect_data.gd" id="1_se"]
+[resource]
+script = ExtResource("1_se")
+status_id = "zombie_ally"
+display_name = "丧尸随从"
+category = 0
+stack_type = 2
+max_stacks = 5
+default_duration = -1
+character_specific = "红发"
+description = "独立HP,每回合自动攻击"

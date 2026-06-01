@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="StatusEffectData" load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/data/status_effect_data.gd" id="1_se"]
+[resource]
+script = ExtResource("1_se")
+status_id = "block_buff"
+display_name = "格挡增益"
+category = 0
+stack_type = 0
+max_stacks = -1
+default_duration = 1
+description = "额外格挡（本回合）"
+character_specific = ""

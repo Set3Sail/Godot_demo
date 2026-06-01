@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="StatusEffectData" load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/data/status_effect_data.gd" id="1_se"]
+[resource]
+script = ExtResource("1_se")
+status_id = "fear"
+display_name = "恐惧"
+category = 1
+stack_type = 1
+max_stacks = 3
+default_duration = 2
+description = "随机弃牌 N 张/回合"
+character_specific = ""

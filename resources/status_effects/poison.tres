@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="StatusEffectData" load_steps=4 format=3]
+[ext_resource type="Script" path="res://scripts/data/status_effect_data.gd" id="1_se"]
+[ext_resource type="Script" path="res://scripts/data/effect_data.gd" id="2_e"]
+
+[sub_resource type="Resource" id="tick0"]
+script = ExtResource("2_e")
+type = 0
+target = 0
+base_value = 1
+scale_stat = "none"
+
+[resource]
+script = ExtResource("1_se")
+status_id = "poison"
+display_name = "中毒"
+category = 1
+stack_type = 0
+max_stacks = -1
+default_duration = -1
+tick_effects = Array[ExtResource("2_e")]([SubResource("tick0")])
+description = "回合结束扣 N 血→层数-1"
+character_specific = ""

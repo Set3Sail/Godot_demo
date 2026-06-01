@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="StatusEffectData" load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/data/status_effect_data.gd" id="1_se"]
+[resource]
+script = ExtResource("1_se")
+status_id = "overheat"
+display_name = "过热"
+category = 0
+stack_type = 2
+max_stacks = 3
+default_duration = -1
+character_specific = "莉莲"
+description = "切换3次触发,+2力+2敏,下回合锁定"

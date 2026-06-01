@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="StatusEffectData" load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/data/status_effect_data.gd" id="1_se"]
+[resource]
+script = ExtResource("1_se")
+status_id = "holy_charge"
+display_name = "神罚蓄能"
+category = 0
+stack_type = 2
+max_stacks = -1
+default_duration = -1
+character_specific = "金英"
+description = "治疗量累计为神圣伤害弹药"

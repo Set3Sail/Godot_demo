@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="StatusEffectData" load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/data/status_effect_data.gd" id="1_se"]
+[resource]
+script = ExtResource("1_se")
+status_id = "battle_armor_mode"
+display_name = "战甲模式"
+category = 0
+stack_type = 1
+max_stacks = 1
+default_duration = -1
+character_specific = "莉莲"
+description = "攻击(+30%伤/-2HP)↔防御(+30%甲/+2HP)"
