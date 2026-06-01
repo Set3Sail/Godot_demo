@@ -1,0 +1,36 @@
+[gd_resource type="Resource" script_class="EventData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/event_data.gd" id="1_ev"]
+[ext_resource type="Script" path="res://scripts/data/event_choice.gd" id="2_ch"]
+
+[sub_resource type="Resource" id="ch0"]
+script = ExtResource("2_ch")
+choice_text = "加入: 获得1张稀有卡+HP-30%"
+result_type = 0
+result_value = 1
+result_value2 = 0
+success_chance = 1.0
+fail_result_type = 11
+fail_result_value = 0
+result_description = "你通过了入队考核"
+[sub_resource type="Resource" id="ch1"]
+script = ExtResource("2_ch")
+choice_text = "避开: 绕道而行，无事发生"
+result_type = 11
+result_value = 0
+result_value2 = 0
+success_chance = 1.0
+fail_result_type = 11
+fail_result_value = 0
+result_description = "你从另一条路绕了过去"
+
+[resource]
+script = ExtResource("1_ev")
+event_id = "ch2_patrol"
+event_name = "巡逻队"
+event_type = 1
+chapter = 1
+description = "一队武装巡逻队正在盘查路人，看来是某个势力的地盘..."
+can_repeat = false
+trigger_condition = ""
+choices = Array[ExtResource("2_ch")]([SubResource("ch0"), SubResource("ch1")])

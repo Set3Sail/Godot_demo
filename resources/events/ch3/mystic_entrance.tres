@@ -1,0 +1,46 @@
+[gd_resource type="Resource" script_class="EventData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/event_data.gd" id="1_ev"]
+[ext_resource type="Script" path="res://scripts/data/event_choice.gd" id="2_ch"]
+
+[sub_resource type="Resource" id="ch0"]
+script = ExtResource("2_ch")
+choice_text = "进入: 触发精英战+获得稀有奖励"
+result_type = 7
+result_value = 1
+result_value2 = 0
+success_chance = 1.0
+fail_result_type = 11
+fail_result_value = 0
+result_description = "你踏入了秘境深处"
+[sub_resource type="Resource" id="ch1"]
+script = ExtResource("2_ch")
+choice_text = "观察: 获得秘境情报"
+result_type = 11
+result_value = 0
+result_value2 = 0
+success_chance = 1.0
+fail_result_type = 11
+fail_result_value = 0
+result_description = "你记下了周围的环境特征"
+[sub_resource type="Resource" id="ch2"]
+script = ExtResource("2_ch")
+choice_text = "离开: 不冒这个险"
+result_type = 11
+result_value = 0
+result_value2 = 0
+success_chance = 1.0
+fail_result_type = 11
+fail_result_value = 0
+result_description = "你转身离开"
+
+[resource]
+script = ExtResource("1_ev")
+event_id = "ch3_mystic"
+event_name = "秘境入口"
+event_type = 1
+chapter = 2
+description = "山壁上有一个发光的裂缝，秘境的气息从中涌出..."
+can_repeat = false
+trigger_condition = ""
+choices = Array[ExtResource("2_ch")]([SubResource("ch0"), SubResource("ch1"), SubResource("ch2")])

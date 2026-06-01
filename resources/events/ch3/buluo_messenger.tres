@@ -1,0 +1,46 @@
+[gd_resource type="Resource" script_class="EventData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/event_data.gd" id="1_ev"]
+[ext_resource type="Script" path="res://scripts/data/event_choice.gd" id="2_ch"]
+
+[sub_resource type="Resource" id="ch0"]
+script = ExtResource("2_ch")
+choice_text = "交换遗物: 用1件遗物换角色专属遗物"
+result_type = 2
+result_value = 1
+result_value2 = 0
+success_chance = 1.0
+fail_result_type = 11
+fail_result_value = 0
+result_description = "使者为你激活了专属遗物"
+[sub_resource type="Resource" id="ch1"]
+script = ExtResource("2_ch")
+choice_text = "强化卡牌: 用2张卡换升级"
+result_type = 4
+result_value = 2
+result_value2 = 0
+success_chance = 1.0
+fail_result_type = 11
+fail_result_value = 0
+result_description = "你的卡牌得到了古族祝福"
+[sub_resource type="Resource" id="ch2"]
+script = ExtResource("2_ch")
+choice_text = "无视: 礼貌拒绝"
+result_type = 11
+result_value = 0
+result_value2 = 0
+success_chance = 1.0
+fail_result_type = 11
+fail_result_value = 0
+result_description = "使者消失在迷雾中"
+
+[resource]
+script = ExtResource("1_ev")
+event_id = "ch3_messenger"
+event_name = "布落圣城使者"
+event_type = 3
+chapter = 2
+description = "一位自称布落圣城使者的神秘人拦住了你的去路..."
+can_repeat = false
+trigger_condition = "character_in:叶默,盛元,文静"
+choices = Array[ExtResource("2_ch")]([SubResource("ch0"), SubResource("ch1"), SubResource("ch2")])

@@ -1,0 +1,36 @@
+[gd_resource type="Resource" script_class="EventData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/event_data.gd" id="1_ev"]
+[ext_resource type="Script" path="res://scripts/data/event_choice.gd" id="2_ch"]
+
+[sub_resource type="Resource" id="ch0"]
+script = ExtResource("2_ch")
+choice_text = "进入: 60%获得传说遗物/40%传送到危险区域"
+result_type = 2
+result_value = 1
+result_value2 = 0
+success_chance = 0.6
+fail_result_type = 7
+fail_result_value = 0
+result_description = "你踏入了传送门"
+[sub_resource type="Resource" id="ch1"]
+script = ExtResource("2_ch")
+choice_text = "封印: 消耗15魔晶封印传送门"
+result_type = 11
+result_value = 0
+result_value2 = 0
+success_chance = 1.0
+fail_result_type = 11
+fail_result_value = 0
+result_description = "你用魔晶封印了传送门"
+
+[resource]
+script = ExtResource("1_ev")
+event_id = "ch5_portal"
+event_name = "天界传送门"
+event_type = 1
+chapter = 4
+description = "一道巨大的光柱从天而降，传送门在光中缓缓开启..."
+can_repeat = false
+trigger_condition = ""
+choices = Array[ExtResource("2_ch")]([SubResource("ch0"), SubResource("ch1")])

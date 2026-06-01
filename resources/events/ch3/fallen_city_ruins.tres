@@ -1,0 +1,46 @@
+[gd_resource type="Resource" script_class="EventData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/event_data.gd" id="1_ev"]
+[ext_resource type="Script" path="res://scripts/data/event_choice.gd" id="2_ch"]
+
+[sub_resource type="Resource" id="ch0"]
+script = ExtResource("2_ch")
+choice_text = "探索: 获得2件遗物+HP-15"
+result_type = 2
+result_value = 2
+result_value2 = 0
+success_chance = 1.0
+fail_result_type = 11
+fail_result_value = 0
+result_description = "你在废墟中找到了珍贵遗物"
+[sub_resource type="Resource" id="ch1"]
+script = ExtResource("2_ch")
+choice_text = "搜寻: 获得1张卡+10魔晶"
+result_type = 0
+result_value = 1
+result_value2 = 10
+success_chance = 1.0
+fail_result_type = 11
+fail_result_value = 0
+result_description = "你找到了一些有用的物资"
+[sub_resource type="Resource" id="ch2"]
+script = ExtResource("2_ch")
+choice_text = "离开: 此地不宜久留"
+result_type = 11
+result_value = 0
+result_value2 = 0
+success_chance = 1.0
+fail_result_type = 11
+fail_result_value = 0
+result_description = "废墟中弥漫着不祥的气息"
+
+[resource]
+script = ExtResource("1_ev")
+event_id = "ch3_ruins"
+event_name = "不落城遗迹"
+event_type = 1
+chapter = 2
+description = "传说中的不落城已化为废墟，残垣断壁间仍能看出昔日的辉煌..."
+can_repeat = false
+trigger_condition = ""
+choices = Array[ExtResource("2_ch")]([SubResource("ch0"), SubResource("ch1"), SubResource("ch2")])

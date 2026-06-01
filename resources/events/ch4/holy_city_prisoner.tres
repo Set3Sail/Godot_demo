@@ -1,0 +1,46 @@
+[gd_resource type="Resource" script_class="EventData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/event_data.gd" id="1_ev"]
+[ext_resource type="Script" path="res://scripts/data/event_choice.gd" id="2_ch"]
+
+[sub_resource type="Resource" id="ch0"]
+script = ExtResource("2_ch")
+choice_text = "释放: 获得稀有遗物+HP-12"
+result_type = 2
+result_value = 1
+result_value2 = 0
+success_chance = 1.0
+fail_result_type = 11
+fail_result_value = 0
+result_description = "囚犯感谢你并给了你一件遗物"
+[sub_resource type="Resource" id="ch1"]
+script = ExtResource("2_ch")
+choice_text = "审讯: 获得情报+15魔晶"
+result_type = 2
+result_value = 15
+result_value2 = 0
+success_chance = 1.0
+fail_result_type = 11
+fail_result_value = 0
+result_description = "你获得了一些有用的情报"
+[sub_resource type="Resource" id="ch2"]
+script = ExtResource("2_ch")
+choice_text = "离开: 不插手圣城事务"
+result_type = 11
+result_value = 0
+result_value2 = 0
+success_chance = 1.0
+fail_result_type = 11
+fail_result_value = 0
+result_description = "你当作没看见"
+
+[resource]
+script = ExtResource("1_ev")
+event_id = "ch4_prisoner"
+event_name = "圣城囚徒"
+event_type = 1
+chapter = 3
+description = "圣城地牢中关押着一名身份特殊的囚犯，他低声呼唤着你..."
+can_repeat = false
+trigger_condition = ""
+choices = Array[ExtResource("2_ch")]([SubResource("ch0"), SubResource("ch1"), SubResource("ch2")])

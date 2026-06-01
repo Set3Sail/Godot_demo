@@ -1,0 +1,46 @@
+[gd_resource type="Resource" script_class="EventData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/event_data.gd" id="1_ev"]
+[ext_resource type="Script" path="res://scripts/data/event_choice.gd" id="2_ch"]
+
+[sub_resource type="Resource" id="ch0"]
+script = ExtResource("2_ch")
+choice_text = "全力觉醒: 红发获得专属传说卡+永久强化"
+result_type = 0
+result_value = 1
+result_value2 = 0
+success_chance = 1.0
+fail_result_type = 11
+fail_result_value = 0
+result_description = "红发完全觉醒！"
+[sub_resource type="Resource" id="ch1"]
+script = ExtResource("2_ch")
+choice_text = "稳定控制: 红发获得稀有卡+HP-8"
+result_type = 0
+result_value = 1
+result_value2 = 0
+success_chance = 1.0
+fail_result_type = 11
+fail_result_value = 0
+result_description = "红发稳定了新获得的力量"
+[sub_resource type="Resource" id="ch2"]
+script = ExtResource("2_ch")
+choice_text = "推迟: 时机未到"
+result_type = 11
+result_value = 0
+result_value2 = 0
+success_chance = 1.0
+fail_result_type = 11
+fail_result_value = 0
+result_description = "觉醒被暂时压制"
+
+[resource]
+script = ExtResource("1_ev")
+event_id = "special_hongfa_awaken"
+event_name = "红发的觉醒"
+event_type = 3
+chapter = 0
+description = "红发体内的意识水晶突然发出耀眼的光芒，她的力量正在觉醒..."
+can_repeat = false
+trigger_condition = "chapter>=3+character_unlocked:红发+has_relic:consciousness_crystal"
+choices = Array[ExtResource("2_ch")]([SubResource("ch0"), SubResource("ch1"), SubResource("ch2")])

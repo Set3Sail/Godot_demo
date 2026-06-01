@@ -1,0 +1,46 @@
+[gd_resource type="Resource" script_class="EventData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/event_data.gd" id="1_ev"]
+[ext_resource type="Script" path="res://scripts/data/event_choice.gd" id="2_ch"]
+
+[sub_resource type="Resource" id="ch0"]
+script = ExtResource("2_ch")
+choice_text = "触碰圣光: 获得金色圣光战甲(传说装备)+HP-10"
+result_type = 8
+result_value = 1
+result_value2 = 0
+success_chance = 1.0
+fail_result_type = 11
+fail_result_value = 0
+result_description = "圣光与你融为一体"
+[sub_resource type="Resource" id="ch1"]
+script = ExtResource("2_ch")
+choice_text = "吸收圣光: HP全满+移除所有负面状态"
+result_type = 5
+result_value = 999
+result_value2 = 0
+success_chance = 1.0
+fail_result_type = 11
+fail_result_value = 0
+result_description = "圣光治愈了你"
+[sub_resource type="Resource" id="ch2"]
+script = ExtResource("2_ch")
+choice_text = "供奉遗物: 用金色碎片换取力量"
+result_type = 2
+result_value = 1
+result_value2 = 0
+success_chance = 1.0
+fail_result_type = 11
+fail_result_value = 0
+result_description = "圣光吸收了碎片"
+
+[resource]
+script = ExtResource("1_ev")
+event_id = "ch5_golden"
+event_name = "金色圣光之谜"
+event_type = 3
+chapter = 4
+description = "一团温暖的金色光芒悬浮在殿堂中央，它似乎有生命和意识..."
+can_repeat = false
+trigger_condition = "has_relic:golden_shard"
+choices = Array[ExtResource("2_ch")]([SubResource("ch0"), SubResource("ch1"), SubResource("ch2")])

@@ -1,0 +1,46 @@
+[gd_resource type="Resource" script_class="EventData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/event_data.gd" id="1_ev"]
+[ext_resource type="Script" path="res://scripts/data/event_choice.gd" id="2_ch"]
+
+[sub_resource type="Resource" id="ch0"]
+script = ExtResource("2_ch")
+choice_text = "穿越: 触发精英战+获得稀有卡"
+result_type = 7
+result_value = 1
+result_value2 = 0
+success_chance = 1.0
+fail_result_type = 11
+fail_result_value = 0
+result_description = "你与沼泽中的巨蛙展开了搏斗"
+[sub_resource type="Resource" id="ch1"]
+script = ExtResource("2_ch")
+choice_text = "绕路: HP-5安全通过"
+result_type = 6
+result_value = -5
+result_value2 = 0
+success_chance = 1.0
+fail_result_type = 11
+fail_result_value = 0
+result_description = "你绕了一大圈，有些疲惫"
+[sub_resource type="Resource" id="ch2"]
+script = ExtResource("2_ch")
+choice_text = "离开: 原路返回"
+result_type = 11
+result_value = 0
+result_value2 = 0
+success_chance = 1.0
+fail_result_type = 11
+fail_result_value = 0
+result_description = "沼泽太过凶险"
+
+[resource]
+script = ExtResource("1_ev")
+event_id = "ch3_swamp"
+event_name = "血蛙沼泽"
+event_type = 1
+chapter = 2
+description = "一片血红色的沼泽地，水面上冒着气泡，偶尔能看到巨大的蛙影跃过..."
+can_repeat = false
+trigger_condition = ""
+choices = Array[ExtResource("2_ch")]([SubResource("ch0"), SubResource("ch1"), SubResource("ch2")])

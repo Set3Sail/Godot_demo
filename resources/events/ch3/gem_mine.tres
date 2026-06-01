@@ -1,0 +1,46 @@
+[gd_resource type="Resource" script_class="EventData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/event_data.gd" id="1_ev"]
+[ext_resource type="Script" path="res://scripts/data/event_choice.gd" id="2_ch"]
+
+[sub_resource type="Resource" id="ch0"]
+script = ExtResource("2_ch")
+choice_text = "深入挖掘: 50%获得稀有遗物/50%受到15点伤害"
+result_type = 2
+result_value = 1
+result_value2 = 0
+success_chance = 0.5
+fail_result_type = 6
+fail_result_value = -15
+result_description = "你冒险深入矿洞"
+[sub_resource type="Resource" id="ch1"]
+script = ExtResource("2_ch")
+choice_text = "表面采集: 获得普通遗物"
+result_type = 2
+result_value = 1
+result_value2 = 0
+success_chance = 1.0
+fail_result_type = 11
+fail_result_value = 0
+result_description = "你在洞口找到了一些晶石"
+[sub_resource type="Resource" id="ch2"]
+script = ExtResource("2_ch")
+choice_text = "离开: 安全第一"
+result_type = 11
+result_value = 0
+result_value2 = 0
+success_chance = 1.0
+fail_result_type = 11
+fail_result_value = 0
+result_description = "矿洞太危险了"
+
+[resource]
+script = ExtResource("1_ev")
+event_id = "ch3_mine"
+event_name = "宝石山矿洞"
+event_type = 1
+chapter = 2
+description = "废弃的矿洞入口散落着零星的晶石碎片，深处似乎有更大的宝藏..."
+can_repeat = false
+trigger_condition = ""
+choices = Array[ExtResource("2_ch")]([SubResource("ch0"), SubResource("ch1"), SubResource("ch2")])

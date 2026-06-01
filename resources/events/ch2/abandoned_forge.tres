@@ -1,0 +1,46 @@
+[gd_resource type="Resource" script_class="EventData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/event_data.gd" id="1_ev"]
+[ext_resource type="Script" path="res://scripts/data/event_choice.gd" id="2_ch"]
+
+[sub_resource type="Resource" id="ch0"]
+script = ExtResource("2_ch")
+choice_text = "修理: 永久升级3张卡"
+result_type = 4
+result_value = 3
+result_value2 = 0
+success_chance = 1.0
+fail_result_type = 11
+fail_result_value = 0
+result_description = "锻造之火重燃，卡牌得到了永久强化"
+[sub_resource type="Resource" id="ch1"]
+script = ExtResource("2_ch")
+choice_text = "拆解: 获得附魔台遗物"
+result_type = 2
+result_value = 1
+result_value2 = 0
+success_chance = 1.0
+fail_result_type = 11
+fail_result_value = 0
+result_description = "你拆下了有用的零件"
+[sub_resource type="Resource" id="ch2"]
+script = ExtResource("2_ch")
+choice_text = "离开: 没什么可做的"
+result_type = 11
+result_value = 0
+result_value2 = 0
+success_chance = 1.0
+fail_result_type = 11
+fail_result_value = 0
+result_description = "你离开了锻造台"
+
+[resource]
+script = ExtResource("1_ev")
+event_id = "ch2_forge"
+event_name = "废弃锻造台"
+event_type = 3
+chapter = 1
+description = "一个被遗弃的铁匠铺，锻造台竟然还能使用..."
+can_repeat = false
+trigger_condition = "character_in:叶默,盛元"
+choices = Array[ExtResource("2_ch")]([SubResource("ch0"), SubResource("ch1"), SubResource("ch2")])

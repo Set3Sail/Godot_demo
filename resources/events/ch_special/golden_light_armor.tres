@@ -1,0 +1,36 @@
+[gd_resource type="Resource" script_class="EventData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/event_data.gd" id="1_ev"]
+[ext_resource type="Script" path="res://scripts/data/event_choice.gd" id="2_ch"]
+
+[sub_resource type="Resource" id="ch0"]
+script = ExtResource("2_ch")
+choice_text = "穿上战甲: 获得金色圣光战甲(传说遗物HP+50)"
+result_type = 2
+result_value = 1
+result_value2 = 0
+success_chance = 1.0
+fail_result_type = 11
+fail_result_value = 0
+result_description = "圣光战甲认你为主"
+[sub_resource type="Resource" id="ch1"]
+script = ExtResource("2_ch")
+choice_text = "供奉祭坛: 获得100魔晶+净化所有诅咒"
+result_type = 2
+result_value = 100
+result_value2 = 0
+success_chance = 1.0
+fail_result_type = 11
+fail_result_value = 0
+result_description = "战甲化为圣光消散"
+
+[resource]
+script = ExtResource("1_ev")
+event_id = "special_golden_armor"
+event_name = "金色圣光战甲"
+event_type = 3
+chapter = 0
+description = "虚空中一道金色圣光降临，传说中能抵御一切邪恶的战甲显现..."
+can_repeat = false
+trigger_condition = "random_3pct"
+choices = Array[ExtResource("2_ch")]([SubResource("ch0"), SubResource("ch1")])

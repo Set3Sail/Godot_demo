@@ -1,0 +1,46 @@
+[gd_resource type="Resource" script_class="EventData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/event_data.gd" id="1_ev"]
+[ext_resource type="Script" path="res://scripts/data/event_choice.gd" id="2_ch"]
+
+[sub_resource type="Resource" id="ch0"]
+script = ExtResource("2_ch")
+choice_text = "走圣城路线: 红发获得圣光祝福(永久强化)"
+result_type = 4
+result_value = 3
+result_value2 = 0
+success_chance = 1.0
+fail_result_type = 11
+fail_result_value = 0
+result_description = "红发接受了圣光的洗礼"
+[sub_resource type="Resource" id="ch1"]
+script = ExtResource("2_ch")
+choice_text = "走暗影路线: 红发获得暗影之力+HP-10"
+result_type = 8
+result_value = 1
+result_value2 = 0
+success_chance = 1.0
+fail_result_type = 11
+fail_result_value = 0
+result_description = "红发选择了暗影之路"
+[sub_resource type="Resource" id="ch2"]
+script = ExtResource("2_ch")
+choice_text = "让红发自己决定: 随机强化或受伤"
+result_type = 11
+result_value = 0
+result_value2 = 0
+success_chance = 1.0
+fail_result_type = 11
+fail_result_value = 0
+result_description = "红发自己做出了选择"
+
+[resource]
+script = ExtResource("1_ev")
+event_id = "ch4_hongfa"
+event_name = "红发的选择"
+event_type = 3
+chapter = 3
+description = "前方岔路口，红发停下脚步，严肃地看着你..."
+can_repeat = false
+trigger_condition = "character_in:红发"
+choices = Array[ExtResource("2_ch")]([SubResource("ch0"), SubResource("ch1"), SubResource("ch2")])

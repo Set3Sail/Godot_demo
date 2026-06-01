@@ -1,0 +1,36 @@
+[gd_resource type="Resource" script_class="EventData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/event_data.gd" id="1_ev"]
+[ext_resource type="Script" path="res://scripts/data/event_choice.gd" id="2_ch"]
+
+[sub_resource type="Resource" id="ch0"]
+script = ExtResource("2_ch")
+choice_text = "引导觉醒: 地皇犬进化为地皇神犬(传说级)"
+result_type = 0
+result_value = 1
+result_value2 = 0
+success_chance = 1.0
+fail_result_type = 11
+fail_result_value = 0
+result_description = "地皇犬觉醒了远古血脉"
+[sub_resource type="Resource" id="ch1"]
+script = ExtResource("2_ch")
+choice_text = "压制力量: HP+20但错过进化"
+result_type = 5
+result_value = 20
+result_value2 = 0
+success_chance = 1.0
+fail_result_type = 11
+fail_result_value = 0
+result_description = "你安抚了躁动的能量"
+
+[resource]
+script = ExtResource("1_ev")
+event_id = "special_dog_awaken"
+event_name = "地皇犬觉醒"
+event_type = 3
+chapter = 0
+description = "你的地皇犬突然停下脚步，仰天长啸，体内涌出金色光芒..."
+can_repeat = false
+trigger_condition = "has_card:dihuang_dog+fed_3_times"
+choices = Array[ExtResource("2_ch")]([SubResource("ch0"), SubResource("ch1")])
