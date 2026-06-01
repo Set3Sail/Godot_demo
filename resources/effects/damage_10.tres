@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="EffectData" load_steps=2 format=3]
+[ext_resource type="Script" path="res://scripts/data/effect_data.gd" id="1_e]
+[resource]
+script = ExtResource("1_e")
+type = 0
+target = 1
+base_value = 10
+scale_stat = "strength"

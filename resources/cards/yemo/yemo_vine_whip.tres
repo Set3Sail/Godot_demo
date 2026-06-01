@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=4 format=3]
+[ext_resource type="Script" path="res://scripts/data/card_data.gd" id="1_card"]
+[ext_resource type="Script" path="res://scripts/data/effect_data.gd" id="2_e]
+[sub_resource type="Resource" id="ef0"]
+script = ExtResource("2_e")
+type = 0
+target = 1
+base_value = 4
+scale_stat = "strength"
+[sub_resource type="Resource" id="ef1"]
+script = ExtResource("2_e")
+type = 5
+target = 1
+status_id = "entangle"
+status_stacks = 1
+status_duration = 1
+[resource]
+script = ExtResource("1_card")
+card_id = "yemo_vine_whip"
+card_name = "藤鞭"
+character = "叶默"
+card_type = 0
+rarity = 0
+cost = 1
+effects = Array[ExtResource("2_e")]([SubResource("ef0"), SubResource("ef1")])
+keywords = Array[String](["荆棘"])
+description = "造成 4 点伤害。施加 1 层缠绕"
