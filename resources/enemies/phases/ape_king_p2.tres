@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="PhaseConfig" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/phase_config.gd" id="1_pc"]
+[ext_resource type="Script" path="res://scripts/data/intent_data.gd" id="2_intent"]
+[ext_resource type="Resource" path="res://resources/enemies/intents/ch2/ape_king_p2_1.tres" id="3_p2_1"]
+[ext_resource type="Resource" path="res://resources/enemies/intents/ch2/ape_king_p2_2.tres" id="4_p2_2"]
+
+[resource]
+script = ExtResource("1_pc")
+hp_threshold = 0.5
+sprite_path = ""
+new_intent_pattern = Array[ExtResource("2_intent")]([ExtResource("3_p2_1"), ExtResource("4_p2_2")])
+phase_animation = "rage"
+clear_statuses = Array[String]([])

@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="PhaseConfig" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/phase_config.gd" id="1_pc"]
+[ext_resource type="Script" path="res://scripts/data/intent_data.gd" id="2_intent"]
+[ext_resource type="Resource" path="res://resources/enemies/intents/ch5/admin_beam.tres" id="3_beam"]
+[ext_resource type="Resource" path="res://resources/enemies/intents/ch5/admin_rift.tres" id="4_rift"]
+[ext_resource type="Resource" path="res://resources/enemies/intents/ch5/admin_repair.tres" id="5_repair"]
+
+[resource]
+script = ExtResource("1_pc")
+hp_threshold = 0.3
+sprite_path = ""
+new_intent_pattern = Array[ExtResource("2_intent")]([ExtResource("3_beam"), ExtResource("4_rift"), ExtResource("5_repair")])
+phase_animation = "final_form"
+clear_statuses = Array[String](["weak", "vulnerable"])

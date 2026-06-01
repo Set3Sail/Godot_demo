@@ -20,6 +20,8 @@ warning/untyped_declaration=1
 
 [autoload]
 EventBus="*res://scripts/autoload/event_bus.gd"
+GameProgress="*res://scripts/autoload/game_progress.gd"
+SaveManager="*res://scripts/autoload/save_manager.gd"
 
 [editor_plugins]
 enabled=PackedStringArray()

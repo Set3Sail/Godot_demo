@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="PhaseConfig" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/phase_config.gd" id="1_pc"]
+[ext_resource type="Script" path="res://scripts/data/intent_data.gd" id="2_intent"]
+[ext_resource type="Resource" path="res://resources/enemies/intents/ch3/lizard_boss_tail.tres" id="3_tail"]
+[ext_resource type="Resource" path="res://resources/enemies/intents/ch3/lizard_boss_breath.tres" id="4_breath"]
+[ext_resource type="Resource" path="res://resources/enemies/intents/ch3/lizard_boss_ice_shard.tres" id="5_ice"]
+
+[resource]
+script = ExtResource("1_pc")
+hp_threshold = 0.4
+sprite_path = ""
+new_intent_pattern = Array[ExtResource("2_intent")]([ExtResource("3_tail"), ExtResource("4_breath"), ExtResource("5_ice")])
+phase_animation = "rage_mode"
+clear_statuses = Array[String](["weak", "vulnerable"])
