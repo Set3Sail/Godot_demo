@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=5 format=3]
+[ext_resource type="Script" path="res://scripts/data/card_data.gd" id="1_card"]
+[ext_resource type="Script" path="res://scripts/data/effect_data.gd" id="2_e"]
+
+[sub_resource type="Resource" id="ef0"]
+script = ExtResource("2_e")
+type = 1
+target = 0
+base_value = 5
+[sub_resource type="Resource" id="ef1"]
+script = ExtResource("2_e")
+type = 5
+target = 1
+base_value = 1
+status_id = "frost"
+status_stacks = 1
+[resource]
+script = ExtResource("1_card")
+card_id = "moye_ice_shield"
+card_name = "冰盾"
+character = "墨夜"
+card_type = 1
+rarity = 0
+cost = 1
+effects = Array[ExtResource("2_e")]([SubResource("ef0"), SubResource("ef1")])
+keywords = Array[String](["冰霜"])
+description = "获得 5 点格挡，施加 1 层冰霜"

@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=5 format=3]
+[ext_resource type="Script" path="res://scripts/data/card_data.gd" id="1_card"]
+[ext_resource type="Script" path="res://scripts/data/effect_data.gd" id="2_e"]
+
+[sub_resource type="Resource" id="ef0"]
+script = ExtResource("2_e")
+type = 1
+target = 0
+base_value = 7
+[sub_resource type="Resource" id="ef1"]
+script = ExtResource("2_e")
+type = 4
+target = 0
+base_value = 1
+status_id = "vengeance"
+status_stacks = 1
+[resource]
+script = ExtResource("1_card")
+card_id = "shengyuan_iron_will"
+card_name = "铁意志"
+character = "盛元"
+card_type = 1
+rarity = 0
+cost = 1
+effects = Array[ExtResource("2_e")]([SubResource("ef0"), SubResource("ef1")])
+keywords = Array[String](["复仇"])
+description = "获得 7 点格挡和 1 层复仇"

@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=5 format=3]
+[ext_resource type="Script" path="res://scripts/data/card_data.gd" id="1_card"]
+[ext_resource type="Script" path="res://scripts/data/effect_data.gd" id="2_e"]
+
+[sub_resource type="Resource" id="ef0"]
+script = ExtResource("2_e")
+type = 1
+target = 0
+base_value = 20
+condition = "hp_below_25_percent"
+[sub_resource type="Resource" id="ef1"]
+script = ExtResource("2_e")
+type = 4
+target = 0
+base_value = 3
+condition = "hp_below_25_percent"
+status_id = "strength"
+status_stacks = 3
+[resource]
+script = ExtResource("1_card")
+card_id = "shengyuan_last_stand"
+card_name = "最后壁垒"
+character = "盛元"
+card_type = 1
+rarity = 2
+cost = 1
+effects = Array[ExtResource("2_e")]([SubResource("ef0"), SubResource("ef1")])
+keywords = Array[String]([])
+description = "HP<25%时获得 20 点格挡和 3 点力量"

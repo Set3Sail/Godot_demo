@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=4 format=3]
+[ext_resource type="Script" path="res://scripts/data/card_data.gd" id="1_card"]
+[ext_resource type="Script" path="res://scripts/data/effect_data.gd" id="2_e"]
+
+[sub_resource type="Resource" id="ef0"]
+script = ExtResource("2_e")
+type = 0
+target = 3
+base_value = 6
+repeat_count = 3
+[resource]
+script = ExtResource("1_card")
+card_id = "moye_multi_ice_shard"
+card_name = "多重冰锥"
+character = "墨夜"
+card_type = 0
+rarity = 2
+cost = 2
+effects = Array[ExtResource("2_e")]([SubResource("ef0")])
+keywords = Array[String](["冰霜"])
+description = "随机敌人造成 6 点伤害三次"

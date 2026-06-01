@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=5 format=3]
+[ext_resource type="Script" path="res://scripts/data/card_data.gd" id="1_card"]
+[ext_resource type="Script" path="res://scripts/data/effect_data.gd" id="2_e"]
+
+[sub_resource type="Resource" id="ef0"]
+script = ExtResource("2_e")
+type = 4
+target = 0
+base_value = 50
+status_id = "mark_damage_multiplier"
+status_stacks = 50
+[sub_resource type="Resource" id="ef1"]
+script = ExtResource("2_e")
+type = 9
+target = 0
+base_value = 0
+status_id = "mark_no_consume"
+[resource]
+script = ExtResource("1_card")
+card_id = "wenjing_blood_rose_bloom"
+card_name = "血玫瑰绽放"
+character = "温静"
+card_type = 2
+rarity = 4
+cost = 3
+effects = Array[ExtResource("2_e")]([SubResource("ef0"), SubResource("ef1")])
+keywords = Array[String](["标记"])
+description = "标记伤害+50%，引爆不消耗标记"

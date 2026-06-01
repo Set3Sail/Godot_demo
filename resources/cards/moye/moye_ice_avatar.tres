@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=5 format=3]
+[ext_resource type="Script" path="res://scripts/data/card_data.gd" id="1_card"]
+[ext_resource type="Script" path="res://scripts/data/effect_data.gd" id="2_e"]
+
+[sub_resource type="Resource" id="ef0"]
+script = ExtResource("2_e")
+type = 9
+target = 0
+base_value = 1
+status_id = "freeze_gain_energy"
+[sub_resource type="Resource" id="ef1"]
+script = ExtResource("2_e")
+type = 9
+target = 0
+base_value = 2
+status_id = "freeze_draw"
+[resource]
+script = ExtResource("1_card")
+card_id = "moye_ice_avatar"
+card_name = "冰晶化身"
+character = "墨夜"
+card_type = 2
+rarity = 4
+cost = 3
+effects = Array[ExtResource("2_e")]([SubResource("ef0"), SubResource("ef1")])
+keywords = Array[String](["冰霜"])
+description = "冻结时获得 1 点精神力，抽 2 张牌"

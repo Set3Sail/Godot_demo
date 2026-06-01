@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=5 format=3]
+[ext_resource type="Script" path="res://scripts/data/card_data.gd" id="1_card"]
+[ext_resource type="Script" path="res://scripts/data/effect_data.gd" id="2_e"]
+
+[sub_resource type="Resource" id="ef0"]
+script = ExtResource("2_e")
+type = 0
+target = 2
+base_value = 8
+[sub_resource type="Resource" id="ef1"]
+script = ExtResource("2_e")
+type = 5
+target = 2
+base_value = 1
+status_id = "frost"
+status_stacks = 1
+[resource]
+script = ExtResource("1_card")
+card_id = "moye_frost_nova"
+card_name = "冰霜新星"
+character = "墨夜"
+card_type = 0
+rarity = 1
+cost = 2
+effects = Array[ExtResource("2_e")]([SubResource("ef0"), SubResource("ef1")])
+keywords = Array[String](["冰霜", "天怒"])
+description = "对全体敌人造成 8 点伤害，施加 1 层冰霜"
