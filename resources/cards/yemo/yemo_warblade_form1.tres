@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=5 format=3]
+[ext_resource type="Script" path="res://scripts/data/card_data.gd" id="1_card"]
+[ext_resource type="Script" path="res://scripts/data/effect_data.gd" id="2_e"]
+
+[sub_resource type="Resource" id="ef0"]
+script = ExtResource("2_e")
+type = 7
+target = 0
+base_value = 1
+scale_stat = "strength"
+
+[sub_resource type="Resource" id="ef1"]
+script = ExtResource("2_e")
+type = 9
+target = 0
+base_value = 3
+status = "per_turn_damage"
+
+[resource]
+script = ExtResource("1_card")
+card_id = "yemo_warblade_form1"
+card_name = "战刃·沙尘(形态1)"
+character = "叶默"
+card_type = 3
+rarity = 1
+cost = 2
+effects = Array[ExtResource("2_e")]([SubResource("ef0"), SubResource("ef1")])
+keywords = Array[String](["装备"])
+description = "每回合额外造成3点伤害\n+1力量"

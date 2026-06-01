@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=4 format=3]
+[ext_resource type="Script" path="res://scripts/data/card_data.gd" id="1_card"]
+[ext_resource type="Script" path="res://scripts/data/effect_data.gd" id="2_e"]
+
+[sub_resource type="Resource" id="ef0"]
+script = ExtResource("2_e")
+type = 9
+target = 0
+base_value = 1
+status = "forge_max_up"
+
+[resource]
+script = ExtResource("1_card")
+card_id = "yemo_master_crafter"
+card_name = "工匠大师"
+character = "叶默"
+card_type = 2
+rarity = 1
+cost = 1
+effects = Array[ExtResource("2_e")]([SubResource("ef0")])
+keywords = Array[String](["锻造"])
+description = "锻造次数上限+1"
