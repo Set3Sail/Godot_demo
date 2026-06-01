@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/enemy_data.gd" id="1_enemy"]
+[ext_resource type="Script" path="res://scripts/data/intent_data.gd" id="2_intent"]
+[ext_resource type="Resource" path="res://resources/enemies/intent_attack_6.tres" id="3_attack"]
+
+[resource]
+script = ExtResource("1_enemy")
+enemy_id = "normal_zombie"
+display_name = "普通丧尸"
+base_hp = 45
+enemy_type = 0
+intent_pattern = Array[ExtResource("2_intent")]([ExtResource("3_attack")])
+crystal_drop = 1

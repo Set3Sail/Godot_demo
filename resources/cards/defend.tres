@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/card_data.gd" id="1_card"]
+[ext_resource type="Script" path="res://scripts/data/effect_data.gd" id="2_effect"]
+[ext_resource type="Resource" path="res://resources/effects/block_5.tres" id="3_block"]
+
+[resource]
+script = ExtResource("1_card")
+card_id = "defend"
+card_name = "防御"
+character = "通用"
+card_type = 1
+rarity = 0
+cost = 1
+effects = Array[ExtResource("2_effect")]([ExtResource("3_block")])
+keywords = Array[String]([])
+description = "获得 5 点格挡"
