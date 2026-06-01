@@ -1,6 +1,10 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://scripts/data/enemy_data.gd" id="1_enemy"]
+[ext_resource type="Script" path="res://scripts/data/intent_data.gd" id="2_intent"]
+[ext_resource type="Resource" path="res://resources/enemies/intents/ch2/poison_zombie_mist.tres" id="3_i1"]
+[ext_resource type="Resource" path="res://resources/enemies/intents/ch2/poison_zombie_claw.tres" id="4_i2"]
+[ext_resource type="Resource" path="res://resources/enemies/intents/ch2/poison_zombie_ball.tres" id="5_i3"]
 
 [resource]
 script = ExtResource("1_enemy")
@@ -9,3 +13,4 @@ display_name = "喷毒丧尸"
 base_hp = 140
 enemy_type = 1
 crystal_drop = 6
+intent_pattern = Array[ExtResource("2_intent")]([ExtResource("3_i1"), ExtResource("4_i2"), ExtResource("5_i3")])

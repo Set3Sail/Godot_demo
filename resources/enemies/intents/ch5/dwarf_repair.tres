@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="IntentData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/intent_data.gd" id="1_intent"]
+
+[resource]
+script = ExtResource("1_intent")
+type = 5
+base_value = 0
+value_variance = 0.0
+secondary_value = 20
+description = "修理回复全体20HP"
+icon = "🛡️"

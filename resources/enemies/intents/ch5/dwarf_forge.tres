@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="IntentData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/intent_data.gd" id="1_intent"]
+
+[resource]
+script = ExtResource("1_intent")
+type = 2
+base_value = 0
+value_variance = 0.0
+secondary_value = 3
+status_id = "strength_up"
+target_count = 0
+description = "锻造武器全体+3力"
+icon = "⭐"

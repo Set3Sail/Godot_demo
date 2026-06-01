@@ -1,6 +1,8 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scripts/data/enemy_data.gd" id="1_enemy"]
+[ext_resource type="Script" path="res://scripts/data/intent_data.gd" id="2_intent"]
+[ext_resource type="Resource" path="res://resources/enemies/intents/ch3/frog_acid.tres" id="3_i1"]
 
 [resource]
 script = ExtResource("1_enemy")
@@ -9,3 +11,4 @@ display_name = "血蛙"
 base_hp = 45
 enemy_type = 0
 crystal_drop = 3
+intent_pattern = Array[ExtResource("2_intent")]([ExtResource("3_i1")])

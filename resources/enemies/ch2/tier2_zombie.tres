@@ -1,6 +1,9 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scripts/data/enemy_data.gd" id="1_enemy"]
+[ext_resource type="Script" path="res://scripts/data/intent_data.gd" id="2_intent"]
+[ext_resource type="Resource" path="res://resources/enemies/intents/ch2/t2_zombie_attack_10.tres" id="3_i1"]
+[ext_resource type="Resource" path="res://resources/enemies/intents/ch2/t2_zombie_defend_atk.tres" id="4_i2"]
 
 [resource]
 script = ExtResource("1_enemy")
@@ -9,3 +12,4 @@ display_name = "二级丧尸"
 base_hp = 62
 enemy_type = 0
 crystal_drop = 2
+intent_pattern = Array[ExtResource("2_intent")]([ExtResource("3_i1"), ExtResource("4_i2")])

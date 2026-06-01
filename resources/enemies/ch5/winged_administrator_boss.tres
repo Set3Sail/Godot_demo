@@ -1,6 +1,16 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://scripts/data/enemy_data.gd" id="1_enemy"]
+[ext_resource type="Script" path="res://scripts/data/intent_data.gd" id="2_intent"]
+[ext_resource type="Resource" path="res://resources/enemies/intents/ch5/admin_collect.tres" id="3_i1"]
+[ext_resource type="Resource" path="res://resources/enemies/intents/ch5/admin_barrage.tres" id="4_i2"]
+[ext_resource type="Resource" path="res://resources/enemies/intents/ch5/admin_shield.tres" id="5_i3"]
+[ext_resource type="Resource" path="res://resources/enemies/intents/ch5/admin_blade.tres" id="6_i4"]
+[ext_resource type="Resource" path="res://resources/enemies/intents/ch5/admin_judgment.tres" id="7_i5"]
+[ext_resource type="Resource" path="res://resources/enemies/intents/ch5/admin_reinforce.tres" id="8_i6"]
+[ext_resource type="Resource" path="res://resources/enemies/intents/ch5/admin_beam.tres" id="9_i7"]
+[ext_resource type="Resource" path="res://resources/enemies/intents/ch5/admin_rift.tres" id="10_i8"]
+[ext_resource type="Resource" path="res://resources/enemies/intents/ch5/admin_repair.tres" id="11_i9"]
 
 [resource]
 script = ExtResource("1_enemy")
@@ -10,3 +20,4 @@ base_hp = 350
 enemy_type = 2
 crystal_drop = 15
 special_rules = Array[String](["boss_3_phase", "phase2_at_70pct", "phase3_at_30pct"])
+intent_pattern = Array[ExtResource("2_intent")]([ExtResource("3_i1"), ExtResource("4_i2"), ExtResource("5_i3"), ExtResource("6_i4"), ExtResource("7_i5"), ExtResource("8_i6"), ExtResource("9_i7"), ExtResource("10_i8"), ExtResource("11_i9")])

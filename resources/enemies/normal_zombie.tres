@@ -2,7 +2,8 @@
 
 [ext_resource type="Script" path="res://scripts/data/enemy_data.gd" id="1_enemy"]
 [ext_resource type="Script" path="res://scripts/data/intent_data.gd" id="2_intent"]
-[ext_resource type="Resource" path="res://resources/enemies/intent_attack_6.tres" id="3_attack"]
+[ext_resource type="Resource" path="res://resources/enemies/intents/ch1/zombie_attack_6.tres" id="3_i1"]
+[ext_resource type="Resource" path="res://resources/enemies/intents/ch1/zombie_attack_8.tres" id="4_i2"]
 
 [resource]
 script = ExtResource("1_enemy")
@@ -10,5 +11,5 @@ enemy_id = "normal_zombie"
 display_name = "普通丧尸"
 base_hp = 45
 enemy_type = 0
-intent_pattern = Array[ExtResource("2_intent")]([ExtResource("3_attack")])
 crystal_drop = 1
+intent_pattern = Array[ExtResource("2_intent")]([ExtResource("3_i1"), ExtResource("4_i2")])

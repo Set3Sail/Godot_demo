@@ -1,6 +1,11 @@
-[gd_resource type="Resource" script_class="EnemyData" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://scripts/data/enemy_data.gd" id="1_enemy"]
+[ext_resource type="Script" path="res://scripts/data/intent_data.gd" id="2_intent"]
+[ext_resource type="Resource" path="res://resources/enemies/intents/ch3/lizard_boss_breath.tres" id="3_i1"]
+[ext_resource type="Resource" path="res://resources/enemies/intents/ch3/lizard_boss_ice_shard.tres" id="4_i2"]
+[ext_resource type="Resource" path="res://resources/enemies/intents/ch3/lizard_boss_shield.tres" id="5_i3"]
+[ext_resource type="Resource" path="res://resources/enemies/intents/ch3/lizard_boss_tail.tres" id="6_i4"]
 
 [resource]
 script = ExtResource("1_enemy")
@@ -10,3 +15,4 @@ base_hp = 380
 enemy_type = 2
 crystal_drop = 14
 special_rules = Array[String](["boss_rage_below_40pct"])
+intent_pattern = Array[ExtResource("2_intent")]([ExtResource("3_i1"), ExtResource("4_i2"), ExtResource("5_i3"), ExtResource("6_i4")])

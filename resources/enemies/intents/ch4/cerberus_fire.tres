@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="IntentData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/intent_data.gd" id="1_intent"]
+
+[resource]
+script = ExtResource("1_intent")
+type = 0
+base_value = 8
+value_variance = 0.1
+secondary_value = 2
+status_id = "burn"
+target_count = 0
+description = "火焰吐息全体8+2灼烧"
+icon = "💀"
