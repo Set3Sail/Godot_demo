@@ -1,0 +1,5075 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>轮盘世界 · 维基百科</title>
+<style>
+/* ===== CSS Reset & Variables ===== */
+:root {
+  --bg: #0f1117;
+  --bg-sidebar: #161822;
+  --bg-content: #1a1d28;
+  --bg-card: #212433;
+  --border: #2a2d3a;
+  --text: #c9d1d9;
+  --text-muted: #8b949e;
+  --text-bright: #e6edf3;
+  --accent: #58a6ff;
+  --accent-dim: #1f6feb44;
+  --heading: #f0883e;
+  --table-stripe: #1c1f2b;
+  --table-header: #212433;
+  --code-bg: #161822;
+  --code-text: #c9d1d9;
+  --link: #58a6ff;
+  --warning: #d29922;
+  --danger: #f85149;
+  --success: #3fb950;
+  --scrollbar-track: #161822;
+  --scrollbar-thumb: #2a2d3a;
+  --shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+/* ===== Layout ===== */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  line-height: 1.6;
+}
+
+/* ===== Sidebar ===== */
+.sidebar {
+  width: 260px;
+  min-width: 260px;
+  background: var(--bg-sidebar);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 10;
+}
+
+.sidebar-header {
+  padding: 20px 16px 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sidebar-header h2 {
+  font-size: 18px;
+  color: var(--text-bright);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sidebar-header h2 .icon { font-size: 20px; }
+
+.search-box {
+  position: relative;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 8px 12px 8px 32px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.search-box input:focus {
+  border-color: var(--accent);
+}
+
+.search-box .search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  font-size: 14px;
+  pointer-events: none;
+}
+
+.search-results {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 0 0 6px 6px;
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 100;
+  box-shadow: var(--shadow);
+}
+
+.search-results.active { display: block; }
+
+.search-result-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 13px;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.15s;
+}
+
+.search-result-item:hover { background: var(--accent-dim); }
+.search-result-item:last-child { border-bottom: none; }
+.search-result-item .match-title { color: var(--text-bright); font-weight: 500; }
+.search-result-item .match-context { color: var(--text-muted); font-size: 12px; margin-top: 2px; }
+.search-no-results { padding: 12px; color: var(--text-muted); font-size: 13px; text-align: center; }
+
+/* ===== Navigation ===== */
+.nav-tree {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 0;
+}
+
+.nav-tree::-webkit-scrollbar { width: 4px; }
+.nav-tree::-webkit-scrollbar-track { background: var(--scrollbar-track); }
+.nav-tree::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 2px; }
+
+.nav-category { margin-bottom: 2px; }
+
+.nav-cat-title {
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  user-select: none;
+  transition: color 0.15s;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.nav-cat-title:hover { color: var(--text-bright); }
+
+.nav-arrow {
+  font-size: 10px;
+  transition: transform 0.2s;
+  display: inline-block;
+}
+
+.nav-category.collapsed .nav-arrow { transform: rotate(-90deg); }
+.nav-category.collapsed .nav-cat-children { display: none; }
+
+.nav-cat-children { padding: 2px 0 4px; }
+
+.nav-item {
+  display: block;
+  padding: 6px 16px 6px 28px;
+  font-size: 13px;
+  color: var(--text);
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.15s;
+  border-left: 2px solid transparent;
+}
+
+.nav-item:hover {
+  color: var(--text-bright);
+  background: var(--accent-dim);
+  border-left-color: var(--accent);
+}
+
+.nav-item.active {
+  color: var(--accent);
+  background: var(--accent-dim);
+  border-left-color: var(--accent);
+  font-weight: 500;
+}
+
+.nav-top-item {
+  padding: 8px 16px;
+  font-weight: 500;
+  font-size: 14px;
+  border-left: 2px solid transparent;
+}
+
+/* ===== Main Content ===== */
+.main {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: var(--bg-content);
+  scroll-behavior: smooth;
+}
+
+.main::-webkit-scrollbar { width: 6px; }
+.main::-webkit-scrollbar-track { background: transparent; }
+.main::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 3px; }
+
+.content-container {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 32px 40px 80px;
+}
+
+.page-content { display: none; }
+.page-content.active { display: block; }
+
+/* ===== Top Bar ===== */
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 20px;
+  background: var(--bg-sidebar);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.top-bar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--text);
+  font-size: 22px;
+  cursor: pointer;
+  padding: 4px;
+  line-height: 1;
+}
+
+.breadcrumb {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.breadcrumb span { color: var(--text); }
+
+.theme-toggle {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.15s;
+}
+
+.theme-toggle:hover { background: var(--accent-dim); border-color: var(--accent); }
+
+/* ===== Typography ===== */
+.page-content h1 {
+  font-size: 28px;
+  color: var(--heading);
+  margin-bottom: 8px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.page-content h2 {
+  font-size: 22px;
+  color: var(--heading);
+  margin: 32px 0 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.page-content h3 {
+  font-size: 18px;
+  color: var(--text-bright);
+  margin: 24px 0 12px;
+}
+
+.page-content h4 {
+  font-size: 15px;
+  color: var(--text-bright);
+  margin: 20px 0 8px;
+}
+
+.page-content h5 {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin: 16px 0 8px;
+}
+
+.page-content p {
+  margin: 12px 0;
+  color: var(--text);
+}
+
+.page-content ul, .page-content ol {
+  margin: 8px 0 8px 24px;
+  color: var(--text);
+}
+
+.page-content li { margin: 4px 0; }
+
+.page-content strong { color: var(--text-bright); font-weight: 600; }
+
+.page-content blockquote {
+  border-left: 3px solid var(--accent);
+  padding: 8px 16px;
+  margin: 16px 0;
+  background: var(--accent-dim);
+  border-radius: 0 6px 6px 0;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.page-content blockquote p { margin: 4px 0; color: inherit; }
+
+/* ===== Wiki Links ===== */
+.wiki-link {
+  color: var(--link);
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 3px;
+  transition: color 0.15s;
+}
+
+.wiki-link:hover { color: var(--text-bright); text-decoration-style: solid; }
+
+/* ===== Tables ===== */
+.page-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+  font-size: 13px;
+  overflow-x: auto;
+  display: block;
+}
+
+.page-content thead { background: var(--table-header); }
+
+.page-content th {
+  padding: 10px 12px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--text-bright);
+  border: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.page-content td {
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+.page-content tbody tr:nth-child(even) { background: var(--table-stripe); }
+.page-content tbody tr:hover { background: var(--accent-dim); }
+
+/* ===== Code Blocks ===== */
+.page-content code {
+  background: var(--code-bg);
+  color: var(--code-text);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 13px;
+  font-family: "SF Mono", "Fira Code", "Cascadia Code", monospace;
+}
+
+.page-content pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 16px;
+  margin: 16px 0;
+  overflow-x: auto;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.page-content pre code {
+  background: none;
+  padding: 0;
+  border-radius: 0;
+}
+
+/* ===== Horizontal Rule ===== */
+.page-content hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 24px 0;
+}
+
+/* ===== Ascii-art diagrams ===== */
+.page-content pre code:not([class]) {
+  color: var(--text-muted);
+}
+
+/* ===== Scrollbar ===== */
+.main::-webkit-scrollbar { width: 6px; }
+.main::-webkit-scrollbar-track { background: transparent; }
+.main::-webkit-scrollbar-thumb { background: #2a2d3a; border-radius: 3px; }
+
+/* ===== Mobile Overlay ===== */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 8;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    left: -280px;
+    top: 0;
+    bottom: 0;
+    transition: left 0.3s;
+    width: 280px;
+    min-width: 280px;
+  }
+  .sidebar.open { left: 0; }
+  .sidebar-overlay.active { display: block; }
+  .menu-toggle { display: block; }
+  .content-container { padding: 20px 16px 60px; }
+  .page-content h1 { font-size: 22px; }
+  .page-content h2 { font-size: 18px; }
+  .page-content table { font-size: 12px; }
+  .page-content th, .page-content td { padding: 6px 8px; }
+}
+
+/* ===== Print ===== */
+@media print {
+  .sidebar, .top-bar { display: none; }
+  .main { overflow: visible; }
+  .content-container { max-width: none; padding: 0; }
+  .page-content { display: block !important; margin-bottom: 40px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar-overlay" onclick="closeSidebar()"></div>
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <h2><span class="icon">🎰</span> 轮盘世界 Wiki</h2>
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="搜索..." oninput="onSearch(this.value)" onfocus="onSearch(this.value)" autocomplete="off">
+      <div class="search-results" id="searchResults"></div>
+    </div>
+  </div>
+  <nav class="nav-tree" id="navTree">
+    <a class="nav-item nav-top-item" onclick="navigateTo('首页')" data-page="首页">首页</a>
+<div class="nav-category">
+  <div class="nav-cat-title" onclick="toggleCategory(this)">
+    <span class="nav-arrow">▾</span> 世界观
+  </div>
+  <div class="nav-cat-children">
+    <a class="nav-item" onclick="navigateTo('世界观/概述')" data-page="世界观/概述">概述</a>
+    <a class="nav-item" onclick="navigateTo('世界观/轮盘系统详解')" data-page="世界观/轮盘系统详解">轮盘系统详解</a>
+  </div>
+</div>
+<div class="nav-category">
+  <div class="nav-cat-title" onclick="toggleCategory(this)">
+    <span class="nav-arrow">▾</span> 人物档案
+  </div>
+  <div class="nav-cat-children">
+    <a class="nav-item" onclick="navigateTo('人物档案/人物总览')" data-page="人物档案/人物总览">人物总览</a>
+    <a class="nav-item" onclick="navigateTo('人物档案/叶默')" data-page="人物档案/叶默">叶默</a>
+  </div>
+</div>
+<div class="nav-category">
+  <div class="nav-cat-title" onclick="toggleCategory(this)">
+    <span class="nav-arrow">▾</span> 地图与地点
+  </div>
+  <div class="nav-cat-children">
+    <a class="nav-item" onclick="navigateTo('地图与地点/地点总览')" data-page="地图与地点/地点总览">地点总览</a>
+    <a class="nav-item" onclick="navigateTo('地图与地点/天都山庄')" data-page="地图与地点/天都山庄">天都山庄</a>
+  </div>
+</div>
+<div class="nav-category">
+  <div class="nav-cat-title" onclick="toggleCategory(this)">
+    <span class="nav-arrow">▾</span> 怪物图鉴
+  </div>
+  <div class="nav-cat-children">
+    <a class="nav-item" onclick="navigateTo('怪物图鉴/怪物总览')" data-page="怪物图鉴/怪物总览">怪物总览</a>
+    <a class="nav-item" onclick="navigateTo('怪物图鉴/丧尸等级详解')" data-page="怪物图鉴/丧尸等级详解">丧尸等级详解</a>
+  </div>
+</div>
+<div class="nav-category">
+  <div class="nav-cat-title" onclick="toggleCategory(this)">
+    <span class="nav-arrow">▾</span> 情节概要
+  </div>
+  <div class="nav-cat-children">
+    <a class="nav-item" onclick="navigateTo('情节概要/情节总览')" data-page="情节概要/情节总览">情节总览</a>
+  </div>
+</div>
+<div class="nav-category">
+  <div class="nav-cat-title" onclick="toggleCategory(this)">
+    <span class="nav-arrow">▾</span> 组织与势力
+  </div>
+  <div class="nav-cat-children">
+    <a class="nav-item" onclick="navigateTo('组织与势力/势力总览')" data-page="组织与势力/势力总览">势力总览</a>
+  </div>
+</div>
+<div class="nav-category">
+  <div class="nav-cat-title" onclick="toggleCategory(this)">
+    <span class="nav-arrow">▾</span> 道具与能力
+  </div>
+  <div class="nav-cat-children">
+    <a class="nav-item" onclick="navigateTo('道具与能力/道具总览')" data-page="道具与能力/道具总览">道具总览</a>
+  </div>
+</div>
+<div class="nav-category">
+  <div class="nav-cat-title" onclick="toggleCategory(this)">
+    <span class="nav-arrow">▾</span> 附录
+  </div>
+  <div class="nav-cat-children">
+    <a class="nav-item" onclick="navigateTo('附录/附录总览')" data-page="附录/附录总览">附录总览</a>
+    <a class="nav-item" onclick="navigateTo('附录/游戏化设计参考')" data-page="附录/游戏化设计参考">游戏化设计参考</a>
+  </div>
+</div>
+  </nav>
+</aside>
+
+<!-- Main Content -->
+<div class="main" id="mainContent">
+  <div class="top-bar">
+    <div class="top-bar-left">
+      <button class="menu-toggle" onclick="toggleSidebar()" title="菜单">☰</button>
+      <span class="breadcrumb" id="breadcrumb"><span>首页</span></span>
+    </div>
+    <button class="theme-toggle" onclick="toggleTheme()" title="切换亮色/暗色主题">☀️ 亮色</button>
+  </div>
+  <div class="content-container" id="contentContainer">
+    <div class="page-content" id="page-世界观-概述">
+<h1 id="_1">世界观 · 概述</h1>
+<blockquote>
+<p>本章节详细阐述《轮盘世界》的核心世界观设定，包括末日起因、轮盘体系、力量层级、职业系统、世界规则等。</p>
+</blockquote>
+<hr />
+<h2 id="_2">一、末日降临</h2>
+<h3 id="11">1.1 末日开端</h3>
+<ul>
+<li><strong>时间</strong>：2220年9月10日 16:40</li>
+<li><strong>事件</strong>：一场毁灭性的灾难突然降临地球</li>
+<li><strong>表现</strong>：</li>
+<li>天空出现巨大蘑菇云般的爆炸</li>
+<li>一艘<strong>金色圣光战甲</strong>（九级十层轮盘顶级奖励之一）出现在天际</li>
+<li>大量人类在灾难中死亡，随后转化为丧尸</li>
+<li>地球上的动植物发生恐怖变异</li>
+<li><strong>末日轮盘</strong>在世界各地随机出现</li>
+</ul>
+<h3 id="12">1.2 末日成因</h3>
+<ul>
+<li>天空中的战争：高等级存在之间的战斗导致末日开始</li>
+<li>巨大的"根"状物从天空延伸至地面，释放怪物</li>
+<li>金色圣光战甲的出现暗示有超越人类认知的战争在进行</li>
+<li>最终揭示：末日背后存在<strong>上层世界/天界</strong>的幕后操纵者</li>
+</ul>
+<h3 id="13">1.3 末日影响</h3>
+<ul>
+<li><strong>人口锐减</strong>：大量人类在灾难和丧尸潮中死亡</li>
+<li><strong>环境剧变</strong>：动植物大规模变异，生态环境彻底改变</li>
+<li><strong>社会崩塌</strong>：原有秩序崩溃，幸存者形成新势力</li>
+<li><strong>人类进化</strong>：幸存者通过轮盘获得力量，成为进化者</li>
+<li><strong>秘境出现</strong>：特殊区域随末日降临而出现，充满危险与机遇</li>
+</ul>
+<hr />
+<h2 id="_3">二、轮盘体系</h2>
+<h3 id="21">2.1 轮盘概述</h3>
+<p>末日轮盘是末日后世界最核心的存在。它是一个巨大的转盘装置，散落在世界各地。幸存者消耗魔晶来转动轮盘，随机获得奖励。</p>
+<h3 id="22">2.2 轮盘等级</h3>
+<table>
+<thead>
+<tr>
+<th>等级</th>
+<th>标识</th>
+<th>魔晶槽位</th>
+<th>稀有度</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>一道轮盘</td>
+<td>黄色水晶宝石</td>
+<td>1个（普通）/ 多个（稀有）</td>
+<td>最常见</td>
+<td>分布最广</td>
+</tr>
+<tr>
+<td>二道轮盘</td>
+<td>橘色/红色宝石</td>
+<td>10个</td>
+<td>较稀有</td>
+<td>奖励品质提升</td>
+</tr>
+<tr>
+<td>三道轮盘</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>可获职业证书</td>
+</tr>
+<tr>
+<td>七彩轮盘</td>
+<td>七彩</td>
+<td>—</td>
+<td>极稀有</td>
+<td>职业证书、契约卷轴</td>
+</tr>
+<tr>
+<td>九级十层轮盘</td>
+<td>金色圣光</td>
+<td>—</td>
+<td>传说级</td>
+<td>最强装备来源</td>
+</tr>
+</tbody>
+</table>
+<h3 id="23">2.3 轮盘结构</h3>
+<ul>
+<li><strong>底座</strong>：巨大的圆形底座，镶嵌对应等级的宝石</li>
+<li><strong>指针</strong>：黑色/红色指针，指向奖励区域</li>
+<li><strong>槽位</strong>：投入魔晶的凹槽，数量决定轮盘等级</li>
+<li><strong>面板</strong>：显示可获得的奖励图标</li>
+<li><strong>奖励台</strong>：获奖物品出现的位置</li>
+</ul>
+<h3 id="24">2.4 使用规则</h3>
+<ol>
+<li>投入魔晶至槽位</li>
+<li>指针在奖励图标间旋转</li>
+<li>指针停止时指向的图标即为奖励</li>
+<li>奖励从奖励台中出现</li>
+<li>可无限次使用</li>
+<li>多层轮盘需逐层转动，层层叠加可获最终大奖</li>
+</ol>
+<h3 id="25">2.5 轮盘特性</h3>
+<ul>
+<li><strong>随机性</strong>：奖励完全随机</li>
+<li><strong>独立性</strong>：每个轮盘奖励池不同</li>
+<li><strong>占据性</strong>：强者占据优质轮盘，收取"使用费"</li>
+<li><strong>多样性</strong>：不同位置轮盘奖励倾向不同</li>
+<li><strong>进化性</strong>：末日推进可能带来轮盘进化</li>
+</ul>
+<hr />
+<h2 id="_4">三、力量体系</h2>
+<h3 id="31">3.1 进化者等阶</h3>
+<table>
+<thead>
+<tr>
+<th>等阶</th>
+<th>能力提升</th>
+<th>所需药剂</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>普通人</td>
+<td>基础人类能力</td>
+<td>—</td>
+</tr>
+<tr>
+<td>一星进化者</td>
+<td>身体素质约5倍提升</td>
+<td>一星进化药剂</td>
+</tr>
+<tr>
+<td>二星进化者</td>
+<td>大幅超越常人</td>
+<td>二星进化药剂</td>
+</tr>
+<tr>
+<td>三星进化者</td>
+<td>可正面对抗复数怪物</td>
+<td>三星进化药剂</td>
+</tr>
+<tr>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+</tr>
+<tr>
+<td>十星进化者</td>
+<td>准神级战力</td>
+<td>十星进化药剂</td>
+</tr>
+</tbody>
+</table>
+<h3 id="32">3.2 职业体系</h3>
+<h4 id="_5">战斗职业</h4>
+<table>
+<thead>
+<tr>
+<th>职业</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>战士</td>
+<td>近战物理输出</td>
+</tr>
+<tr>
+<td>狙击手</td>
+<td>远程精准打击</td>
+</tr>
+<tr>
+<td>骑士</td>
+<td>重装坦克</td>
+</tr>
+<tr>
+<td>刺客</td>
+<td>潜行暗杀</td>
+</tr>
+<tr>
+<td>拳师</td>
+<td>徒手格斗</td>
+</tr>
+<tr>
+<td>机械师</td>
+<td>机械操控</td>
+</tr>
+<tr>
+<td>法师（冰/火/雷等）</td>
+<td>元素魔法</td>
+</tr>
+<tr>
+<td>召唤师</td>
+<td>召唤战兽</td>
+</tr>
+</tbody>
+</table>
+<h4 id="_6">辅助职业</h4>
+<table>
+<thead>
+<tr>
+<th>职业</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>药师</td>
+<td>制作药剂</td>
+</tr>
+<tr>
+<td>医师</td>
+<td>治疗能力</td>
+</tr>
+<tr>
+<td>锻造师</td>
+<td>制作装备</td>
+</tr>
+<tr>
+<td>附魔师</td>
+<td>装备附魔</td>
+</tr>
+<tr>
+<td>工程匠师</td>
+<td>建筑与机械</td>
+</tr>
+<tr>
+<td>荣耀工匠</td>
+<td>附魔+锻造+采集综合</td>
+</tr>
+</tbody>
+</table>
+<h4 id="_7">职业等级</h4>
+<div class="codehilite"><pre><span></span><code>见习 → 初级 → 中级 → 高级 → 大师 → 宗师 → 传说
+</code></pre></div>
+
+<h4 id="_8">叶默的职业</h4>
+<ul>
+<li><strong>荣耀工匠</strong>：辅助职业，含附魔、锻造、采集等综合技能</li>
+<li><strong>绿园使</strong>：可操控变异植物</li>
+</ul>
+<h3 id="33">3.3 功能卡体系</h3>
+<p>通过轮盘获得的特殊卡片：
+- <strong>透视卡</strong>：获得透视视觉
+- <strong>视觉强化卡</strong>：增强视力
+- <strong>危险感知卡</strong>：感知周围危险
+- <strong>石肤卡</strong>：皮肤石化，大幅提升防御
+- <strong>感知卡</strong>：增强各种感知能力
+- <strong>战兽卡</strong>：召唤/操控特定战兽</p>
+<h3 id="34">3.4 装备等级</h3>
+<table>
+<thead>
+<tr>
+<th>品级</th>
+<th>颜色</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>普通</td>
+<td>白色</td>
+<td>基础装备</td>
+</tr>
+<tr>
+<td>优秀</td>
+<td>绿色</td>
+<td>属性强化</td>
+</tr>
+<tr>
+<td>稀有</td>
+<td>紫色</td>
+<td>特殊效果</td>
+</tr>
+<tr>
+<td>史诗</td>
+<td>金色</td>
+<td>强力特殊能力</td>
+</tr>
+<tr>
+<td>传说</td>
+<td>—</td>
+<td>独一无二</td>
+</tr>
+<tr>
+<td>七彩</td>
+<td>七彩</td>
+<td>顶级装备</td>
+</tr>
+</tbody>
+</table>
+<h3 id="35">3.5 血脉体系</h3>
+<ul>
+<li>可通过轮盘获得特殊血脉</li>
+<li>赋予持有者特殊能力或属性加成</li>
+<li>可能具有遗传性和可升级性</li>
+<li>圣城势力依靠血统传承获得力量</li>
+</ul>
+<hr />
+<h2 id="_9">四、魔晶体系</h2>
+<h3 id="41">4.1 魔晶概述</h3>
+<p>魔晶是所有被末日感染的生物头部生成的晶体，是转动轮盘的唯一"货币"，末日世界的硬通货。</p>
+<h3 id="42">4.2 魔晶等级与颜色</h3>
+<table>
+<thead>
+<tr>
+<th>等级</th>
+<th>颜色</th>
+<th>来源</th>
+<th>轮盘对应</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>一级</td>
+<td>白色</td>
+<td>普通丧尸、低级变异虫</td>
+<td>一道轮盘</td>
+</tr>
+<tr>
+<td>二级</td>
+<td>绿色</td>
+<td>进化丧尸、变异兽</td>
+<td>二道轮盘</td>
+</tr>
+<tr>
+<td>三级</td>
+<td>紫色</td>
+<td>高等变异兽</td>
+<td>—</td>
+</tr>
+<tr>
+<td>四级</td>
+<td>红色</td>
+<td>稀有怪物</td>
+<td>—</td>
+</tr>
+<tr>
+<td>五级</td>
+<td>金色</td>
+<td>地狱兽级</td>
+<td>—</td>
+</tr>
+<tr>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>—</td>
+</tr>
+<tr>
+<td>九级</td>
+<td>彩色</td>
+<td>准神级怪物</td>
+<td>九级轮盘</td>
+</tr>
+</tbody>
+</table>
+<h3 id="43">4.3 魔晶用途</h3>
+<ul>
+<li>转动轮盘（最主要用途）</li>
+<li>交易货币</li>
+<li>特殊装备/药剂的材料</li>
+</ul>
+<hr />
+<h2 id="_10">五、世界地理</h2>
+<h3 id="51">5.1 核心区域</h3>
+<ul>
+<li><strong>城市废墟</strong>：末日前的城市，现在遍布丧尸</li>
+<li><strong>郊区荒地</strong>：变异植物的领地</li>
+<li><strong>秘境</strong>：末日降临后出现的特殊异空间，充满危险与机遇</li>
+<li><strong>北方冰原</strong>：圣教/圣廷的地盘</li>
+</ul>
+<h3 id="52">5.2 重要地点</h3>
+<table>
+<thead>
+<tr>
+<th>地点</th>
+<th>类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>锦盛华庭小区</td>
+<td>居民区</td>
+<td>末日初始地，有一道轮盘</td>
+</tr>
+<tr>
+<td>大学校园</td>
+<td>教育区</td>
+<td>主角学校，初始活动区</td>
+</tr>
+<tr>
+<td>绿洲山庄</td>
+<td>幸存者基地</td>
+<td>叶默创立的大本营</td>
+</tr>
+<tr>
+<td>地下城</td>
+<td>幸存者据点</td>
+<td>大型聚集地</td>
+</tr>
+<tr>
+<td>圣城</td>
+<td>古城</td>
+<td>安禄德家族统治</td>
+</tr>
+<tr>
+<td>布落圣城</td>
+<td>古族秘境</td>
+<td>部落古族聚居地</td>
+</tr>
+<tr>
+<td>通天城</td>
+<td>中立城市</td>
+<td>各方交易中心</td>
+</tr>
+<tr>
+<td>不落圣城</td>
+<td>古代遗迹</td>
+<td>已灭亡的圣城</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_11">六、世界规则</h2>
+<h3 id="61">6.1 感染规则</h3>
+<ul>
+<li>被丧尸抓伤/咬伤会感染</li>
+<li>感染后转化为丧尸</li>
+<li>丧尸的魔晶未被取出时，即使只剩头部也能通过吞噬血肉再生</li>
+</ul>
+<h3 id="62">6.2 生存法则</h3>
+<ul>
+<li>食物和水极度稀缺</li>
+<li>部分变异生物肉可食用，且能强化身体</li>
+<li>轮盘是最重要战略资源</li>
+<li>强者掌控一切</li>
+</ul>
+<h3 id="63">6.3 天界（上层世界）</h3>
+<ul>
+<li>比十星进化者更高层次的位面</li>
+<li>需"入场券"方可进入</li>
+<li>末日背后真正的幕后操纵者所在</li>
+<li>小说结尾揭示的更大世界观</li>
+</ul>
+<hr />
+<p><em>返回<a onclick="navigateTo('../首页')" class="wiki-link">首页</a></em></p>
+</div>
+<div class="page-content" id="page-世界观-轮盘系统详解">
+<h1 id="_1">世界观 · 轮盘系统详解</h1>
+<blockquote>
+<p>末日轮盘是《轮盘世界》最核心的设定，是末日力量的来源和人类生存的根基。</p>
+</blockquote>
+<hr />
+<h2 id="_2">一、轮盘的起源</h2>
+<ul>
+<li><strong>出现时间</strong>：2220年9月10日16:40，与末日降临同时</li>
+<li><strong>出现方式</strong>：从天空坠落，随机散布在世界各地</li>
+<li><strong>本质</strong>：由超越人类认知的高等存在制造/投放的力量分配装置</li>
+<li><strong>幕后</strong>：天界/上级空间的操纵者通过轮盘控制地球人类的进化进程</li>
+</ul>
+<hr />
+<h2 id="_3">二、轮盘等级体系</h2>
+<h3 id="21">2.1 一级轮盘</h3>
+<div class="codehilite"><pre><span></span><code>┌─────────────────────┐
+│  镶嵌黄色水晶宝石      │
+│  1个魔晶槽位          │
+│  (稀有版: 7+槽位)     │
+│  10个奖励分区         │
+│  指针: 黑色/红色       │
+└─────────────────────┘
+</code></pre></div>
+
+<ul>
+<li><strong>转一次消耗</strong>：1枚一级魔晶</li>
+<li><strong>常见奖励</strong>：一级进化药剂、弩、食物、水、医药箱、简单武器</li>
+<li><strong>稀有奖励</strong>：一级进化药剂（最佳单次奖励）</li>
+<li><strong>分布</strong>：最常见，几乎每个区域都有</li>
+</ul>
+<h3 id="22">2.2 二级轮盘</h3>
+<ul>
+<li><strong>转一次消耗</strong>：10枚一级魔晶（或等值更高级魔晶）</li>
+<li><strong>奖励池</strong>：一级进化药剂、不完全免疫药剂、臂盾（灰色品质白色装备）、更高级武器</li>
+<li><strong>出现位置</strong>：特定地点（如学校体育馆）</li>
+</ul>
+<h3 id="23">2.3 三级轮盘</h3>
+<ul>
+<li><strong>转一次消耗</strong>：100枚一级魔晶</li>
+<li><strong>奖励池</strong>：更高级药剂、职业相关物品、高品质装备</li>
+</ul>
+<h3 id="24">2.4 彩色轮盘</h3>
+<div class="codehilite"><pre><span></span><code>彩色轮盘分为:
+  三彩轮盘 (3色)
+  五彩轮盘 (5色)
+  七彩轮盘 (7色)  ← 最常见的高级轮盘
+  九彩轮盘 (9色)
+
+注意: 不存在偶色彩轮盘 (4/6/8彩)
+</code></pre></div>
+
+<ul>
+<li><strong>特点</strong>：</li>
+<li>唯一可转出<strong>职业证书</strong>和<strong>契约皮卷</strong>的轮盘</li>
+<li>存在时间限制（数分钟至十分钟）</li>
+<li>黑色区域 = 轮空（转盘可能爆炸，直接杀死使用者！）</li>
+<li>投入魔晶需达到能量总和要求（低级魔晶也可，只要总量够）</li>
+<li><strong>风险</strong>：如在时限内未满足能量要求，之前投入的魔晶全部损失</li>
+</ul>
+<h3 id="25">2.5 九级十层轮盘</h3>
+<ul>
+<li><strong>转一次消耗</strong>：海量顶级魔晶</li>
+<li><strong>顶级奖励</strong>：金色圣光战甲、传说级装备、超级技能卡等</li>
+</ul>
+<h3 id="26">2.6 特殊轮盘类型</h3>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>微型轮盘</td>
+<td>可携带，8格选项（4奖励4惩罚），需1枚高级魔晶</td>
+</tr>
+<tr>
+<td>母巢轮盘</td>
+<td>大型怪物身上的轮盘，可转出通往对应空间的钥匙</td>
+</tr>
+<tr>
+<td>职业轮盘</td>
+<td>专门产出职业相关物品</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_4">三、轮盘使用机制</h2>
+<h3 id="31">3.1 基本流程</h3>
+<div class="codehilite"><pre><span></span><code><span class="mf">1.</span><span class="w"> </span><span class="n">将魔晶投入槽位</span>
+<span class="w">   </span><span class="err">↓</span>
+<span class="mf">2.</span><span class="w"> </span><span class="n">红色指针开始旋转</span>
+<span class="w">   </span><span class="err">↓</span>
+<span class="mf">3.</span><span class="w"> </span><span class="n">指针在奖励图标间快速切换</span>
+<span class="w">   </span><span class="err">↓</span>
+<span class="mf">4.</span><span class="w"> </span><span class="n">指针停止</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">指向的图标</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">获得奖励</span>
+<span class="w">   </span><span class="err">↓</span>
+<span class="mf">5.</span><span class="w"> </span><span class="n">奖励物品出现在下方奖励台</span>
+</code></pre></div>
+
+<h3 id="32">3.2 关键规则</h3>
+<ul>
+<li><strong>无限使用</strong>：只要投币就能无限次旋转</li>
+<li><strong>完全随机</strong>：没有任何规律或保底机制</li>
+<li><strong>独立运作</strong>：每个轮盘有独立的奖励池</li>
+<li><strong>多人共用</strong>：多个幸存者可轮流使用同一轮盘</li>
+</ul>
+<h3 id="33">3.3 多层轮盘机制</h3>
+<p>部分高级轮盘为多层结构：</p>
+<div class="codehilite"><pre><span></span><code>   第三层奖励（最佳）
+  ┌──────────┐
+  │ 第二层奖励 │
+  │ ┌──────┐ │
+  │ │第一层  │ │
+  │ │奖励   │ │
+  │ └──────┘ │
+  └──────────┘
+</code></pre></div>
+
+<ul>
+<li>每层单独转动</li>
+<li>全部层转动后，奖励合并</li>
+<li>最终可能获得远超单层的超级大奖</li>
+</ul>
+<hr />
+<h2 id="_5">四、轮盘奖励池</h2>
+<h3 id="41">4.1 消耗品类</h3>
+<ul>
+<li>各类进化药剂（一星至九星）</li>
+<li>免疫药剂（不完全/完全）</li>
+<li>精神力药水（蓝瓶）</li>
+<li>治疗药水</li>
+<li>食物和净水</li>
+</ul>
+<h3 id="42">4.2 装备类</h3>
+<ul>
+<li>武器（弩、手枪、砍刀、战刃等）</li>
+<li>防具（臂盾、护甲、棉袍等）</li>
+<li>饰品（各类戒指、项链等）</li>
+<li>特殊装备（空间水壶等）</li>
+</ul>
+<h3 id="43">4.3 技能/能力类</h3>
+<ul>
+<li>功能卡（夜视、石肤、感知等）</li>
+<li>职业证书 + 契约皮卷</li>
+<li>技能卷轴</li>
+<li>武技秘籍</li>
+</ul>
+<h3 id="44">4.4 特殊类</h3>
+<ul>
+<li>血脉物品</li>
+<li>宠物/战兽蛋</li>
+<li>秘境钥匙</li>
+<li>图纸/配方</li>
+<li>折扣卡</li>
+</ul>
+<hr />
+<h2 id="_6">五、轮盘的占领与经济</h2>
+<h3 id="51">5.1 轮盘占领</h3>
+<ul>
+<li>强者或势力会占领优质轮盘</li>
+<li>设置关卡，向外来者收取"使用费"</li>
+<li>末日后最珍贵的战略资源</li>
+</ul>
+<h3 id="52">5.2 轮盘经济</h3>
+<div class="codehilite"><pre><span></span><code>幸存者猎杀怪物 → 获得魔晶 → 支付轮盘使用费 → 转动轮盘 → 获得力量 → 猎杀更强怪物
+                                                    ↓
+                                              多余奖励 → 交易市场 → 换取魔晶/其他物资
+</code></pre></div>
+
+<hr />
+<h2 id="_7">六、轮盘的隐藏真相</h2>
+<h3 id="61">6.1 幕后操控</h3>
+<ul>
+<li>轮盘并非自然产生的神奇物品</li>
+<li>由天界/上级空间的高等存在设计</li>
+<li>目的是筛选和培养强者</li>
+</ul>
+<h3 id="62">6.2 进化陷阱？</h3>
+<ul>
+<li>轮盘让人类变强 → 变强后达到九星 → 被强制传送到上级空间 → 成为"战场"上的棋子</li>
+<li>暗示整个地球末日可能是更高层次存在的实验/游戏</li>
+</ul>
+<h3 id="63">6.3 最终的轮盘</h3>
+<ul>
+<li>母巢轮盘可转出通往上级空间的钥匙</li>
+<li>暗示轮盘体系与整个多元宇宙连通</li>
+</ul>
+<hr />
+<p><em>返回<a onclick="navigateTo('世界观/概述')" class="wiki-link">概述</a> | <a onclick="navigateTo('../首页')" class="wiki-link">首页</a></em></p>
+</div>
+<div class="page-content" id="page-人物档案-人物总览">
+<h1 id="_1">人物档案 · 人物总览</h1>
+<blockquote>
+<p>本章节收录《轮盘世界》中所有重要角色的人物档案，按出场顺序与重要程度排列。</p>
+</blockquote>
+<hr />
+<h2 id="_2">核心主角</h2>
+<h3 id="_3">叶默</h3>
+<ul>
+<li><strong>身份</strong>：主人公，重生者</li>
+<li><strong>前世</strong>：末日十年后的强大战士，在与敌人的最后一战中被偷袭杀害</li>
+<li><strong>性格</strong>：冷静、果断、理性，具有末日生存的老练思维，对敌人冷酷，对有潜力者给予机会</li>
+<li><strong>核心能力</strong>：</li>
+<li>十年末日战斗经验与生存技巧</li>
+<li>职业：<strong>荣耀工匠</strong>（辅助职业：附魔、锻造、采集）+ <strong>绿园使</strong>（操控变异植物）</li>
+<li>战兽：<strong>地皇犬</strong>（从末日初期即跟随的变异宠物）</li>
+<li><strong>关键装备</strong>：</li>
+<li>自然之杖（镶嵌自然宝石，释放元素技能）</li>
+<li>血色之剑（红色品级武器）</li>
+<li>魔力之弩</li>
+<li><strong>最终实力</strong>：十星进化者</li>
+<li><strong>组织</strong>：绿洲山庄创始人</li>
+<li><strong>目标</strong>：查明末日真相、保护重要之人、进入天界</li>
+</ul>
+<h3 id="_4">温静（慕安媛）</h3>
+<ul>
+<li><strong>称号</strong>：杀戮玫瑰（未来十星强者之一）</li>
+<li><strong>初登场</strong>：锦盛华庭小区，身着浅色睡衣</li>
+<li><strong>性格</strong>：初期天真直率但观察力敏锐，后成长为果决的强者</li>
+<li><strong>与叶默关系</strong>：叶默重生后第一个遇到的人，知道她未来的潜力而刻意结交</li>
+<li><strong>成长</strong>：末日初期跟随叶默→短暂失踪→再次出现时已成长为强者</li>
+<li><strong>最终实力</strong>：十星进化者</li>
+</ul>
+<h3 id="_5">白诗诗</h3>
+<ul>
+<li><strong>身份</strong>：叶默的前女友，大学校花</li>
+<li><strong>关系</strong>：与富二代校草高景涵有恋情</li>
+<li><strong>命运线</strong>：</li>
+<li>原世界线：末日初期与叶默分开，选择跟随高景涵，结局凄凉</li>
+<li>重生线：叶默尊重她的选择，劝她去找高景涵，并嘱咐远离危险</li>
+</ul>
+<hr />
+<h2 id="_6">核心团队成员</h2>
+<h3 id="_7">墨夜</h3>
+<ul>
+<li><strong>身份</strong>：女警，受过专业训练</li>
+<li><strong>出场</strong>：学校体育馆变异巨蚁危机时</li>
+<li><strong>能力</strong>：</li>
+<li>精通枪械</li>
+<li>具备古武术基础</li>
+<li>职业：法师（主修冰系）</li>
+<li><strong>标志技能</strong>：天怒风帆、冰系大型范围法术</li>
+<li><strong>最终实力</strong>：十星进化者</li>
+<li><strong>角色</strong>：叶默团队最核心的成员之一</li>
+</ul>
+<h3 id="_8">赵晓丽（高老师）</h3>
+<ul>
+<li><strong>身份</strong>：大学女教师</li>
+<li><strong>性格</strong>：初期天真善良，不适应末日残酷</li>
+<li><strong>成长</strong>：被叶默教育后逐步改变，适应末日</li>
+<li><strong>角色</strong>：叶默团队核心成员</li>
+</ul>
+<h3 id="_9">孙丽颖</h3>
+<ul>
+<li><strong>身份</strong>：大学女教师</li>
+<li><strong>性格</strong>：现实坚韧</li>
+<li><strong>成长轨迹</strong>：从普通教师蜕变为为保护魔晶能与人大打出手的战士</li>
+<li><strong>角色</strong>：叶默团队核心成员</li>
+</ul>
+<h3 id="_10">盛元</h3>
+<ul>
+<li><strong>背景</strong>：与女友小颖一同在末日中挣扎，小颖被杀害</li>
+<li><strong>性格</strong>：顽强、隐忍、有骨气</li>
+<li><strong>动机</strong>：为女友报仇而活</li>
+<li><strong>职业</strong>：曾被组织逼迫交出职业证书，后在叶默帮助下复仇</li>
+<li><strong>角色</strong>：后期加入叶默团队</li>
+</ul>
+<h3 id="_11">小奥</h3>
+<ul>
+<li><strong>身份</strong>：盛元的帮手</li>
+<li><strong>性格</strong>：活泼</li>
+<li><strong>角色</strong>：团队外围成员</li>
+</ul>
+<hr />
+<h2 id="_12">末日初期的关键人物</h2>
+<h3 id="_13">高景涵（高少）</h3>
+<ul>
+<li><strong>身份</strong>：富二代，大学校草</li>
+<li><strong>关系</strong>：白诗诗的新男友</li>
+<li><strong>评价</strong>：在和平环境下光鲜亮丽，末日环境下未必可靠</li>
+</ul>
+<h3 id="_14">张浩泰</h3>
+<ul>
+<li><strong>身份</strong>：高景涵的跟班/打手</li>
+<li><strong>特征</strong>：体育生，身体强壮</li>
+<li><strong>行为</strong>：末日初期在食堂组织学生霸凌女生</li>
+<li><strong>结局</strong>：被叶默教训</li>
+</ul>
+<h3 id="_15">黄金珠宝商一家</h3>
+<ul>
+<li><strong>身份</strong>：锦盛华庭小区住户</li>
+<li><strong>特征</strong>：在末日初期试图控制轮盘</li>
+</ul>
+<hr />
+<h2 id="_16">后期关键角色</h2>
+<h3 id="_17">红发（丧尸）</h3>
+<ul>
+<li><strong>身份</strong>：原本是叶默团队中的一员</li>
+<li><strong>转变</strong>：死后因某种原因复活，成为有意识的高级丧尸</li>
+<li><strong>能力</strong>：</li>
+<li>可操控丧尸群</li>
+<li>保留人类意识残留</li>
+<li>特殊技能："狂物之鸣"</li>
+<li><strong>命运</strong>：独立行动，守护叶默的基地，逐渐与人类疏远</li>
+</ul>
+<h3 id="_18">赵雅（小雅）</h3>
+<ul>
+<li><strong>身份</strong>：部落古族少女</li>
+<li><strong>特征</strong>：有语言障碍（初期）</li>
+<li><strong>出场</strong>：叶默在布落圣城附近遇到</li>
+<li><strong>关系</strong>：对叶默有好感</li>
+<li><strong>角色</strong>：沟通古族与叶默之间的桥梁</li>
+</ul>
+<h3 id="_19">白昊（小白）</h3>
+<ul>
+<li><strong>身份</strong>：绿洲山庄重要成员</li>
+<li><strong>角色</strong>：叶默的忠实追随者</li>
+</ul>
+<h3 id="_20">赵阔（小叶子）</h3>
+<ul>
+<li><strong>身份</strong>：叶默的合作伙伴</li>
+<li><strong>外号</strong>：小叶子</li>
+</ul>
+<h3 id="_21">孙小丽</h3>
+<ul>
+<li><strong>身份</strong>：后期出现的强力战士</li>
+</ul>
+<hr />
+<h2 id="_22">敌对与复杂角色</h2>
+<h3 id="_23">安禄德（安禄）</h3>
+<ul>
+<li><strong>身份</strong>：圣城/布落圣城的统治者之一</li>
+<li><strong>实力</strong>：十星进化者（不完全体）</li>
+<li><strong>特征</strong>：依靠血统和家族传承获得力量，性格高傲</li>
+<li><strong>结局</strong>：在圣城被攻破时被叶默击败</li>
+</ul>
+<h3 id="_24">圣子/圣女婿</h3>
+<ul>
+<li><strong>身份</strong>：圣城的继承者/统治者</li>
+<li><strong>特征</strong>：冷酷无情，视他人为棋子</li>
+<li><strong>结局</strong>：圣城破灭时败于叶默之手</li>
+</ul>
+<h3 id="_25">哈鲁（圣骑士团长）</h3>
+<ul>
+<li><strong>身份</strong>：圣骑士团团长</li>
+<li><strong>实力</strong>：十星进化者</li>
+<li><strong>关系</strong>：初期与叶默合作对抗怪物，后期关系复杂</li>
+</ul>
+<h3 id="_26">莉莲</h3>
+<ul>
+<li><strong>身份</strong>：北原高层强者</li>
+<li><strong>实力</strong>：十星进化者</li>
+<li><strong>势力</strong>：掌控"圣教"组织，拥有机械战甲和骑士团</li>
+</ul>
+<h3 id="_27">山王</h3>
+<ul>
+<li><strong>身份</strong>：强大的古族领袖</li>
+<li><strong>实力</strong>：十星进化者</li>
+</ul>
+<h3 id="_28">美食魔法使（美食魔法师）</h3>
+<ul>
+<li><strong>身份</strong>：后来出现的强大法师</li>
+<li><strong>特色</strong>：会制作各种特殊药剂和食物，来自远方异土</li>
+<li><strong>关系</strong>：与绿洲山庄建立贸易关系</li>
+</ul>
+<hr />
+<h2 id="_29">次要角色</h2>
+<table>
+<thead>
+<tr>
+<th>角色</th>
+<th>身份</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>孔浩一</td>
+<td>荣耀联盟创建者</td>
+<td>叶默旧识</td>
+</tr>
+<tr>
+<td>柳铭</td>
+<td>后期联盟成员</td>
+<td>重要人物</td>
+</tr>
+<tr>
+<td>陈峰</td>
+<td>后期联盟成员</td>
+<td>重要人物</td>
+</tr>
+<tr>
+<td>王通</td>
+<td>后期联盟成员</td>
+<td>重要人物</td>
+</tr>
+<tr>
+<td>钱雪林</td>
+<td>后期联盟成员</td>
+<td>重要人物</td>
+</tr>
+<tr>
+<td>哈洛</td>
+<td>圣城战将</td>
+<td>-</td>
+</tr>
+<tr>
+<td>赵哈洛</td>
+<td>圣城战将</td>
+<td>-</td>
+</tr>
+<tr>
+<td>耶律撒</td>
+<td>圣城战将</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><em>返回<a onclick="navigateTo('../首页')" class="wiki-link">首页</a></em></p>
+</div>
+<div class="page-content" id="page-人物档案-叶默">
+<h1 id="_1">人物档案 · 叶默</h1>
+<blockquote>
+<p>主人公，重生者，末日后最强幸存者势力——天都山庄的创始人。</p>
+</blockquote>
+<hr />
+<h2 id="_2">基本资料</h2>
+<table>
+<thead>
+<tr>
+<th>属性</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>姓名</strong></td>
+<td>叶默</td>
+</tr>
+<tr>
+<td><strong>身份</strong></td>
+<td>大学生 → 天都山庄领主</td>
+</tr>
+<tr>
+<td><strong>前世</strong></td>
+<td>末日十年后的三星进化者，战队成员</td>
+</tr>
+<tr>
+<td><strong>死因（前世）</strong></td>
+<td>与强敌战斗中被偷袭杀害</td>
+</tr>
+<tr>
+<td><strong>重生时间</strong></td>
+<td>2220年9月10日 15:35（末日降临前1小时5分钟）</td>
+</tr>
+<tr>
+<td><strong>性格</strong></td>
+<td>冷静、果断、理性、有末日老练思维</td>
+</tr>
+<tr>
+<td><strong>最终实力</strong></td>
+<td>十星进化者</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_3">职业体系</h2>
+<h3 id="_4">第一职业：荣耀工匠（光辉）</h3>
+<ul>
+<li><strong>类型</strong>：辅助职业（制造/锻造系）</li>
+<li><strong>来源</strong>：彩色轮盘</li>
+<li><strong>技能槽</strong>：5个（远超普通职业，但升级难度5倍）</li>
+<li><strong>核心技能</strong>：</li>
+<li><strong>同质强化</strong>：将物品与相同材料融合增强属性（可将普通砍刀强化至白色品质）</li>
+<li><strong>采集术</strong>：高效从怪物尸体收集材料</li>
+<li><strong>镶嵌</strong>：将宝石嵌入装备</li>
+<li><strong>锻造</strong>：使用图纸+魔晶合成成品装备</li>
+<li><strong>附魔</strong>：为装备添加额外属性</li>
+<li><strong>特殊效果</strong>：所有锻造品自动附带<strong>工匠印记</strong></li>
+</ul>
+<h3 id="_5">第二职业：园丁（绿园使）</h3>
+<ul>
+<li><strong>类型</strong>：特殊战斗职业（植物操控系）</li>
+<li><strong>来源</strong>：彩色轮盘</li>
+<li><strong>核心技能</strong>：</li>
+<li><strong>种植</strong>：使植物快速生长、发芽、成熟，并能产生变异</li>
+<li><strong>激化（催生）</strong>：主动控制植物攻击、缠绕等</li>
+<li><strong>特殊效果</strong>：绑定的变异植物不会攻击职业持有者</li>
+</ul>
+<h3 id="_6">第三职业（前世记忆）：枪手</h3>
+<ul>
+<li><strong>类型</strong>：远程战斗职业</li>
+<li><strong>来源</strong>：前世经验</li>
+</ul>
+<hr />
+<h2 id="_7">关键战兽</h2>
+<h3 id="_8">地皇犬</h3>
+<ul>
+<li><strong>来源</strong>：白诗诗收养的流浪狗，末日降临后变异</li>
+<li><strong>进化</strong>：食用变异怪物蛋后觉醒，体型增至极狼大小，头部生成白色魔晶</li>
+<li><strong>天赋技能</strong>：毛针刺（射出全身毛发远程穿刺攻击）</li>
+<li><strong>最终实力</strong>：十星战兽</li>
+</ul>
+<h3 id="_9">黑猫</h3>
+<ul>
+<li><strong>最终实力</strong>：十星战兽</li>
+</ul>
+<hr />
+<h2 id="_10">标志性装备</h2>
+<table>
+<thead>
+<tr>
+<th>装备</th>
+<th>品级</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>战刃·沙尘（终极形态）</td>
+<td>蓝色稀有</td>
+<td>伤害+20，攻速+25，吸血+20，附带"沙尘暴击""沙尘乱舞"</td>
+</tr>
+<tr>
+<td>宇宙之盒</td>
+<td>神话（自创）</td>
+<td>存储/恢复/标记回返/同调融合四功能</td>
+</tr>
+<tr>
+<td>自然之杖</td>
+<td>稀有</td>
+<td>镶嵌自然宝石释放元素技能</td>
+</tr>
+<tr>
+<td>血色之剑</td>
+<td>—</td>
+<td>红色品级近战武器</td>
+</tr>
+<tr>
+<td>魔力之弩</td>
+<td>—</td>
+<td>远程武器</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_11">成长轨迹</h2>
+<div class="codehilite"><pre><span></span><code>普通人 → 一星进化者（末日第1天）
+       → 获取荣耀工匠职业（末日初期）
+       → 获取园丁职业（末日初期）
+       → 二星进化者
+       → 三星进化者（超过前世等级）
+       → 四星至六星进化者（中期）
+       → 七星至八星进化者（中后期）
+       → 九星进化者（后期）
+       → 十星进化者（终局）
+       → 进入天界/上级空间
+</code></pre></div>
+
+<hr />
+<h2 id="_12">人际关系网</h2>
+<div class="codehilite"><pre><span></span><code>             白诗诗（前女友）
+                ↓
+叶默 ←→ 温静/慕安媛（杀戮玫瑰，十星战友）
+  │
+  ├── 墨夜（女警，冰法，十星核心成员）
+  ├── 金英（教师，神罚使者，治疗者）
+  ├── 盛元（壮汉战士，复仇者）
+  ├── 小虎（侦察兵）
+  ├── 乐乐（开心果）
+  ├── 小白（忠实追随者）
+  ├── 赵阔（合作伙伴&quot;小叶子&quot;）
+  └── 红发（有意识丧尸，独立守护者）
+
+敌对关系:
+  叶默 ──对抗── 安禄德（圣城统治者）
+              圣子/圣女婿
+              莉莲（圣教领袖，亦敌亦友）
+              各路敌对势力首领
+</code></pre></div>
+
+<hr />
+<h2 id="_13">核心目标与动机</h2>
+<h3 id="_14">第一阶段：生存与变强</h3>
+<ul>
+<li>利用前世经验在末日中活下去</li>
+<li>快速成为进化者</li>
+<li>建立安全的基地</li>
+</ul>
+<h3 id="_15">第二阶段：建立势力</h3>
+<ul>
+<li>组建可靠团队</li>
+<li>建设天都山庄</li>
+<li>在各方势力中立足</li>
+</ul>
+<h3 id="_16">第三阶段：寻找真相</h3>
+<ul>
+<li>查明末日背后的真相</li>
+<li>调查金色圣光战甲的来历</li>
+<li>找到杀害自己前世的凶手</li>
+</ul>
+<h3 id="_17">第四阶段：超脱</h3>
+<ul>
+<li>冲击十星进化者</li>
+<li>进入天界/上级空间</li>
+<li>成为"神"或彻底揭开末日之谜</li>
+</ul>
+<hr />
+<h2 id="_18">战斗风格</h2>
+<ul>
+<li><strong>经验驱动</strong>：十年的末日战斗经验，对各类怪物弱点了如指掌</li>
+<li><strong>武器精通</strong>：枪法（枪斗术）、刀法、弓弩皆精</li>
+<li><strong>战术思维</strong>：优先评估威胁等级，精准打击弱点</li>
+<li><strong>资源优化</strong>：善于利用环境和道具取得优势</li>
+<li><strong>植物辅助</strong>：园丁职业允许他操控变异植物协同作战</li>
+</ul>
+<hr />
+<p><em>返回<a onclick="navigateTo('人物档案/人物总览')" class="wiki-link">人物总览</a> | <a onclick="navigateTo('../首页')" class="wiki-link">首页</a></em></p>
+</div>
+<div class="page-content" id="page-地图与地点-地点总览">
+<h1 id="_1">地图与地点 · 地点总览</h1>
+<blockquote>
+<p>本章节收录《轮盘世界》中所有重要地点、区域、秘境与地标信息。</p>
+</blockquote>
+<hr />
+<h2 id="_2">一、地点概述</h2>
+<p>末日降临后，地球的地理格局发生剧变。原有的城市沦为废墟和丧尸的巢穴，同时出现了大量<strong>秘境</strong>——由金色圣光爆炸形成的异空间裂隙。幸存者们围绕轮盘建立基地，形成了新的地理政治格局。</p>
+<hr />
+<h2 id="_3">二、城市与废墟</h2>
+<h3 id="21">2.1 大学城</h3>
+<ul>
+<li><strong>类型</strong>：末日初始区域</li>
+<li><strong>描述</strong>：叶默所在的大学校园及周边</li>
+<li><strong>重要地点</strong>：</li>
+<li><strong>大学体育馆</strong>：第一个彩色轮盘所在地</li>
+<li><strong>学校广播室</strong>：第二个轮盘+彩色轮盘所在地</li>
+<li><strong>学校食堂</strong>：幸存者聚集地</li>
+<li><strong>教学楼</strong>：初期叶默收集魔晶的场所</li>
+<li><strong>怪物分布</strong>：普通丧尸密集区（师生转化）</li>
+</ul>
+<h3 id="22">2.2 锦盛华庭小区</h3>
+<ul>
+<li><strong>类型</strong>：住宅区</li>
+<li><strong>重要性</strong>：末日初始地点之一，设有一道轮盘</li>
+<li><strong>结构</strong>：高档小区，七层小楼，数十栋楼，住户约千余人</li>
+<li><strong>环境</strong>：有人工湖、园林景观、地下车库</li>
+<li><strong>关键建筑</strong>：别墅一楼（第一个轮盘+地下储藏室所在地）</li>
+</ul>
+<h3 id="23">2.3 英雄城（英城）</h3>
+<ul>
+<li><strong>类型</strong>：大型城市</li>
+<li><strong>归属</strong>：天都势力范围</li>
+<li><strong>描述</strong>：末日前的重要城市，后被叶默势力控制</li>
+</ul>
+<hr />
+<h2 id="_4">三、幸存者基地</h2>
+<h3 id="31">3.1 天湖别苑 / 天都山庄</h3>
+<ul>
+<li><strong>别名</strong>：天都基地</li>
+<li><strong>创始人</strong>：叶默</li>
+<li><strong>定位</strong>：末日后最强大的幸存者基地</li>
+<li><strong>演变</strong>：从一个小别墅区 → 发展为超级要塞</li>
+<li><strong>设施</strong>：</li>
+<li>锻造工坊（高级装备生产）</li>
+<li>药剂工坊（进化药剂生产）</li>
+<li>城墙防御系统</li>
+<li>军事训练场</li>
+<li>交易市场</li>
+<li><strong>军事实力</strong>：数千核心战士，多名十星进化者，多只十星战兽</li>
+<li><strong>势力范围</strong>：以天都山庄为中心的广袤区域</li>
+</ul>
+<h3 id="32">3.2 地下城</h3>
+<ul>
+<li><strong>类型</strong>：大型幸存者聚集据点</li>
+<li><strong>功能</strong>：提供庇护和交易场所</li>
+<li><strong>特征</strong>：地下的安全区域</li>
+</ul>
+<h3 id="33-gg1">3.3 G区（G1区）</h3>
+<ul>
+<li><strong>类型</strong>：军方势力基地</li>
+<li><strong>特点</strong>：以装甲和重武器为主</li>
+<li><strong>装备</strong>：坦克、装甲车等重型武器</li>
+</ul>
+<h3 id="34-cc1-c4">3.4 C区（C1-C4区）</h3>
+<ul>
+<li><strong>类型</strong>：大型商业/军事复合势力基地</li>
+<li><strong>特点</strong>：多位战区指挥官，规模庞大</li>
+</ul>
+<h3 id="35-t">3.5 T区</h3>
+<ul>
+<li><strong>类型</strong>：科技制造势力基地</li>
+<li><strong>特点</strong>：以技术研发和装备制造见长</li>
+</ul>
+<h3 id="36-s">3.6 S区</h3>
+<ul>
+<li><strong>类型</strong>：大型综合势力基地</li>
+<li><strong>地位</strong>：顶级势力级别</li>
+</ul>
+<hr />
+<h2 id="_5">四、秘境（异空间）</h2>
+<h3 id="41">4.1 秘境概述</h3>
+<ul>
+<li><strong>来源</strong>：由金色圣光爆炸后形成的空间裂隙</li>
+<li><strong>分布</strong>：秘境钥匙随机散落世界各地</li>
+<li><strong>等级分类</strong>（按危险度）：
+  | 颜色 | 危险等级 | 说明 |
+  |------|----------|------|
+  | 白色 | 最低 | 入门级秘境 |
+  | 绿色 | 低 | 适合低星进化者 |
+  | 蓝色 | 中 | 需要一定实力 |
+  | 红色 | 高 | 高风险高回报 |
+  | 黑色 | 最高 | 极危险，顶级强者也需谨慎 |</li>
+</ul>
+<h3 id="42">4.2 重要秘境</h3>
+<h4 id="_6">不鲁得秘境（死亡秘境）</h4>
+<ul>
+<li><strong>类型</strong>：黑色/高级秘境</li>
+<li><strong>重要性</strong>：叶默在此获取大量资源和装备</li>
+<li><strong>内部地点</strong>：</li>
+<li>上河村</li>
+<li>宝石山（天然矿石产地）</li>
+<li>不落城（秘境中的城市）</li>
+</ul>
+<h4 id="_7">镜界（镜界）</h4>
+<ul>
+<li><strong>类型</strong>：另一个大型秘境/异空间</li>
+<li><strong>特征</strong>：与镜像/反射相关的特殊规则</li>
+</ul>
+<hr />
+<h2 id="_8">五、国际势力领地</h2>
+<h3 id="51">5.1 圣城</h3>
+<ul>
+<li><strong>位置</strong>：意大利/欧洲地区</li>
+<li><strong>性质</strong>：宗教色彩浓厚的西方势力主城</li>
+<li><strong>建筑</strong>：巨大皇宫（后被摧毁的大型建筑/生命体）</li>
+<li><strong>防御</strong>：圣殿骑士团、审判团、圣城守军</li>
+<li><strong>结局</strong>：被叶默率军攻破并毁灭</li>
+</ul>
+<h3 id="52">5.2 布落圣城</h3>
+<ul>
+<li><strong>位置</strong>：秘境区域</li>
+<li><strong>性质</strong>：古代人类后裔（古族）聚居地</li>
+<li><strong>社会</strong>：部落制，有酋长、长老</li>
+<li><strong>圣物</strong>：圣水（可沟通两个世界）</li>
+</ul>
+<h3 id="53">5.3 不落圣城</h3>
+<ul>
+<li><strong>性质</strong>：已灭亡的古代圣城</li>
+<li><strong>定位</strong>：历史遗迹</li>
+</ul>
+<hr />
+<h2 id="_9">六、特殊地点</h2>
+<h3 id="61">6.1 通天城</h3>
+<ul>
+<li><strong>类型</strong>：中立交易城市</li>
+<li><strong>定位</strong>：各方势力的交易中心</li>
+<li><strong>特征</strong>：在各方势力间保持中立</li>
+</ul>
+<h3 id="62">6.2 兽潮平原</h3>
+<ul>
+<li><strong>类型</strong>：古族活动区域</li>
+<li><strong>特征</strong>：大量变异兽出没</li>
+</ul>
+<h3 id="63">6.3 北方冰原</h3>
+<ul>
+<li><strong>类型</strong>：极寒地带</li>
+<li><strong>势力</strong>：圣教/圣廷的大本营</li>
+</ul>
+<hr />
+<h2 id="_10">七、天界/上级空间</h2>
+<h3 id="71">7.1 上级空间</h3>
+<ul>
+<li><strong>定位</strong>：比地球更高层次的位面</li>
+<li><strong>进入条件</strong>：达到九星进化者后被强制传送</li>
+<li><strong>管理者</strong>：带翅膀的类人生物（翼人/矮人）</li>
+<li><strong>设施</strong>：</li>
+<li>庞大的地下宫殿</li>
+<li>训练设施</li>
+<li>集结区</li>
+<li><strong>功能</strong>：汇集各世界的"代表"，进行训练</li>
+</ul>
+<h3 id="72">7.2 战场</h3>
+<ul>
+<li><strong>定位</strong>：上级空间中的战斗区域</li>
+<li><strong>目的</strong>：学习"战法"，证明实力</li>
+<li><strong>最终目标</strong>：获得成为"神"的资格</li>
+</ul>
+<hr />
+<h2 id="_11">八、地理分布示意图（概念）</h2>
+<div class="codehilite"><pre><span></span><code><span class="w">                   </span><span class="n">北方冰原</span>
+<span class="w">                  </span><span class="o">[</span><span class="n">圣教/圣廷</span><span class="o">]</span>
+<span class="w">                      </span><span class="o">|</span>
+<span class="w">                      </span><span class="o">|</span>
+<span class="w">    </span><span class="o">[</span><span class="n">G区</span><span class="o">]</span><span class="err">——</span><span class="o">[</span><span class="n">C区</span><span class="o">]</span><span class="err">——</span><span class="o">[</span><span class="n">天都山庄</span><span class="o">]</span><span class="err">——</span><span class="o">[</span><span class="n">S区</span><span class="o">]</span><span class="err">——</span><span class="o">[</span><span class="n">T区</span><span class="o">]</span>
+<span class="w">      </span><span class="o">|</span><span class="w">       </span><span class="o">|</span><span class="w">        </span><span class="o">|</span><span class="w">          </span><span class="o">|</span><span class="w">        </span><span class="o">|</span>
+<span class="w">      </span><span class="o">|</span><span class="w">     </span><span class="o">[</span><span class="n">英雄城</span><span class="o">]</span><span class="w">   </span><span class="o">|</span><span class="w">      </span><span class="o">[</span><span class="n">营地</span><span class="o">]</span><span class="w">   </span><span class="o">[</span><span class="n">营地</span><span class="o">]</span>
+<span class="w">      </span><span class="o">|</span><span class="w">                </span><span class="o">|</span>
+<span class="w">    </span><span class="o">[</span><span class="n">秘境入口</span><span class="o">]</span><span class="err">————</span><span class="o">[</span><span class="n">通天城</span><span class="o">]</span><span class="err">————</span><span class="o">[</span><span class="n">地下城</span><span class="o">]</span>
+<span class="w">      </span><span class="o">|</span><span class="w">       </span><span class="p">(</span><span class="n">中立交易</span><span class="p">)</span><span class="w">      </span><span class="o">|</span>
+<span class="w">      </span><span class="o">|</span><span class="w">                        </span><span class="o">|</span>
+<span class="w">    </span><span class="o">[</span><span class="n">布落圣城</span><span class="o">]</span><span class="w">            </span><span class="o">[</span><span class="n">圣城(意大利)</span><span class="o">]</span>
+<span class="w">    </span><span class="p">(</span><span class="n">古族秘境</span><span class="p">)</span><span class="w">            </span><span class="p">(</span><span class="n">已毁灭</span><span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<p><em>返回<a onclick="navigateTo('../首页')" class="wiki-link">首页</a></em></p>
+</div>
+<div class="page-content" id="page-地图与地点-天都山庄">
+<h1 id="_1">地图与地点 · 天都山庄</h1>
+<blockquote>
+<p>叶默创立的末日后最强幸存者基地，从一个别墅区发展为超级军事要塞。</p>
+</blockquote>
+<hr />
+<h2 id="_2">基本信息</h2>
+<table>
+<thead>
+<tr>
+<th>属性</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>名称</strong></td>
+<td>天都山庄（天湖别苑 → 天都山庄 → 天都基地）</td>
+</tr>
+<tr>
+<td><strong>创始人</strong></td>
+<td>叶默</td>
+</tr>
+<tr>
+<td><strong>建立时间</strong></td>
+<td>末日降临后数日内</td>
+</tr>
+<tr>
+<td><strong>定位</strong></td>
+<td>末日后最强幸存者势力的大本营</td>
+</tr>
+<tr>
+<td><strong>人口</strong></td>
+<td>核心战士数千人 + 大量平民</td>
+</tr>
+<tr>
+<td><strong>特色</strong></td>
+<td>锻造工坊、药剂工坊、城墙防御、战兽部队</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_3">发展历程</h2>
+<h3 id="_4">第一阶段：据点建立（末日初期）</h3>
+<div class="codehilite"><pre><span></span><code>原址: 天湖别苑（高档小区）
+    ↓
+清理周边丧尸和变异生物
+    ↓
+利用别墅区作为初始营地
+    ↓
+园丁职业控制变异植物作为&quot;天然屏障&quot;
+</code></pre></div>
+
+<h3 id="-">第二阶段：堡垒化（末日数周-数月）</h3>
+<div class="codehilite"><pre><span></span><code>建立城墙防御系统
+    ↓
+建设锻造工坊（生产装备）
+    ↓
+建设药剂工坊（生产进化药剂）
+    ↓
+吸引幸存者投靠
+</code></pre></div>
+
+<h3 id="-_1">第三阶段：超级要塞（末日数月-数年）</h3>
+<div class="codehilite"><pre><span></span><code>扩大领地范围
+    ↓
+建立完整的军事体系
+    ↓
+控制周边城市（如英雄城）
+    ↓
+成为超一流势力
+</code></pre></div>
+
+<hr />
+<h2 id="_5">设施布局</h2>
+<div class="codehilite"><pre><span></span><code>         ┌──────────────────────┐
+         │     城墙防御系统      │
+         │  ┌────────────────┐  │
+         │  │   军事训练场    │  │
+         │  │   (练兵区)      │  │
+         │  ├────────────────┤  │
+         │  │   核心居住区    │  │
+         │  │  (将领+核心成员) │  │
+         │  ├────────────────┤  │
+         │  │   平民居住区    │  │
+         │  ├──────┬─────────┤  │
+         │  │锻造   │ 药剂    │  │
+         │  │工坊   │ 工坊    │  │
+         │  ├──────┴─────────┤  │
+         │  │   交易市场      │  │
+         │  └────────────────┘  │
+         │    变异植物防御圈     │
+         └──────────────────────┘
+</code></pre></div>
+
+<hr />
+<h2 id="_6">核心设施</h2>
+<h3 id="_7">锻造工坊</h3>
+<ul>
+<li><strong>功能</strong>：生产武器、装备、弹药</li>
+<li><strong>负责人</strong>：叶默（荣耀工匠）</li>
+<li><strong>产出</strong>：白色至蓝色品质装备</li>
+<li><strong>特色</strong>：可对现有装备进行附魔和升级</li>
+</ul>
+<h3 id="_8">药剂工坊</h3>
+<ul>
+<li><strong>功能</strong>：生产进化药剂、免疫药剂、治疗药剂</li>
+<li><strong>原料</strong>：变异植物、魔晶、化学药品</li>
+<li><strong>产出</strong>：各等级进化药剂</li>
+</ul>
+<h3 id="_9">城墙防御系统</h3>
+<ul>
+<li><strong>结构</strong>：多层防御工事</li>
+<li><strong>武器</strong>：弩炮、枪械、元素攻击点</li>
+<li><strong>补充</strong>：变异植物构成的天然防御带</li>
+</ul>
+<h3 id="_10">交易市场</h3>
+<ul>
+<li><strong>类型</strong>：基地内部市场</li>
+<li><strong>交易物品</strong>：魔晶、装备、药剂、食物、材料</li>
+<li><strong>货币</strong>：以魔晶为基础的信用体系</li>
+</ul>
+<hr />
+<h2 id="_11">军事力量</h2>
+<h3 id="_12">核心战力（十星级）</h3>
+<ul>
+<li>叶默（领主）</li>
+<li>墨夜（冰系法师）</li>
+<li>其他十星进化者数名</li>
+<li>地皇犬（十星战兽）</li>
+<li>黑猫（十星战兽）</li>
+</ul>
+<h3 id="_13">军队编制</h3>
+<ul>
+<li>正式编制战士数千人</li>
+<li>分多个战团</li>
+<li>配备标准化装备（天都山庄锻造）</li>
+</ul>
+<h3 id="_14">防御特点</h3>
+<ul>
+<li>变异植物构成第一道防线</li>
+<li>城墙和防御工事为第二道防线</li>
+<li>进化者部队为机动防御力量</li>
+<li>战兽用于巡逻和预警</li>
+</ul>
+<hr />
+<h2 id="_15">势力关系</h2>
+<table>
+<thead>
+<tr>
+<th>关系</th>
+<th>势力</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>合作</td>
+<td>荣耀联盟</td>
+<td>各战团互助</td>
+</tr>
+<tr>
+<td>互利</td>
+<td>布落圣城</td>
+<td>武器换魔晶交易</td>
+</tr>
+<tr>
+<td>合作+竞争</td>
+<td>圣教/圣廷</td>
+<td>贸易与对抗并存</td>
+</tr>
+<tr>
+<td>敌对(已灭)</td>
+<td>圣城</td>
+<td>被天都军攻灭</td>
+</tr>
+<tr>
+<td>中立</td>
+<td>通天城</td>
+<td>交易中心</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_16">战略意义</h2>
+<ol>
+<li><strong>轮盘控制</strong>：周边多个轮盘在天都控制之下</li>
+<li><strong>物资生产</strong>：自给自足的装备和药剂生产能力</li>
+<li><strong>人才聚集</strong>：最强进化者和职业者的汇聚地</li>
+<li><strong>贸易中心</strong>：与多方势力保持交易关系</li>
+<li><strong>军事威慑</strong>：能远征灭掉圣城的军事力量</li>
+</ol>
+<hr />
+<p><em>返回<a onclick="navigateTo('地图与地点/地点总览')" class="wiki-link">地点总览</a> | <a onclick="navigateTo('../首页')" class="wiki-link">首页</a></em></p>
+</div>
+<div class="page-content" id="page-怪物图鉴-丧尸等级详解">
+<h1 id="s">怪物图鉴 · 丧尸等级详解</h1>
+<blockquote>
+<p>丧尸是末日中最常见也最基础的怪物类型。本章节详细阐述丧尸的分类、等级、能力与应对策略。</p>
+</blockquote>
+<hr />
+<h2 id="s_1">一、丧尸的诞生</h2>
+<h3 id="_1">感染机制</h3>
+<div class="codehilite"><pre><span></span><code>末日光线照射死亡 → 转化为丧尸 (初代)
+       OR
+被丧尸抓伤/咬伤 → 30分钟内感染 → 转化为丧尸
+</code></pre></div>
+
+<h3 id="s_2">基础特征（普通丧尸）</h3>
+<table>
+<thead>
+<tr>
+<th>特征</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>皮肤</strong></td>
+<td>灰黑色，布满暗红色/青紫色血管</td>
+</tr>
+<tr>
+<td><strong>眼睛</strong></td>
+<td>血红色，无瞳孔感</td>
+</tr>
+<tr>
+<td><strong>口部</strong></td>
+<td>长有尖牙，流出黏稠黑色液体</td>
+</tr>
+<tr>
+<td><strong>手指</strong></td>
+<td>长出墨绿色尖指甲</td>
+</tr>
+<tr>
+<td><strong>头发</strong></td>
+<td>稀疏脱落</td>
+</tr>
+<tr>
+<td><strong>智力</strong></td>
+<td>完全丧失，只剩嗜血本能</td>
+</tr>
+<tr>
+<td><strong>感官</strong></td>
+<td>视觉(动态敏感)、听觉(声敏)、嗅觉(活人气味)</td>
+</tr>
+<tr>
+<td><strong>弱点</strong></td>
+<td>头部是唯一致命要害</td>
+</tr>
+<tr>
+<td><strong>力量</strong></td>
+<td>约1.5-3倍普通人</td>
+</tr>
+<tr>
+<td><strong>速度</strong></td>
+<td>普通丧尸速度不快</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_2">二、等级体系</h2>
+<h3 id="21-s-s">2.1 一级丧尸 (普通丧尸)</h3>
+<div class="codehilite"><pre><span></span><code>魔晶: 白色一级
+力量: 约1.5-3倍普通人
+速度: 慢（初期）
+智力: 无（本能驱动）
+威胁: ★☆☆☆☆ (对强化人)
+      ★★★★☆ (对普通人)
+</code></pre></div>
+
+<ul>
+<li>最常见的类型</li>
+<li>单体威胁低，群体威胁高</li>
+<li>在城市区域密集分布</li>
+</ul>
+<h3 id="22-s">2.2 二级丧尸</h3>
+<div class="codehilite"><pre><span></span><code>魔晶: 灰色/白色二级
+力量: 明显提升
+速度: 显著加快
+防御: 皮肤开始硬化
+智力: 极低（有些许狩猎本能）
+威胁: ★★☆☆☆
+</code></pre></div>
+
+<h3 id="23-s-s">2.3 三级丧尸 (铁臂丧尸)</h3>
+<div class="codehilite"><pre><span></span><code>魔晶: 绿色三级
+特征: 一只手臂变异为粗大黑色巨臂
+力量: 极高的局部力量
+速度: 中等
+防御: 身体部位显著强化
+智力: 初级狩猎本能
+威胁: ★★★☆☆
+特殊: 巨臂可轻易撕碎木门和薄墙
+</code></pre></div>
+
+<h3 id="24-s">2.4 四级丧尸</h3>
+<div class="codehilite"><pre><span></span><code>魔晶: 蓝色四级
+特征: 已恢复部分智慧
+能力: 懂得伏击和基础战术
+速度: 全方位提升
+威胁: ★★★★☆
+特殊: 可能拥有基础天赋技能
+</code></pre></div>
+
+<h3 id="25-s">2.5 五级丧尸及以上</h3>
+<div class="codehilite"><pre><span></span><code>魔晶: 紫色五级 → 橙色六级 → 金色七级 → 彩色八级 → 黑色九级
+智力: 逐渐恢复，高阶接近人类
+能力: 各种天赋技能
+威胁: ★★★★★ 以上
+</code></pre></div>
+
+<h3 id="26">2.6 特殊变种</h3>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>特征</th>
+<th>威胁</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>尸童</strong></td>
+<td>儿童丧尸，速度极快、狡猾</td>
+<td>★★★★</td>
+</tr>
+<tr>
+<td><strong>喷毒丧尸</strong></td>
+<td>可喷射腐蚀性毒液</td>
+<td>★★★★</td>
+</tr>
+<tr>
+<td><strong>巨型头颅丧尸</strong></td>
+<td>可从口中射出触须/钩子吸取血肉</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td><strong>尸猿</strong></td>
+<td>猿类丧尸，进化速度远超地面丧尸</td>
+<td>★★★★★+</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="s_3">三、丧尸的再生能力</h2>
+<h3 id="_3">核心规则</h3>
+<blockquote>
+<p>只要头部完整且魔晶未被取出，丧尸可以通过吞噬血肉<strong>再生完整身体</strong>！</p>
+</blockquote>
+<h3 id="_4">机制</h3>
+<div class="codehilite"><pre><span></span><code>只剩头部的丧尸
+    ↓
+吞噬足够血肉
+    ↓
+一段时间后
+    ↓
+生长出全新身体（四肢+躯干）
+</code></pre></div>
+
+<h3 id="_5">游戏设计应用</h3>
+<ul>
+<li>击杀丧尸后必须取出魔晶才算彻底消灭</li>
+<li>如果只是砍掉头部但未取出魔晶 → 它可能被其他丧尸"喂养"后复活</li>
+<li>增加了末日世界的持续性威胁感</li>
+</ul>
+<hr />
+<h2 id="s_4">四、丧尸行为模式</h2>
+<h3 id="41">4.1 日常行为</h3>
+<ul>
+<li><strong>徘徊</strong>：无目标时缓慢游荡</li>
+<li><strong>聚集</strong>：向声源、光源、活人气息方向聚集</li>
+<li><strong>进食</strong>：发现活人/新鲜尸体时疯狂进食</li>
+<li><strong>转化</strong>：感染新的人类成为同类</li>
+</ul>
+<h3 id="42">4.2 群体行为</h3>
+<ul>
+<li><strong>丧尸潮</strong>：数百至数万丧尸同时向某个方向移动</li>
+<li><strong>触发机制</strong>：爆炸声、大规模战斗、兽潮等</li>
+<li><strong>危险性</strong>：即使高级进化者也难以从丧尸潮中全身而退</li>
+</ul>
+<h3 id="43">4.3 昼夜差异</h3>
+<ul>
+<li><strong>白天</strong>：活动性相对较低</li>
+<li><strong>夜晚</strong>：活跃度增加，危险性大幅提升</li>
+<li>高级丧尸没有明显的昼夜差异</li>
+</ul>
+<hr />
+<h2 id="_6">五、应对策略</h2>
+<h3 id="51">5.1 对普通人</h3>
+<table>
+<thead>
+<tr>
+<th>策略</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>避开</td>
+<td>最安全的选择</td>
+</tr>
+<tr>
+<td>安静</td>
+<td>不制造声响</td>
+</tr>
+<tr>
+<td>遮挡气味</td>
+<td>用丧尸血肉涂抹自身</td>
+</tr>
+<tr>
+<td>高处</td>
+<td>丧尸不会攀爬</td>
+</tr>
+<tr>
+<td>火攻</td>
+<td>丧尸怕火</td>
+</tr>
+</tbody>
+</table>
+<h3 id="52">5.2 对进化者</h3>
+<table>
+<thead>
+<tr>
+<th>等级</th>
+<th>推荐策略</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>一星进化者</td>
+<td>可单挑数只普通丧尸，但需避免被包围</td>
+</tr>
+<tr>
+<td>二星进化者</td>
+<td>可清剿普通丧尸群，对二级丧尸需注意</td>
+</tr>
+<tr>
+<td>三星+进化者</td>
+<td>普通丧尸不再是威胁，但需注意特殊变种</td>
+</tr>
+</tbody>
+</table>
+<h3 id="53-s">5.3 对高阶丧尸</h3>
+<ul>
+<li>需团队配合</li>
+<li>针对其天赋技能的弱点</li>
+<li>高级装备和技能卡的价值体现</li>
+</ul>
+<hr />
+<h2 id="_7">六、魔晶获取</h2>
+<h3 id="s_5">从丧尸取魔晶</h3>
+<div class="codehilite"><pre><span></span><code><span class="mf">1.</span><span class="w"> </span><span class="n">确认丧尸完全死亡</span><span class="err">（</span><span class="n">头部破坏</span><span class="err">）</span>
+<span class="mf">2.</span><span class="w"> </span><span class="n">使用刀具在头部寻找魔晶</span>
+<span class="mf">3.</span><span class="w"> </span><span class="n">魔晶通常嵌在脑部中央位置</span>
+<span class="mf">4.</span><span class="w"> </span><span class="n">小心取出</span><span class="err">，</span><span class="n">避免损坏</span>
+</code></pre></div>
+
+<h3 id="_8">价值参考</h3>
+<table>
+<thead>
+<tr>
+<th>丧尸等级</th>
+<th>魔晶颜色</th>
+<th>相对价值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>一级</td>
+<td>白色</td>
+<td>1</td>
+</tr>
+<tr>
+<td>二级</td>
+<td>灰色</td>
+<td>10+</td>
+</tr>
+<tr>
+<td>三级</td>
+<td>绿色</td>
+<td>100+</td>
+</tr>
+<tr>
+<td>四级+</td>
+<td>蓝色+</td>
+<td>1000+</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><em>返回<a onclick="navigateTo('怪物图鉴/怪物总览')" class="wiki-link">怪物总览</a> | <a onclick="navigateTo('../首页')" class="wiki-link">首页</a></em></p>
+</div>
+<div class="page-content" id="page-怪物图鉴-怪物总览">
+<h1 id="_1">怪物图鉴 · 怪物总览</h1>
+<blockquote>
+<p>本章节收录《轮盘世界》中所有怪物类型，包括丧尸、变异兽、变异植物、地狱兽等。</p>
+</blockquote>
+<hr />
+<h2 id="_2">一、怪物体系概述</h2>
+<p>末日降临后，地球上的生物受到末日力量的影响发生变异。所有怪物的共同特征是在头部生成"魔晶"——末日世界最核心的资源和货币。</p>
+<h3 id="_3">怪物等级体系</h3>
+<table>
+<thead>
+<tr>
+<th>等级</th>
+<th>魔晶颜色</th>
+<th>威胁程度</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>一级</td>
+<td>黄色</td>
+<td>低（对强化人）</td>
+<td>普通丧尸</td>
+</tr>
+<tr>
+<td>二级</td>
+<td>—</td>
+<td>中</td>
+<td>进化丧尸、变异虫群</td>
+</tr>
+<tr>
+<td>三级+</td>
+<td>—</td>
+<td>高</td>
+<td>变异兽、变异植物</td>
+</tr>
+<tr>
+<td>高级</td>
+<td>—</td>
+<td>极高</td>
+<td>地狱兽、远古种</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="ss">二、丧尸（丧尸）</h2>
+<h3 id="21-s">2.1 普通丧尸</h3>
+<ul>
+<li><strong>来源</strong>：被末日力量感染死亡后转化的人类</li>
+<li><strong>外观</strong>：</li>
+<li>灰黑色皮肤，布满暗红色血管</li>
+<li>血红色眼睛</li>
+<li>嘴里长出獠牙，流着黏稠液体</li>
+<li>手指长出黑色尖指甲</li>
+<li>头发稀疏脱落</li>
+<li><strong>行为</strong>：</li>
+<li>失去理智，只剩嗜血本能</li>
+<li>以活人为食</li>
+<li>对声音和光线敏感</li>
+<li>单体力量约是普通人的2-3倍</li>
+<li><strong>弱点</strong>：</li>
+<li>头部是致命弱点</li>
+<li>攻击头部可一击败杀</li>
+<li><strong>感染机制</strong>：</li>
+<li>抓伤或咬伤会被感染</li>
+<li>感染者会变成同类</li>
+<li>无法治愈</li>
+<li><strong>再生能力</strong>：</li>
+<li>只要头部完整且魔晶未被取出</li>
+<li>可以通过吞噬血肉再生完整身体</li>
+</ul>
+<h3 id="22-s">2.2 进化丧尸</h3>
+<ul>
+<li>末日数天后开始出现</li>
+<li>比普通丧尸更强壮、更快速</li>
+<li>部分具有特殊能力</li>
+<li>魔晶品质更高</li>
+<li>难以单独遇到（常聚集在丧尸群中）</li>
+</ul>
+<h3 id="23-s">2.3 丧尸特征总结</h3>
+<ul>
+<li><strong>视觉</strong>：可看到运动物体</li>
+<li><strong>听觉</strong>：对声音敏感</li>
+<li><strong>嗅觉</strong>：可嗅到活人气味</li>
+<li><strong>速度</strong>：普通速度不快（初期），进化后增加</li>
+<li><strong>力量</strong>：超过普通成年人</li>
+<li><strong>智力</strong>：单体极低，群体可能产生简单的协同行为</li>
+</ul>
+<hr />
+<h2 id="_4">三、变异虫类（变异昆虫）</h2>
+<h3 id="31">3.1 变异黑甲虫（变异甲虫）</h3>
+<ul>
+<li><strong>外观</strong>：</li>
+<li>大小如老鼠/猫</li>
+<li>黑色甲壳</li>
+<li>多足</li>
+<li><strong>行为</strong>：</li>
+<li>群居，成群行动</li>
+<li>偏好腐肉和活人血肉</li>
+<li>会主动攻击人类</li>
+<li><strong>能力</strong>：</li>
+<li>喷射绿色/墨绿色腐蚀性液体</li>
+<li>腐蚀液可溶解木材、金属、人体</li>
+<li>甲壳随着成长变硬</li>
+<li><strong>成长</strong>：</li>
+<li>初期甲壳较软，可被普通刀具砍破</li>
+<li>随时间推移甲壳变硬</li>
+<li>成年后可长到狮子大小</li>
+<li>进化后可威胁高级进化者</li>
+<li><strong>食用价值</strong>：</li>
+<li>甲壳下的肉可食用</li>
+<li>含有丰富营养</li>
+<li>对强化人有额外好处</li>
+<li>需烤熟食用</li>
+</ul>
+<h3 id="32">3.2 白蛆虫（白化巨蛆/白蛆）</h3>
+<ul>
+<li><strong>外观</strong>：白色巨型蛆虫状</li>
+<li><strong>特性</strong>：皮糙肉厚，难以击杀</li>
+<li><strong>危险等级</strong>：高（群居+高防御）</li>
+</ul>
+<h3 id="33">3.3 其他变异昆虫</h3>
+<ul>
+<li>各类被感染的昆虫均有变异可能</li>
+<li>大小普遍增大数倍至数十倍</li>
+<li>保留原有昆虫特征但大幅强化</li>
+</ul>
+<hr />
+<h2 id="_5">四、变异兽（变异兽）</h2>
+<p>变异兽是末日后被感染变异的动物，种类繁多，力量强大。</p>
+<h3 id="41">4.1 变异兽特征</h3>
+<ul>
+<li>体型大幅增大</li>
+<li>具有超常的攻击性</li>
+<li>可能拥有特殊能力（酸液、毒气等）</li>
+<li>头部有魔晶</li>
+<li>部分变异兽的肉可食用且有强化效果</li>
+</ul>
+<h3 id="42">4.2 已知变异兽类型</h3>
+<ul>
+<li><strong>变异犬/狼</strong>：速度极快，成群行动</li>
+<li><strong>变异猫科</strong>：潜伏和爆发力极强</li>
+<li><strong>变异鼠群</strong>：数量庞大</li>
+<li><strong>变异鸟类</strong>：空中威胁</li>
+<li><strong>变异蛇类</strong>：毒性强化</li>
+<li><strong>变异熊/大型猛兽</strong>：力量型怪物</li>
+<li><strong>变异蜘蛛</strong>：织网和毒素能力</li>
+<li><strong>变异蝎子</strong>：毒尾和甲壳</li>
+</ul>
+<h3 id="43">4.3 战兽</h3>
+<ul>
+<li>部分变异兽可被职业者（召唤师等）驯服为战兽</li>
+<li>战兽与主人之间存在契约关系</li>
+<li>优秀战兽能极大增强主人战力</li>
+</ul>
+<hr />
+<h2 id="_6">五、变异植物（变异植物）</h2>
+<h3 id="51">5.1 概述</h3>
+<p>末日降临时，不仅是动物，植物也发生了恐怖的变异。变异植物极端危险，在末日后世界中，它们甚至能阻挡大部分兽潮入侵人类聚居地。</p>
+<h3 id="52">5.2 变异植物特征</h3>
+<ul>
+<li><strong>食性改变</strong>：从光合作用变为嗜血</li>
+<li><strong>攻击性</strong>：主动捕食靠近的生物</li>
+<li><strong>生长速度</strong>：极快</li>
+<li><strong>体型</strong>：可长到极其巨大</li>
+<li><strong>能力</strong>：</li>
+<li>藤蔓缠绕</li>
+<li>毒液/腐蚀液喷射</li>
+<li>根须攻击</li>
+<li>花粉/孢子毒气</li>
+</ul>
+<h3 id="53">5.3 变异植物与生态</h3>
+<ul>
+<li>变异植物构成末日后世界的新生态系统</li>
+<li>它们与变异兽互相制衡</li>
+<li>部分变异植物区域成为人类禁区</li>
+<li>但同时它们也阻挡了部分怪物入侵人类基地</li>
+</ul>
+<h3 id="54">5.4 注意事项</h3>
+<ul>
+<li>即使是高级进化者也不愿意轻易进入变异植物区域</li>
+<li>需要火焰、特殊药剂等手段才能有效对抗</li>
+</ul>
+<hr />
+<h2 id="_7">六、地狱兽与高等怪物</h2>
+<h3 id="61">6.1 地狱兽</h3>
+<ul>
+<li>末日后期出现的超高等怪物</li>
+<li>具备恐怖的力量和防御</li>
+<li>通常体积极其庞大</li>
+<li>可能需要多支战队联合对抗</li>
+<li>掉落最高品质的魔晶</li>
+</ul>
+<h3 id="62">6.2 异形种</h3>
+<ul>
+<li>来源不明的高级怪物</li>
+<li>形态多样，能力各异</li>
+<li>极度危险</li>
+</ul>
+<h3 id="63">6.3 远古种</h3>
+<ul>
+<li>可能在末日前后就已存在的古代生物</li>
+<li>被末日力量唤醒或强化</li>
+<li>实力极其恐怖</li>
+</ul>
+<hr />
+<h2 id="_8">七、怪物分布规律</h2>
+<h3 id="_9">按时间分布</h3>
+<table>
+<thead>
+<tr>
+<th>时期</th>
+<th>主要怪物</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>末日当天</td>
+<td>普通丧尸、初级变异虫</td>
+</tr>
+<tr>
+<td>末日后数天</td>
+<td>进化丧尸、变异虫群</td>
+</tr>
+<tr>
+<td>末日后数周</td>
+<td>变异兽、变异植物</td>
+</tr>
+<tr>
+<td>末日后数月</td>
+<td>高等变异生物、地狱兽</td>
+</tr>
+<tr>
+<td>末日后数年+</td>
+<td>各种超高级怪物共存</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_10">按地理分布</h3>
+<ul>
+<li><strong>城市</strong>：丧尸密集区（人口密集导致）</li>
+<li><strong>郊外</strong>：变异植物和变异虫类</li>
+<li><strong>荒野</strong>：变异兽领地</li>
+<li><strong>特殊区域</strong>：高等怪物/地狱兽领地</li>
+</ul>
+<hr />
+<p><em>返回<a onclick="navigateTo('../首页')" class="wiki-link">首页</a></em></p>
+</div>
+<div class="page-content" id="page-情节概要-情节总览">
+<h1 id="_1">情节概要 · 情节总览</h1>
+<blockquote>
+<p>本章节收录《轮盘世界》的完整剧情线，包括主要故事弧、关键事件与重大转折。</p>
+</blockquote>
+<hr />
+<h2 id="_2">一、前世：末日后十年</h2>
+<ul>
+<li><strong>时间</strong>：末日十年后</li>
+<li><strong>叶默状态</strong>：三星进化者（或更高），隶属某个战队</li>
+<li><strong>结局</strong>：在一场与强敌的战斗中被偷袭杀害</li>
+<li><strong>末日前兆</strong>：十年间人类始终处于防御状态，未能揭开末日真相</li>
+<li><strong>金色圣光战甲</strong>：始终是一个未解之谜</li>
+<li><strong>重生契机</strong>：死亡后意识回归，重生至末日降临前1小时</li>
+</ul>
+<hr />
+<h2 id="1-50">二、第一阶段：重生与末日降临（第1-50章）</h2>
+<h3 id="21-2220910-1535">2.1 重生（2220年9月10日 15:35）</h3>
+<ul>
+<li>叶默在2220年9月10日15:35醒来，发现自己回到了末日降临前1小时</li>
+<li>确认不是幻境，而是真正的重生</li>
+<li>与女友白诗诗见面，告知危险并尊重她的选择</li>
+</ul>
+<h3 id="22-1535-1640">2.2 紧急准备（15:35-16:40）</h3>
+<ul>
+<li>前往医院购买大量医疗物资和药品</li>
+<li>去野外装备店购买开山刀和户外工具套装</li>
+<li>赶往<strong>锦盛华庭小区</strong></li>
+</ul>
+<h3 id="23-1640">2.3 末日降临（16:40）</h3>
+<ul>
+<li>天空出现巨大蘑菇云爆炸</li>
+<li>金色圣光战甲一角闪现于天际</li>
+<li>爆炸和冲击波席卷整个城市</li>
+<li>大量人类死亡并开始转化为丧尸</li>
+<li><strong>末日轮盘</strong>出现在锦盛华庭别墅一楼</li>
+</ul>
+<h3 id="24">2.4 第一夜</h3>
+<ul>
+<li>遇到<strong>温静（慕安媛/杀戮玫瑰）</strong>，未来十星强者</li>
+<li>猎杀丧尸收集一级魔晶（获得21枚黄色一级魔晶）</li>
+<li>第一次转动轮盘：抽到弩 + 一级进化药剂</li>
+<li>成为<strong>一星进化者</strong>，身体素质5倍提升</li>
+<li>对抗变异甲虫群的袭击，保护温静</li>
+</ul>
+<h3 id="25">2.5 离开小区</h3>
+<ul>
+<li>温静失踪（短暂失去联系）</li>
+<li>叶默被一女子呼救引出，在校园区域活动</li>
+<li>获得<strong>荣耀工匠</strong>职业</li>
+<li>遇到<strong>墨夜</strong>（女警），联手对抗变异巨蚁</li>
+<li>获得<strong>园丁</strong>职业</li>
+</ul>
+<hr />
+<h2 id="50-200">三、第二阶段：基地建立与团队组建（第50-200章）</h2>
+<h3 id="31">3.1 占领天湖别苑</h3>
+<ul>
+<li>选定<strong>天湖别苑</strong>作为基地位置</li>
+<li>清理周边丧尸和变异生物</li>
+<li>利用荣耀工匠职业锻造装备</li>
+<li>使用园丁职业控制变异植物作为防御</li>
+</ul>
+<h3 id="32">3.2 团队组建</h3>
+<ul>
+<li><strong>墨夜</strong>：女警，冰系法师，核心战力</li>
+<li><strong>金英</strong>：教师，神罚使徒→神罚使者，治疗者</li>
+<li><strong>盛元</strong>：壮汉战士，为女友复仇</li>
+<li><strong>小虎</strong>：侦察兵，枪法精准</li>
+<li><strong>乐乐</strong>：团队开心果</li>
+<li><strong>地皇犬</strong>：由流浪狗变异而来的战兽</li>
+</ul>
+<h3 id="33">3.3 第一次兽潮</h3>
+<ul>
+<li>"聚宝盆"事件触发怪物潮</li>
+<li>尸猿等高级怪物出现</li>
+<li>叶默展示实力，成功防御</li>
+<li>大量魔晶入账，势力开始扩张</li>
+</ul>
+<h3 id="34">3.4 基地发展</h3>
+<ul>
+<li>天湖别苑→正式更名为<strong>天都山庄</strong></li>
+<li>建立锻造工坊、药剂工坊</li>
+<li>城墙防御系统建立</li>
+<li>吸引各路人马投靠</li>
+</ul>
+<hr />
+<h2 id="200-600">四、第三阶段：秘境探索与势力扩张（第200-600章）</h2>
+<h3 id="41">4.1 秘境探险</h3>
+<ul>
+<li>获得秘境钥匙，进入死亡秘境</li>
+<li>在秘境中获取大量魔晶和稀有材料</li>
+<li>发现<strong>布落圣城</strong>，与古族建立联系</li>
+<li>用武器换取古族的魔晶，互利共赢</li>
+</ul>
+<h3 id="42">4.2 势力博弈</h3>
+<ul>
+<li>与<strong>G区、C区、T区、S区</strong>等各方势力接触</li>
+<li>参加大规模竞拍会</li>
+<li>天都山庄逐渐成为一流势力</li>
+</ul>
+<h3 id="43">4.3 红发的故事</h3>
+<ul>
+<li>一名团队成员死后变异为有意识的特殊丧尸</li>
+<li>可操控丧尸群，保留人类意识</li>
+<li>逐渐与人类疏远但守护基地</li>
+</ul>
+<h3 id="44">4.4 镜界探险</h3>
+<ul>
+<li>进入另一个大型秘境（镜界）</li>
+<li>获取稀有装备和材料</li>
+</ul>
+<hr />
+<h2 id="600-900">五、第四阶段：圣城之战（第600-900章）</h2>
+<h3 id="51">5.1 与圣城的冲突</h3>
+<ul>
+<li>圣城（意大利地区）与天都山庄发生摩擦</li>
+<li>圣城势力强大，有圣殿骑士团和审判团</li>
+<li>冲突逐步升级为全面战争</li>
+</ul>
+<h3 id="52">5.2 圣城攻略战</h3>
+<ul>
+<li>叶默率天都军远征圣城</li>
+<li>与圣城九星强者<strong>宫殿巨人</strong>展开惊天大战</li>
+<li>圣殿骑士团与天都精锐的全面对抗</li>
+</ul>
+<h3 id="53">5.3 圣城覆灭</h3>
+<ul>
+<li>圣城被攻陷</li>
+<li>地面裂开，巨大"茧"状怪物出现（圣城地下之物）</li>
+<li>安禄德圣子以血祭方式吸收圣城所有生命之力</li>
+<li>叶默联合天界降临者最终获胜</li>
+</ul>
+<hr />
+<h2 id="900-1739">六、第五阶段：天界之路（第900-1739章/结局）</h2>
+<h3 id="61">6.1 十星之路</h3>
+<ul>
+<li>收集九级魔晶（彩色魔晶）</li>
+<li>冲击十星进化者</li>
+<li>制作"宇宙之盒"等神级装备</li>
+</ul>
+<h3 id="62">6.2 对抗圣教/圣廷</h3>
+<ul>
+<li>北方冰原的圣教势力</li>
+<li>机械战甲部队与骑士团</li>
+<li>与莉莲（十星强者）的对决与合作</li>
+</ul>
+<h3 id="63">6.3 攻灭圣城</h3>
+<ul>
+<li>集齐力量后发动最终战役</li>
+<li>圣城安禄德家族的覆灭</li>
+<li>叶默达到九星/十星巅峰</li>
+</ul>
+<h3 id="64">6.4 被传送至上级空间</h3>
+<ul>
+<li>达到九星后强制传送</li>
+<li>进入由翼人/矮人管理的上级空间</li>
+<li>与其他世界的人类代表集结</li>
+<li>开始学习"战法"（新的力量体系）</li>
+</ul>
+<h3 id="65">6.5 结局</h3>
+<ul>
+<li>被告知当前只是"入场券"的获得阶段</li>
+<li>接下来要去"战场"证明自己</li>
+<li>目标是成为"神"或揭开末日真相</li>
+<li><strong>开放式结局</strong>：更大的世界观被揭示——地球末日只是更高层次存在设计的"试炼场"</li>
+</ul>
+<hr />
+<h2 id="_3">七、关键主题与核心谜题</h2>
+<h3 id="71">7.1 末日真相</h3>
+<ul>
+<li>末日并非自然灾难，而是<strong>被制造的</strong></li>
+<li>金色圣光战甲是高等存在之间的战斗装备</li>
+<li>地球上的一切（生物、植物、矿物）都像是被"投放"的</li>
+<li>幕后有超越人类认知的存在在操控</li>
+</ul>
+<h3 id="72">7.2 轮回与重生</h3>
+<ul>
+<li>叶默的重生可能不只是巧合</li>
+<li>可能与更高层次的安排有关</li>
+</ul>
+<h3 id="73">7.3 力量的本质</h3>
+<ul>
+<li>从轮盘获取力量 → 从职业系统获取力量 → 从"战法"获取力量</li>
+<li>力量体系的不断升级暗示更大的世界观</li>
+</ul>
+<hr />
+<h2 id="_4">八、章节数量统计</h2>
+<p>根据提取的章节标题，小说共约<strong>1739章</strong>以上（最后可识别的章节为第1739章"投影之战"），总计超过101,000行文本。</p>
+<hr />
+<p><em>返回<a onclick="navigateTo('../首页')" class="wiki-link">首页</a></em></p>
+</div>
+<div class="page-content" id="page-组织与势力-势力总览">
+<h1 id="_1">组织与势力 · 势力总览</h1>
+<blockquote>
+<p>本章节收录《轮盘世界》中所有重要组织、势力、营地与军团的信息，按实力等级与重要程度排列。</p>
+</blockquote>
+<hr />
+<h2 id="_2">一、势力评级体系</h2>
+<table>
+<thead>
+<tr>
+<th>等级</th>
+<th>说明</th>
+<th>示例组织</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>S级</strong></td>
+<td>顶级势力，拥有最强战力和最大领地</td>
+<td>S组织</td>
+</tr>
+<tr>
+<td><strong>A级</strong></td>
+<td>一流势力</td>
+<td>各类大型战队</td>
+</tr>
+<tr>
+<td><strong>B级</strong></td>
+<td>二流势力</td>
+<td>中型营地</td>
+</tr>
+<tr>
+<td><strong>C级</strong></td>
+<td>中等势力</td>
+<td>C组织</td>
+</tr>
+<tr>
+<td><strong>T级</strong></td>
+<td>特殊评级</td>
+<td>T组织</td>
+</tr>
+<tr>
+<td><strong>G级</strong></td>
+<td>较低评级</td>
+<td>G组织</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_3">二、叶默势力</h2>
+<h3 id="_4">绿洲山庄（绿洲山庄）</h3>
+<ul>
+<li><strong>创始人</strong>：叶默</li>
+<li><strong>成立时间</strong>：叶默从秘境返回后建立</li>
+<li><strong>核心成员</strong>：</li>
+<li>叶默（领主）</li>
+<li>墨夜（法师，十星）</li>
+<li>赵晓丽、孙丽颖（教师→战士）</li>
+<li>盛元、小奥</li>
+<li>白昊（小白，忠实追随者）</li>
+<li>红发（高级丧尸，后期独立）</li>
+<li><strong>战兽</strong>：地皇犬、黑猫（十星战兽）</li>
+<li><strong>军事力量</strong>：</li>
+<li>核心战士数千人</li>
+<li>完整的军制和装备体系</li>
+<li><strong>经济设施</strong>：</li>
+<li>锻造工坊（生产高级装备）</li>
+<li>药剂工坊（生产进化药剂）</li>
+<li>城墙防御系统</li>
+<li><strong>领地</strong>：以绿洲山庄为中心的广袤区域</li>
+<li><strong>成就</strong>：拥有多只十星战兽和多名十星进化者，攻灭圣城，成为末世最强幸存者组织</li>
+</ul>
+<hr />
+<h2 id="_5">三、圣城势力</h2>
+<h3 id="_6">圣城（圣城）</h3>
+<ul>
+<li><strong>位置</strong>：秘境/布落圣城区域</li>
+<li><strong>统治者</strong>：安禄德家族</li>
+<li><strong>社会结构</strong>：</li>
+<li>等级森严的贵族制度</li>
+<li>奴隶制度（将俘虏变为"奴兵"）</li>
+<li><strong>军事力量</strong>：</li>
+<li>圣骑士团（团长：哈鲁，十星进化者）</li>
+<li>多名高级战将（哈洛、赵哈洛、耶律撒等）</li>
+<li><strong>继承人</strong>：圣子/圣女婿（冷酷无情，视他人为棋子）</li>
+<li><strong>特色</strong>：依靠血统和家族传承获得力量</li>
+<li><strong>结局</strong>：被叶默率绿洲山庄大军攻破并毁灭</li>
+</ul>
+<h3 id="_7">布落圣城（部落古族）</h3>
+<ul>
+<li><strong>定位</strong>：秘境中的古代人类后裔聚居地</li>
+<li><strong>社会结构</strong>：部落制（酋长、长老层级）</li>
+<li><strong>文化特征</strong>：</li>
+<li>与秘境共存</li>
+<li>使用古武技和特殊装备</li>
+<li>不使用魔晶（不知道其价值）</li>
+<li><strong>圣物</strong>：圣水（可沟通两个世界）</li>
+<li><strong>与叶默关系</strong>：叶默通过交易武器换取魔晶，建立互利关系</li>
+</ul>
+<hr />
+<h2 id="_8">四、北方势力</h2>
+<h3 id="_9">圣教/圣廷（圣教/圣廷）</h3>
+<ul>
+<li><strong>位置</strong>：北方冰原</li>
+<li><strong>领袖</strong>：莉莲（十星进化者）</li>
+<li><strong>军事实力</strong>：</li>
+<li>机械战甲部队</li>
+<li>骑士团</li>
+<li>多名高阶进化者</li>
+<li><strong>与绿洲山庄关系</strong>：既有贸易又有竞争</li>
+</ul>
+<h3 id="temple">Temple（圣殿）</h3>
+<ul>
+<li><strong>位置</strong>：北方冰原</li>
+<li><strong>性质</strong>：强大组织</li>
+</ul>
+<hr />
+<h2 id="_10">五、联盟与公会</h2>
+<h3 id="_11">荣耀联盟（荣耀联盟）</h3>
+<ul>
+<li><strong>创建者</strong>：孔浩一（叶默旧识）</li>
+<li><strong>成员</strong>：多名十星进化者、众多战团</li>
+<li><strong>宗旨</strong>：各大战团互助互利</li>
+<li><strong>与叶默关系</strong>：合作关系，但内部存在派系分歧</li>
+</ul>
+<hr />
+<h2 id="_12">六、城市与中立势力</h2>
+<h3 id="_13">通天城（通天城）</h3>
+<ul>
+<li><strong>定位</strong>：中立交易城市</li>
+<li><strong>功能</strong>：各方势力交易中心</li>
+<li><strong>特色</strong>：在各方势力间保持中立</li>
+</ul>
+<h3 id="_14">地下城（地下城）</h3>
+<ul>
+<li><strong>定位</strong>：幸存者大型聚集据点</li>
+<li><strong>功能</strong>：提供庇护和交易场所</li>
+</ul>
+<hr />
+<h2 id="_15">七、中小型势力</h2>
+<table>
+<thead>
+<tr>
+<th>组织</th>
+<th>性质</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>天虎帮</td>
+<td>小型组织</td>
+<td>被叶默剿灭</td>
+</tr>
+<tr>
+<td>红月会</td>
+<td>小型组织</td>
+<td>-</td>
+</tr>
+<tr>
+<td>暗夜</td>
+<td>杀手/佣兵组织</td>
+<td>-</td>
+</tr>
+<tr>
+<td>夜血团</td>
+<td>雇佣兵/杀手组织</td>
+<td>-</td>
+</tr>
+<tr>
+<td>各大战队</td>
+<td>冒险/战斗团体</td>
+<td>围绕轮盘和任务运作</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_16">八、商业势力</h2>
+<h3 id="_17">轮盘交易网络</h3>
+<ul>
+<li>在基地间运输和交易物资</li>
+<li>使用魔晶作为通用货币</li>
+<li>掌握装备、药剂流通渠道</li>
+</ul>
+<h3 id="_18">工坊体系</h3>
+<ul>
+<li>锻造工坊：生产武器和装备</li>
+<li>药剂工坊：生产各类强化药剂</li>
+<li>附魔工坊：为装备附加特殊效果</li>
+</ul>
+<hr />
+<h2 id="_19">九、幕后势力</h2>
+<h3 id="_20">神秘组织（上层世界/天界）</h3>
+<ul>
+<li><strong>性质</strong>：比十星更高层次的存在</li>
+<li><strong>作用</strong>：控制"入场券"的发放，决定谁能进入天界</li>
+<li><strong>定位</strong>：末日背后真正的幕后操纵者</li>
+<li><strong>揭示时间</strong>：小说结尾才揭露</li>
+</ul>
+<hr />
+<h2 id="_21">十、势力间关系图</h2>
+<div class="codehilite"><pre><span></span><code>绿洲山庄 ←→ 荣耀联盟（合作，有分歧）
+     ↓
+  攻灭圣城
+     ↓
+布落圣城 ←→ 绿洲山庄（贸易互利）
+     ↓
+通天城（中立交易中心）
+     ↓
+圣教/圣廷 ←→ 绿洲山庄（贸易+竞争）
+     ↓
+上层世界/天界（幕后操纵）
+</code></pre></div>
+
+<hr />
+<p><em>返回<a onclick="navigateTo('../首页')" class="wiki-link">首页</a></em></p>
+</div>
+<div class="page-content" id="page-道具与能力-道具总览">
+<h1 id="_1">道具与能力 · 道具总览</h1>
+<blockquote>
+<p>本章节收录《轮盘世界》中所有重要物品、装备、药剂、技能、职业与能力系统。</p>
+</blockquote>
+<hr />
+<h2 id="_2">一、进化药剂</h2>
+<h3 id="11">1.1 基础进化药剂</h3>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>效果</th>
+<th>来源</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>一星进化药剂</td>
+<td>身体能力约5倍提升</td>
+<td>轮盘奖励/自制</td>
+</tr>
+<tr>
+<td>二星进化药剂</td>
+<td>在等阶基础上继续提升</td>
+<td>轮盘/高级制作</td>
+</tr>
+<tr>
+<td>三星进化药剂</td>
+<td>大幅超越人类极限</td>
+<td>轮盘</td>
+</tr>
+<tr>
+<td>四星至九星进化药剂</td>
+<td>逐步提升至超人战力</td>
+<td>高级轮盘</td>
+</tr>
+<tr>
+<td>十星进化药剂</td>
+<td>冲击十星，准神级</td>
+<td>顶级奖励</td>
+</tr>
+</tbody>
+</table>
+<h3 id="12">1.2 辅助药剂</h3>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>效果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>免疫药剂</td>
+<td>完全防止丧尸感染</td>
+</tr>
+<tr>
+<td>不完全免疫药剂</td>
+<td>降低感染概率</td>
+</tr>
+<tr>
+<td>远视药水</td>
+<td>数小时内极大增强远视能力</td>
+</tr>
+<tr>
+<td>蓝瓶（精神力药水）</td>
+<td>小瓶加速恢复，大瓶即时恢复精神力</td>
+</tr>
+<tr>
+<td>狂暴药剂</td>
+<td>激发战斗状态，短时间大幅强化</td>
+</tr>
+<tr>
+<td>解毒药剂</td>
+<td>对抗变异生物毒素</td>
+</tr>
+</tbody>
+</table>
+<h3 id="13">1.3 药剂来源</h3>
+<ul>
+<li><strong>轮盘奖励</strong>：最常见来源</li>
+<li><strong>药师制作</strong>：拥有药师职业的进化者使用配方制作</li>
+<li><strong>改良配方</strong>：可用替代材料改良，效果提升约10%</li>
+</ul>
+<hr />
+<h2 id="_3">二、武器装备</h2>
+<h3 id="21">2.1 装备品质等级</h3>
+<table>
+<thead>
+<tr>
+<th>品质</th>
+<th>颜色</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>普通</td>
+<td>白色</td>
+<td>基础装备</td>
+</tr>
+<tr>
+<td>优秀</td>
+<td>绿色</td>
+<td>属性强化</td>
+</tr>
+<tr>
+<td>稀有</td>
+<td>蓝色</td>
+<td>特殊效果</td>
+</tr>
+<tr>
+<td>史诗</td>
+<td>紫色</td>
+<td>强力技能</td>
+</tr>
+<tr>
+<td>传说</td>
+<td>橙色</td>
+<td>独一无二</td>
+</tr>
+<tr>
+<td>神话</td>
+<td>金色</td>
+<td>最顶级</td>
+</tr>
+<tr>
+<td>特殊</td>
+<td>彩色</td>
+<td>极罕见</td>
+</tr>
+</tbody>
+</table>
+<h3 id="22">2.2 重要武器</h3>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>品质</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>弩</td>
+<td>白色</td>
+<td>初期轮盘奖励，10支弩箭</td>
+</tr>
+<tr>
+<td>沙漠之鹰（改良手枪）</td>
+<td>白色</td>
+<td>叶默用"同质强化"改造的手枪</td>
+</tr>
+<tr>
+<td>白色砍刀</td>
+<td>白色</td>
+<td>附魔"坚韧+2"的砍刀</td>
+</tr>
+<tr>
+<td>战刃·沙尘</td>
+<td>蓝色（三形态）</td>
+<td>图1:伤害10；图2:伤害15+沙尘；图3:伤害+20,攻速+25,吸血+20,附带技能"沙尘暴击""沙尘乱舞"</td>
+</tr>
+<tr>
+<td>血红之枪</td>
+<td>—</td>
+<td>攻击型长枪</td>
+</tr>
+<tr>
+<td>自然之杖</td>
+<td>稀有</td>
+<td>镶嵌自然宝石释放元素技能</td>
+</tr>
+<tr>
+<td>风之剑/风沙战刀</td>
+<td>绿→蓝→橙</td>
+<td>多级图纸进化武器，最终形态有"飞沙""风沙领域"技能</td>
+</tr>
+<tr>
+<td>红缨枪</td>
+<td>高级</td>
+<td>火焰长枪</td>
+</tr>
+</tbody>
+</table>
+<h3 id="23">2.3 重要防具</h3>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>品质</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>臂盾</td>
+<td>灰色(白色级)</td>
+<td>轮盘奖励，可用同质强化升级</td>
+</tr>
+<tr>
+<td>变异树皮护甲</td>
+<td>白色</td>
+<td>变异柳树皮制作，韧性+2</td>
+</tr>
+<tr>
+<td>棉袍</td>
+<td>白色</td>
+<td>附魔"坚韧+2"的基础布衣</td>
+</tr>
+<tr>
+<td>金色圣光战甲</td>
+<td>传说</td>
+<td>九级轮盘十大奖励之一，可飞行，最强装备</td>
+</tr>
+<tr>
+<td>水纹之盾</td>
+<td>蓝色</td>
+<td>防御型装备</td>
+</tr>
+<tr>
+<td>缤纷婚纱</td>
+<td>特殊</td>
+<td>专为治疗职业设计的装备</td>
+</tr>
+</tbody>
+</table>
+<h3 id="24">2.4 特殊装备</h3>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>空间水壶（1立方米）</td>
+<td>空间装备，内在容量1立方米，物品保鲜</td>
+</tr>
+<tr>
+<td>全元武装台</td>
+<td>金色品质多功能武装平台</td>
+</tr>
+<tr>
+<td>宇宙之盒</td>
+<td>叶默自创神级装备，四大功能：存储、恢复、标记回返、同调融合</td>
+</tr>
+<tr>
+<td>荣耀权杖</td>
+<td>圣城圣女标志性装备</td>
+</tr>
+<tr>
+<td>追踪者/猎手/破坏者</td>
+<td>枪械的三种模式（狙击形态）</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_4">三、能力卡与技能</h2>
+<h3 id="31">3.1 功能卡</h3>
+<table>
+<thead>
+<tr>
+<th>卡牌名称</th>
+<th>效果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>夜视功能卡</td>
+<td>增强夜视能力</td>
+</tr>
+<tr>
+<td>视觉强化卡</td>
+<td>增强视力</td>
+</tr>
+<tr>
+<td>危险感知卡</td>
+<td>感知周围危险</td>
+</tr>
+<tr>
+<td>石肤卡</td>
+<td>皮肤岩石化，大幅提升防御</td>
+</tr>
+<tr>
+<td>感知卡</td>
+<td>增强各种感知能力</td>
+</tr>
+<tr>
+<td>宠物卡</td>
+<td>控制一只变异动物</td>
+</tr>
+<tr>
+<td>召唤术·地狱魔犬</td>
+<td>召唤地狱魔犬战斗伙伴，持续10分钟</td>
+</tr>
+<tr>
+<td>多功能折扣卡</td>
+<td>秘境商店中20%折扣</td>
+</tr>
+</tbody>
+</table>
+<h3 id="32">3.2 特殊物品</h3>
+<table>
+<thead>
+<tr>
+<th>物品</th>
+<th>效果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>秘境钥匙</td>
+<td>解锁秘境，由金色圣光投放世界各地</td>
+</tr>
+<tr>
+<td>均衡宝珠</td>
+<td>强制同等级1v1决斗，双方属性拉平</td>
+</tr>
+<tr>
+<td>职业技能升级卷轴</td>
+<td>升级某项职业技能</td>
+</tr>
+<tr>
+<td>入场券</td>
+<td>进入天界的必备凭证</td>
+</tr>
+<tr>
+<td>金色布片</td>
+<td>神秘材料，吸收伤害后自行修复，如"有生命的布料"</td>
+</tr>
+<tr>
+<td>圣水</td>
+<td>布落圣城的圣物，可沟通两个世界</td>
+</tr>
+</tbody>
+</table>
+<h3 id="33">3.3 战斗技能/武技</h3>
+<ul>
+<li><strong>枪斗术</strong>：高级枪法技巧，叶默前世掌握</li>
+<li><strong>毛针刺</strong>：地皇犬天赋技能，射出全身毛发远程攻击</li>
+<li><strong>裂风之爪</strong>：猿类守护兽天赋技能</li>
+<li><strong>甩尾</strong>：守护兽通用攻击技能</li>
+<li><strong>水波之盾</strong>：四尾魔蜥防御技能</li>
+<li><strong>极寒之息</strong>：四尾魔蜥冰系攻击</li>
+<li><strong>多重冰锥</strong>：四尾魔蜥范围冰系攻击</li>
+<li><strong>天怒风帆</strong>：墨夜的标志性冰系大招</li>
+<li><strong>狂物之鸣</strong>：红发丧尸的特殊技能</li>
+</ul>
+<hr />
+<h2 id="_5">四、职业证书与技能体系</h2>
+<h3 id="41">4.1 战斗职业</h3>
+<table>
+<thead>
+<tr>
+<th>职业</th>
+<th>类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>战士</td>
+<td>近战物理</td>
+<td>基础战斗职业</td>
+</tr>
+<tr>
+<td>狙击手/枪手</td>
+<td>远程</td>
+<td>精准远程打击</td>
+</tr>
+<tr>
+<td>骑士</td>
+<td>坦克</td>
+<td>重装防御</td>
+</tr>
+<tr>
+<td>刺客</td>
+<td>暗杀</td>
+<td>潜行暗杀</td>
+</tr>
+<tr>
+<td>拳师</td>
+<td>格斗</td>
+<td>徒手格斗</td>
+</tr>
+<tr>
+<td>机械师</td>
+<td>技术</td>
+<td>机械操控</td>
+</tr>
+<tr>
+<td>法师（冰/火/雷等）</td>
+<td>魔法</td>
+<td>元素法术</td>
+</tr>
+<tr>
+<td>召唤师</td>
+<td>召唤</td>
+<td>召唤战兽</td>
+</tr>
+<tr>
+<td>傀儡师</td>
+<td>操控</td>
+<td>操控傀儡</td>
+</tr>
+</tbody>
+</table>
+<h3 id="42">4.2 辅助职业</h3>
+<table>
+<thead>
+<tr>
+<th>职业</th>
+<th>类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>药师</td>
+<td>制作</td>
+<td>制作药剂</td>
+</tr>
+<tr>
+<td>医师</td>
+<td>治疗</td>
+<td>治疗伤者</td>
+</tr>
+<tr>
+<td>锻造师</td>
+<td>制作</td>
+<td>制作装备</td>
+</tr>
+<tr>
+<td>附魔师</td>
+<td>附魔</td>
+<td>为装备附魔</td>
+</tr>
+<tr>
+<td>工程匠师</td>
+<td>建造</td>
+<td>建筑与机械</td>
+</tr>
+<tr>
+<td>厨师/食物师</td>
+<td>制作</td>
+<td>制作增益食物</td>
+</tr>
+<tr>
+<td>裁缝</td>
+<td>制作</td>
+<td>制作防具</td>
+</tr>
+<tr>
+<td>符文师/铭文师</td>
+<td>附魔</td>
+<td>符文制作</td>
+</tr>
+<tr>
+<td>建筑师</td>
+<td>建造</td>
+<td>建造防御工事</td>
+</tr>
+<tr>
+<td>种植者/农民</td>
+<td>生产</td>
+<td>种植变异植物</td>
+</tr>
+<tr>
+<td>商人</td>
+<td>经济</td>
+<td>交易加成</td>
+</tr>
+</tbody>
+</table>
+<h3 id="43">4.3 特殊职业</h3>
+<table>
+<thead>
+<tr>
+<th>职业</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>荣耀工匠（光辉）</td>
+<td>叶默第一职业：同质强化+采集术+镶嵌+锻造+附魔，5个技能槽独立升级</td>
+</tr>
+<tr>
+<td>园丁（绿园使）</td>
+<td>叶默第二职业：种植+激化，可操控变异植物</td>
+</tr>
+<tr>
+<td>神罚使徒→神罚使者</td>
+<td>金英的职业：治疗/辅助→进化为"亲和之触"技能</td>
+</tr>
+<tr>
+<td>占卜者/预言家</td>
+<td>预知未来</td>
+</tr>
+<tr>
+<td>幻术师</td>
+<td>制造幻象</td>
+</tr>
+<tr>
+<td>空间法师</td>
+<td>空间相关能力</td>
+</tr>
+<tr>
+<td>心灵师</td>
+<td>心灵控制</td>
+</tr>
+</tbody>
+</table>
+<h3 id="44">4.4 职业等级</h3>
+<div class="codehilite"><pre><span></span><code>见习（见习）→ 初级（初级）→ 中级（中级）→ 高级（高级）→ 大师（大师）→ 宗师（宗师）→ 传说（传说）
+</code></pre></div>
+
+<hr />
+<h2 id="_6">五、血脉体系</h2>
+<ul>
+<li>可通过轮盘获得<strong>血统物品</strong></li>
+<li>赋予持有者特殊能力或属性加成</li>
+<li>圣城安禄德家族依靠血统传承获得力量</li>
+<li>可能具有遗传性和可升级性</li>
+</ul>
+<hr />
+<h2 id="_7">六、材料与资源</h2>
+<h3 id="61">6.1 锻造材料</h3>
+<table>
+<thead>
+<tr>
+<th>材料</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>血蛙爪尖</td>
+<td>附魔穿透属性（穿透+4至+6）</td>
+</tr>
+<tr>
+<td>猿类怪兽爪/鳞片/尖牙</td>
+<td>锻造与附魔</td>
+</tr>
+<tr>
+<td>柳树皮</td>
+<td>提供韧性属性</td>
+</tr>
+<tr>
+<td>合金结合物</td>
+<td>锻造战刃所需</td>
+</tr>
+<tr>
+<td>雾樟木</td>
+<td>蓝色品质战刃所需</td>
+</tr>
+<tr>
+<td>沙兽筋肉</td>
+<td>升级战刃</td>
+</tr>
+<tr>
+<td>墨鱼汁粉</td>
+<td>制造材料</td>
+</tr>
+<tr>
+<td>千年木心汁</td>
+<td>终极战刃材料</td>
+</tr>
+<tr>
+<td>地底炎兽羽毛</td>
+<td>终极战刃材料</td>
+</tr>
+<tr>
+<td>火山结晶</td>
+<td>终极战刃材料</td>
+</tr>
+<tr>
+<td>浓缩风之枝干</td>
+<td>终极战刃材料</td>
+</tr>
+<tr>
+<td>星辰铁</td>
+<td>终极战刃材料</td>
+</tr>
+<tr>
+<td>黑魔晶</td>
+<td>终极战刃材料</td>
+</tr>
+</tbody>
+</table>
+<h3 id="62">6.2 植物资源</h3>
+<table>
+<thead>
+<tr>
+<th>资源</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>金榆树</td>
+<td>树叶可制装备，果实按百分比提升实力（8级果实提升约60%持续2周-1个月）</td>
+</tr>
+<tr>
+<td>人面菇</td>
+<td>地下植物，果实可食用，块茎甘甜增强体质</td>
+</tr>
+<tr>
+<td>食人花种子</td>
+<td>园丁职业操控的材料</td>
+</tr>
+<tr>
+<td>焦竹树果实</td>
+<td>红色(嵌入装备)、绿色(制装备)、白色(入药)、黄色(提升实力)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><em>返回<a onclick="navigateTo('../首页')" class="wiki-link">首页</a></em></p>
+</div>
+<div class="page-content" id="page-附录-游戏化设计参考">
+<h1 id="_1">附录 · 游戏化设计参考</h1>
+<blockquote>
+<p>基于《轮盘世界》世界观设计开放世界RPG游戏的核心参考。</p>
+</blockquote>
+<hr />
+<h2 id="_2">一、游戏核心循环</h2>
+<div class="codehilite"><pre><span></span><code>探索世界 → 猎杀怪物 → 获取魔晶 → 转动轮盘(抽卡/抽奖)
+    ↑                                        ↓
+    │                                    获取奖励
+    │                                        ↓
+    └────────── 变强后挑战更难内容 ←──── 进化/装备/技能提升
+</code></pre></div>
+
+<hr />
+<h2 id="_3">二、核心系统设计建议</h2>
+<h3 id="21">2.1 轮盘抽奖系统</h3>
+<div class="codehilite"><pre><span></span><code>设计要点:
+- 多个等级轮盘分布在世界各地
+- 消耗魔晶（货币）抽奖
+- 随机奖励池（类似gacha）
+- 稀有轮盘有使用限制/占领机制
+- 彩色轮盘 = SSR/UR级奖励（职业解锁）
+</code></pre></div>
+
+<h3 id="22">2.2 魔晶货币系统</h3>
+<div class="codehilite"><pre><span></span><code>击杀怪物 → 获得魔晶
+         ↓
+用途: 转轮盘 / 交易 / 锻造材料 / 强化装备
+         ↓
+不同颜色魔晶 = 不同价值层级
+         ↓
+高阶魔晶极难获取 → 驱动玩家挑战高难内容
+</code></pre></div>
+
+<h3 id="23">2.3 进化者等级系统</h3>
+<div class="codehilite"><pre><span></span><code>玩家等级 = 星阶进化者
+  一星 → 二星 → ... → 十星
+  每星突破需要: 对应进化药剂
+  进化药剂来源: 轮盘抽奖 / 高级制作 / 副本BOSS掉落
+</code></pre></div>
+
+<h3 id="24">2.4 职业系统</h3>
+<div class="codehilite"><pre><span></span><code>分为两大分支:
+  战斗职业 (战士/枪手/法师/召唤师/刺客...)
+  辅助职业 (锻造师/药师/附魔师/厨师...)
+
+获取方式: 彩色轮盘抽出职业证书
+职业等级: 见习 → 初级 → 中级 → 高级 → 大师 → 宗师 → 传说
+升级方式: 熟练度积累 + 进阶试炼任务
+</code></pre></div>
+
+<hr />
+<h2 id="_4">三、开放世界设计</h2>
+<h3 id="31">3.1 区域分级</h3>
+<table>
+<thead>
+<tr>
+<th>区域</th>
+<th>怪物等级</th>
+<th>轮盘等级</th>
+<th>推荐玩家等级</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>新手城市区</td>
+<td>一级丧尸</td>
+<td>一级轮盘</td>
+<td>普通人→一星</td>
+</tr>
+<tr>
+<td>郊外荒地</td>
+<td>变异虫/植物</td>
+<td>二级轮盘</td>
+<td>一星→二星</td>
+</tr>
+<tr>
+<td>废弃城区</td>
+<td>二级丧尸/变异兽</td>
+<td>三级轮盘</td>
+<td>二星→三星</td>
+</tr>
+<tr>
+<td>秘境（白/绿）</td>
+<td>守护兽/高级怪物</td>
+<td>彩色轮盘</td>
+<td>三星→五星</td>
+</tr>
+<tr>
+<td>秘境（蓝/红）</td>
+<td>地狱兽/异形</td>
+<td>高级轮盘</td>
+<td>五星→七星</td>
+</tr>
+<tr>
+<td>圣城区域</td>
+<td>顶级怪物/敌对势力</td>
+<td>顶级轮盘</td>
+<td>七星→九星</td>
+</tr>
+<tr>
+<td>秘境（黑）</td>
+<td>准神级怪物</td>
+<td>传说轮盘</td>
+<td>九星→十星</td>
+</tr>
+</tbody>
+</table>
+<h3 id="32">3.2 动态事件</h3>
+<ul>
+<li><strong>兽潮</strong>：周期性大规模怪物攻城</li>
+<li><strong>聚宝盆</strong>：稀有事件，召唤BOSS但奖励丰厚</li>
+<li><strong>势力战争</strong>：NPC势力间的冲突，玩家可选边</li>
+<li><strong>轮盘刷新</strong>：限时彩色轮盘出现</li>
+</ul>
+<hr />
+<h2 id="_5">四、战斗系统</h2>
+<h3 id="41">4.1 基础战斗</h3>
+<ul>
+<li>动作向/半动作向</li>
+<li>近战+远程+技能</li>
+<li>弱点系统（头部、魔晶位置等）</li>
+<li>闪避/格挡/受身</li>
+</ul>
+<h3 id="42">4.2 职业技能系统</h3>
+<ul>
+<li>每个职业3-5个主动技能</li>
+<li>精神力/魔力资源管理</li>
+<li>技能升级树</li>
+<li>双职业切换（参考叶默）</li>
+</ul>
+<h3 id="43">4.3 战兽系统</h3>
+<ul>
+<li>可驯服变异兽为战兽</li>
+<li>战兽有独立成长线</li>
+<li>战斗中可召唤/指挥</li>
+<li>主人与战兽协同技能</li>
+</ul>
+<hr />
+<h2 id="_6">五、经济系统</h2>
+<h3 id="51">5.1 货币层级</h3>
+<div class="codehilite"><pre><span></span><code>一级魔晶 (白) — 基础货币
+二级魔晶 (灰) — 中级货币
+三级魔晶 (绿) — 高级货币
+四级魔晶 (蓝) → 持续升级
+</code></pre></div>
+
+<h3 id="52">5.2 轮盘经济</h3>
+<div class="codehilite"><pre><span></span><code>玩家获取魔晶 → 选择轮盘消费 → 随机获得奖励
+                                   ↓
+                          自用 / 交易给其他玩家(NPC)
+</code></pre></div>
+
+<h3 id="53">5.3 制作经济</h3>
+<div class="codehilite"><pre><span></span><code>收集材料(打怪+采集) → 锻造/制药/附魔 → 产出装备/消耗品 → 交易
+</code></pre></div>
+
+<hr />
+<h2 id="_7">六、剧情适配</h2>
+<h3 id="61">6.1 主线任务</h3>
+<ol>
+<li>末日降临 → 初次使用轮盘</li>
+<li>获取第一个职业</li>
+<li>建立/加入营地</li>
+<li>第一次兽潮防御</li>
+<li>探索第一个秘境</li>
+<li>与各势力建立关系</li>
+<li>圣城远征（最终主线）</li>
+<li>天界之路（终局内容/扩展DLC）</li>
+</ol>
+<h3 id="62">6.2 支线任务</h3>
+<ul>
+<li>队友角色任务线</li>
+<li>势力声望任务</li>
+<li>秘境探索任务</li>
+<li>稀有轮盘线索任务</li>
+<li>传奇装备制作任务</li>
+</ul>
+<hr />
+<h2 id="_8">七、社交与多人</h2>
+<h3 id="71">7.1 可选模式</h3>
+<ul>
+<li><strong>单人模式</strong>：扮演叶默，体验原著剧情</li>
+<li><strong>联机合作</strong>：多人组队探索秘境、对抗兽潮</li>
+<li><strong>势力战</strong>：玩家加入不同势力进行PVP</li>
+</ul>
+<h3 id="72">7.2 角色自定义</h3>
+<ul>
+<li>创建原创角色（非叶默）</li>
+<li>选择初始职业路线</li>
+<li>通过轮盘获取随机职业/技能（Roguelike元素）</li>
+<li>在同一世界观下书写自己的故事</li>
+</ul>
+<hr />
+<h2 id="_9">八、核心设计哲学</h2>
+<ol>
+<li><strong>轮盘 = 核心驱动力</strong>：一切围绕"打怪→获得魔晶→转轮盘→变强"循环</li>
+<li><strong>随机性 = 重玩价值</strong>：轮盘的完全随机性带来每局不同的体验</li>
+<li><strong>职业多样性 = 玩法深度</strong>：战斗+辅助双职业体系提供丰富的Build空间</li>
+<li><strong>势力博弈 = 世界活力</strong>：动态的势力关系让世界有生命力</li>
+<li><strong>渐进式揭秘 = 叙事张力</strong>：从末日生存到天界真相的层层递进</li>
+</ol>
+<hr />
+<p><em>返回<a onclick="navigateTo('附录/附录总览')" class="wiki-link">附录总览</a> | <a onclick="navigateTo('../首页')" class="wiki-link">首页</a></em></p>
+</div>
+<div class="page-content" id="page-附录-附录总览">
+<h1 id="_1">附录 · 附录总览</h1>
+<blockquote>
+<p>本章节收录《轮盘世界》的术语表、时间线、战力排行榜及其他参考资料。</p>
+</blockquote>
+<hr />
+<h2 id="_2">一、术语表</h2>
+<h3 id="a">A</h3>
+<table>
+<thead>
+<tr>
+<th>术语</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>暗夜</strong></td>
+<td>杀手/佣兵组织</td>
+</tr>
+</tbody>
+</table>
+<h3 id="b">B</h3>
+<table>
+<thead>
+<tr>
+<th>术语</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>白诗诗</strong></td>
+<td>叶默前女友，大学校花</td>
+</tr>
+<tr>
+<td><strong>白蛆虫（白化巨蛆）</strong></td>
+<td>白色巨型蛆虫状变异怪物</td>
+</tr>
+<tr>
+<td><strong>变异虫</strong></td>
+<td>各种被末日力量感染的昆虫，体型增大数倍至数十倍</td>
+</tr>
+<tr>
+<td><strong>变异兽</strong></td>
+<td>被末日力量感染的动物，体型增大且具有特殊能力</td>
+</tr>
+<tr>
+<td><strong>变异植物</strong></td>
+<td>被末日力量感染的植物，具有攻击性</td>
+</tr>
+<tr>
+<td><strong>不落圣城</strong></td>
+<td>已灭亡的古代圣城</td>
+</tr>
+<tr>
+<td><strong>不鲁得秘境（死亡秘境）</strong></td>
+<td>叶默大量获取资源和装备的秘境</td>
+</tr>
+<tr>
+<td><strong>布落圣城</strong></td>
+<td>古族秘境中的城市，古代人类后裔聚居地</td>
+</tr>
+</tbody>
+</table>
+<h3 id="c">C</h3>
+<table>
+<thead>
+<tr>
+<th>术语</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>采集术</strong></td>
+<td>从怪物尸体高效收集材料的职业技能</td>
+</tr>
+<tr>
+<td><strong>彩色轮盘</strong></td>
+<td>三彩/五彩/七彩/九彩轮盘，唯一可转出职业证书的轮盘</td>
+</tr>
+<tr>
+<td><strong>传说品质</strong></td>
+<td>橙色装备等级，独一无二</td>
+</tr>
+<tr>
+<td><strong>传说级职业</strong></td>
+<td>职业体系的最高等级</td>
+</tr>
+</tbody>
+</table>
+<h3 id="d">D</h3>
+<table>
+<thead>
+<tr>
+<th>术语</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>地皇犬</strong></td>
+<td>叶默的战兽，由流浪狗变异进化而成</td>
+</tr>
+<tr>
+<td><strong>地狱兽</strong></td>
+<td>由普通动物多次进化而成的高级变异兽</td>
+</tr>
+<tr>
+<td><strong>锻造</strong></td>
+<td>使用图纸与魔晶合成为成品的技能</td>
+</tr>
+<tr>
+<td><strong>多功能折扣卡</strong></td>
+<td>秘境商店中享受20%折扣的功能卡</td>
+</tr>
+</tbody>
+</table>
+<h3 id="e-g">E-G</h3>
+<table>
+<thead>
+<tr>
+<th>术语</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>二级轮盘</strong></td>
+<td>需10枚一级魔晶转动，奖励品质优于一级</td>
+</tr>
+<tr>
+<td><strong>二阶强化人/二星进化者</strong></td>
+<td>身体素质约10倍于普通人</td>
+</tr>
+<tr>
+<td><strong>附魔</strong></td>
+<td>为装备添加属性的职业技能</td>
+</tr>
+<tr>
+<td><strong>感染规则</strong></td>
+<td>被丧尸抓咬后会被感染，半小时内转化为丧尸</td>
+</tr>
+<tr>
+<td><strong>G区</strong></td>
+<td>军方装甲部队势力</td>
+</tr>
+<tr>
+<td><strong>G组织</strong></td>
+<td>较低评级的势力</td>
+</tr>
+<tr>
+<td><strong>工程匠师</strong></td>
+<td>建筑与机械制造职业</td>
+</tr>
+<tr>
+<td><strong>功能卡</strong></td>
+<td>轮盘获得的特殊效果卡片</td>
+</tr>
+<tr>
+<td><strong>古族</strong></td>
+<td>生活在秘境中的古代人类后裔，使用古武技</td>
+</tr>
+</tbody>
+</table>
+<h3 id="h">H</h3>
+<table>
+<thead>
+<tr>
+<th>术语</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>黑色秘境</strong></td>
+<td>最高危险等级的秘境</td>
+</tr>
+<tr>
+<td><strong>黑魔晶</strong></td>
+<td>顶级锻造材料</td>
+</tr>
+<tr>
+<td><strong>红发</strong></td>
+<td>特殊女尸进化而成的高级丧尸，保留人类意识</td>
+</tr>
+<tr>
+<td><strong>红月会</strong></td>
+<td>小型势力组织</td>
+</tr>
+</tbody>
+</table>
+<h3 id="j">J</h3>
+<table>
+<thead>
+<tr>
+<th>术语</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>机械师</strong></td>
+<td>机械操控型战斗职业</td>
+</tr>
+<tr>
+<td><strong>极寒之息</strong></td>
+<td>冰系变异兽的天赋技能</td>
+</tr>
+<tr>
+<td><strong>技能槽</strong></td>
+<td>职业拥有的技能位置，每个需独立升级</td>
+</tr>
+<tr>
+<td><strong>激化（催生）</strong></td>
+<td>园丁职业主动操控植物的技能</td>
+</tr>
+<tr>
+<td><strong>金榆树</strong></td>
+<td>特殊树木，果实能按百分比提升实力</td>
+</tr>
+<tr>
+<td><strong>金色品质</strong></td>
+<td>神话级装备，最顶级</td>
+</tr>
+<tr>
+<td><strong>金色圣光战甲</strong></td>
+<td>九级轮盘十大奖励之一，最强飞行战甲</td>
+</tr>
+<tr>
+<td><strong>金色布片</strong></td>
+<td>神秘材料，吸收伤害后自行修复</td>
+</tr>
+<tr>
+<td><strong>锦盛华庭小区</strong></td>
+<td>末日初始地点之一，设有一道轮盘</td>
+</tr>
+<tr>
+<td><strong>镜界</strong></td>
+<td>与镜像/反射相关的大型特殊秘境</td>
+</tr>
+<tr>
+<td><strong>均衡宝珠</strong></td>
+<td>强制同等级1v1决斗的特殊物品</td>
+</tr>
+<tr>
+<td><strong>九级轮盘</strong></td>
+<td>传说级轮盘，需彩色魔晶</td>
+</tr>
+</tbody>
+</table>
+<h3 id="k">K</h3>
+<table>
+<thead>
+<tr>
+<th>术语</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>空间水壶</strong></td>
+<td>1立方米空间装备，物品保鲜</td>
+</tr>
+<tr>
+<td><strong>狂暴药剂</strong></td>
+<td>短时间大幅强化战斗状态的药剂</td>
+</tr>
+<tr>
+<td><strong>狂物之鸣</strong></td>
+<td>红发丧尸的特殊技能</td>
+</tr>
+</tbody>
+</table>
+<h3 id="l">L</h3>
+<table>
+<thead>
+<tr>
+<th>术语</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>蓝色品质</strong></td>
+<td>稀有级装备</td>
+</tr>
+<tr>
+<td><strong>裂风之爪</strong></td>
+<td>守护兽的天赋攻击技能</td>
+</tr>
+<tr>
+<td><strong>绿园使（园丁）</strong></td>
+<td>叶默的第二职业：种植+操控变异植物</td>
+</tr>
+<tr>
+<td><strong>绿色品质</strong></td>
+<td>优秀级装备</td>
+</tr>
+<tr>
+<td><strong>轮盘</strong></td>
+<td>末日轮盘的简称，散布世界各地的抽奖转盘</td>
+</tr>
+<tr>
+<td><strong>轮盘占据</strong></td>
+<td>强者势力占据优质轮盘收取使用费</td>
+</tr>
+</tbody>
+</table>
+<h3 id="m">M</h3>
+<table>
+<thead>
+<tr>
+<th>术语</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>毛针刺</strong></td>
+<td>地皇犬的天赋技能，射出全身毛发攻击</td>
+</tr>
+<tr>
+<td><strong>秘境</strong></td>
+<td>由金色圣光爆炸后形成的异空间裂隙</td>
+</tr>
+<tr>
+<td><strong>秘境钥匙</strong></td>
+<td>由金色圣光投放的进入秘境的钥匙</td>
+</tr>
+<tr>
+<td><strong>免疫药剂</strong></td>
+<td>防止丧尸感染的药剂</td>
+</tr>
+<tr>
+<td><strong>冥想</strong></td>
+<td>被动增加25%精神力恢复速度的技能</td>
+</tr>
+<tr>
+<td><strong>魔晶</strong></td>
+<td>怪物头部生成的晶体，是轮盘货币和硬通货</td>
+</tr>
+<tr>
+<td><strong>墨夜</strong></td>
+<td>女警，叶默团队核心成员，冰系法师</td>
+</tr>
+</tbody>
+</table>
+<h3 id="n">N</h3>
+<table>
+<thead>
+<tr>
+<th>术语</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>奴兵</strong></td>
+<td>圣城将被俘者变为奴隶士兵的制度</td>
+</tr>
+</tbody>
+</table>
+<h3 id="p">P</h3>
+<table>
+<thead>
+<tr>
+<th>术语</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>品质等级</strong></td>
+<td>白(普通)→绿(优秀)→蓝(稀有)→紫(史诗)→橙(传说)→金(神话)→彩(特殊)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="q">Q</h3>
+<table>
+<thead>
+<tr>
+<th>术语</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>契约皮卷</strong></td>
+<td>获得职业时与职业徽章一起出现的绑定物品</td>
+</tr>
+<tr>
+<td><strong>枪斗术</strong></td>
+<td>叶默前世掌握的高级枪法技巧</td>
+</tr>
+<tr>
+<td><strong>全员武装台</strong></td>
+<td>金色品质的多功能武装平台</td>
+</tr>
+</tbody>
+</table>
+<h3 id="r">R</h3>
+<table>
+<thead>
+<tr>
+<th>术语</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>荣耀工匠（光辉）</strong></td>
+<td>叶默的第一职业：同质强化+采集+镶嵌+锻造+附魔</td>
+</tr>
+<tr>
+<td><strong>入场券</strong></td>
+<td>进入天界/上级空间的必需凭证</td>
+</tr>
+<tr>
+<td><strong>人面菇</strong></td>
+<td>地下变异植物，果实可食用且增强体质</td>
+</tr>
+</tbody>
+</table>
+<h3 id="s">S</h3>
+<table>
+<thead>
+<tr>
+<th>术语</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>丧尸</strong></td>
+<td>末日感染后转化的人类怪物</td>
+</tr>
+<tr>
+<td><strong>丧尸再生</strong></td>
+<td>只要头部完整且魔晶未取出，可通过吞噬血肉再生</td>
+</tr>
+<tr>
+<td><strong>沙尘暴击</strong></td>
+<td>战刃·沙尘的主动技能</td>
+</tr>
+<tr>
+<td><strong>沙尘乱舞</strong></td>
+<td>战刃·沙尘的终极主动技能</td>
+</tr>
+<tr>
+<td><strong>上级空间</strong></td>
+<td>比地球更高层次的位面，幕后存在所在</td>
+</tr>
+<tr>
+<td><strong>兽潮</strong></td>
+<td>由"聚宝盆"事件触发的大规模怪物攻城</td>
+</tr>
+<tr>
+<td><strong>甩尾</strong></td>
+<td>守护兽的通用攻击技能</td>
+</tr>
+<tr>
+<td><strong>水波之盾</strong></td>
+<td>水系守护兽的防御技能</td>
+</tr>
+<tr>
+<td><strong>四尾魔蜥</strong></td>
+<td>四级水系守护兽</td>
+</tr>
+<tr>
+<td><strong>圣城</strong></td>
+<td>意大利地区的西方宗教势力主城</td>
+</tr>
+<tr>
+<td><strong>圣教/圣廷</strong></td>
+<td>北方冰原的强大组织</td>
+</tr>
+<tr>
+<td><strong>圣骑士团</strong></td>
+<td>圣城/圣教的骑士武装力量</td>
+</tr>
+<tr>
+<td><strong>圣水</strong></td>
+<td>布落圣城的圣物，可沟通两个世界</td>
+</tr>
+<tr>
+<td><strong>史诗品质</strong></td>
+<td>紫色装备等级</td>
+</tr>
+<tr>
+<td><strong>石肤卡</strong></td>
+<td>皮肤岩石化大幅提升防御的功能卡</td>
+</tr>
+</tbody>
+</table>
+<h3 id="t">T</h3>
+<table>
+<thead>
+<tr>
+<th>术语</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>天都山庄</strong></td>
+<td>叶默创立的末日后最强幸存者基地</td>
+</tr>
+<tr>
+<td><strong>天赋技能</strong></td>
+<td>怪物和战兽出生自带或进化觉醒的特殊技能</td>
+</tr>
+<tr>
+<td><strong>天虎帮</strong></td>
+<td>被叶默剿灭的小型敌对组织</td>
+</tr>
+<tr>
+<td><strong>天界</strong></td>
+<td>上级空间的称谓，比地球更高层次的世界</td>
+</tr>
+<tr>
+<td><strong>通天城</strong></td>
+<td>中立交易城市</td>
+</tr>
+<tr>
+<td><strong>同质强化</strong></td>
+<td>将物品与相同材料融合增强属性的职业技能</td>
+</tr>
+</tbody>
+</table>
+<h3 id="w">W</h3>
+<table>
+<thead>
+<tr>
+<th>术语</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>温静（慕安媛）</strong></td>
+<td>"杀戮玫瑰"，未来十星顶级强者</td>
+</tr>
+<tr>
+<td><strong>武技</strong></td>
+<td>超越常规训练的战斗技巧，仅大师和宗师能创造</td>
+</tr>
+</tbody>
+</table>
+<h3 id="x">X</h3>
+<table>
+<thead>
+<tr>
+<th>术语</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>下级/见习职业</strong></td>
+<td>职业体系入门级</td>
+</tr>
+<tr>
+<td><strong>星辰铁</strong></td>
+<td>终极战刃·沙尘的稀有锻造材料</td>
+</tr>
+<tr>
+<td><strong>血蛙</strong></td>
+<td>红色蛙型群居怪物，额头有魔晶，强腐蚀性唾液</td>
+</tr>
+<tr>
+<td><strong>血蛙爪尖</strong></td>
+<td>附魔穿透属性的材料</td>
+</tr>
+</tbody>
+</table>
+<h3 id="y">Y</h3>
+<table>
+<thead>
+<tr>
+<th>术语</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>一级轮盘</strong></td>
+<td>最基础最常见的轮盘，一次转需1枚一级魔晶</td>
+</tr>
+<tr>
+<td><strong>一阶强化人/一星进化者</strong></td>
+<td>身体素质约5倍于普通人</td>
+</tr>
+<tr>
+<td><strong>夜血团</strong></td>
+<td>雇佣兵/杀手组织</td>
+</tr>
+<tr>
+<td><strong>英雄城（英城）</strong></td>
+<td>天都势力范围的大型城市</td>
+</tr>
+<tr>
+<td><strong>园丁职业</strong></td>
+<td>参见"绿园使"</td>
+</tr>
+<tr>
+<td><strong>宇宙之盒</strong></td>
+<td>叶默自创神级装备，存储/恢复/标记回返/同调融合四功能</td>
+</tr>
+</tbody>
+</table>
+<h3 id="z">Z</h3>
+<table>
+<thead>
+<tr>
+<th>术语</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>战法</strong></td>
+<td>上级空间/天界中使用的高级战斗体系</td>
+</tr>
+<tr>
+<td><strong>战场</strong></td>
+<td>上级空间中证明实力获取成神资格的区域</td>
+</tr>
+<tr>
+<td><strong>战刃·沙尘</strong></td>
+<td>叶默锻造的三形态进化近战武器</td>
+</tr>
+<tr>
+<td><strong>战兽</strong></td>
+<td>被驯服/契约的变异兽，与主人并肩战斗</td>
+</tr>
+<tr>
+<td><strong>职业徽章</strong></td>
+<td>从彩色轮盘获得的职业身份物品</td>
+</tr>
+<tr>
+<td><strong>职业体系</strong></td>
+<td>战斗职业与辅助职业两大类</td>
+</tr>
+<tr>
+<td><strong>职业等级</strong></td>
+<td>见习→初级→中级→高级→大师→宗师→传说</td>
+</tr>
+<tr>
+<td><strong>种植</strong></td>
+<td>园丁职业使植物生长变异的核心技能</td>
+</tr>
+<tr>
+<td><strong>紫色品质</strong></td>
+<td>史诗级装备</td>
+</tr>
+<tr>
+<td><strong>自然之杖</strong></td>
+<td>可镶嵌自然宝石释放元素技能的稀有装备</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_3">二、战力排行榜（设定参考）</h2>
+<h3 id="_4">顶级强者（十星进化者级）</h3>
+<table>
+<thead>
+<tr>
+<th>排名</th>
+<th>角色</th>
+<th>势力</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>叶默</td>
+<td>天都山庄</td>
+<td>荣耀工匠+园丁双职业，自创宇宙之盒</td>
+</tr>
+<tr>
+<td>—</td>
+<td>温静（慕安媛）</td>
+<td>—</td>
+<td>杀戮玫瑰，十星强者</td>
+</tr>
+<tr>
+<td>—</td>
+<td>墨夜</td>
+<td>天都山庄</td>
+<td>冰系法师，天怒风帆</td>
+</tr>
+<tr>
+<td>—</td>
+<td>莉莲</td>
+<td>圣教/圣廷</td>
+<td>机械战甲+骑士团</td>
+</tr>
+<tr>
+<td>—</td>
+<td>安禄德</td>
+<td>圣城</td>
+<td>血统传承，不完全体十星</td>
+</tr>
+<tr>
+<td>—</td>
+<td>哈鲁</td>
+<td>圣骑士团</td>
+<td>骑士团长，十星</td>
+</tr>
+<tr>
+<td>—</td>
+<td>山王</td>
+<td>古族</td>
+<td>部落领袖，十星</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_5">顶级战兽</h3>
+<table>
+<thead>
+<tr>
+<th>战兽</th>
+<th>主人</th>
+<th>实力</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>地皇犬</td>
+<td>叶默</td>
+<td>十星（逐步进化）</td>
+</tr>
+<tr>
+<td>黑猫</td>
+<td>天都山庄</td>
+<td>十星</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_6">最强装备</h3>
+<table>
+<thead>
+<tr>
+<th>装备</th>
+<th>品质</th>
+<th>持有者</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>金色圣光战甲</td>
+<td>传说/神话</td>
+<td>天空之战神秘者</td>
+</tr>
+<tr>
+<td>宇宙之盒</td>
+<td>神话（自创）</td>
+<td>叶默</td>
+</tr>
+<tr>
+<td>战刃·沙尘（终极形态）</td>
+<td>蓝色稀有</td>
+<td>叶默</td>
+</tr>
+<tr>
+<td>荣耀权杖</td>
+<td>—</td>
+<td>圣城圣女</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_7">三、完整时间线</h2>
+<table>
+<thead>
+<tr>
+<th>时间</th>
+<th>事件</th>
+<th>章节范围</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>末日前</strong></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>2220.9.10 15:35</td>
+<td>叶默重生</td>
+<td>第2章</td>
+</tr>
+<tr>
+<td>2220.9.10 15:35-16:30</td>
+<td>采购物资、见白诗诗</td>
+<td>第2-3章</td>
+</tr>
+<tr>
+<td>2220.9.10 16:30</td>
+<td>到达锦盛华庭</td>
+<td>第3章</td>
+</tr>
+<tr>
+<td><strong>末日爆发</strong></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>2220.9.10 16:40</td>
+<td>天空爆炸、金色圣光战甲出现、末日降临</td>
+<td>第3-4章</td>
+</tr>
+<tr>
+<td>2220.9.10 16:40-17:00</td>
+<td>轮盘出现、叶默遇温静</td>
+<td>第4-5章</td>
+</tr>
+<tr>
+<td><strong>末日第1天</strong></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>傍晚</td>
+<td>收集21枚一级魔晶、转轮盘</td>
+<td>第5-6章</td>
+</tr>
+<tr>
+<td>夜晚</td>
+<td>叶默成为一星进化者、获得弩</td>
+<td>第7-8章</td>
+</tr>
+<tr>
+<td>深夜</td>
+<td>对抗变异甲虫群</td>
+<td>第8章</td>
+</tr>
+<tr>
+<td>深夜后</td>
+<td>温静短暂失踪、叶默继续猎杀</td>
+<td>第9-10章</td>
+</tr>
+<tr>
+<td><strong>末日第1天夜间</strong></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>—</td>
+<td>遇到墨夜女警</td>
+<td>第10-15章</td>
+</tr>
+<tr>
+<td>—</td>
+<td>获取职业证书（荣耀工匠+园丁）</td>
+<td>第15-30章</td>
+</tr>
+<tr>
+<td>—</td>
+<td>占领天湖别苑作为基地</td>
+<td>第30-50章</td>
+</tr>
+<tr>
+<td><strong>末日初期（数天-数周）</strong></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>—</td>
+<td>第一次兽潮、尸猿出现</td>
+<td>第50-100章</td>
+</tr>
+<tr>
+<td>—</td>
+<td>建立天都山庄、团队成型</td>
+<td>第100-200章</td>
+</tr>
+<tr>
+<td><strong>末日中期（数月-数年）</strong></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>—</td>
+<td>秘境探险、与布落圣城古族建立关系</td>
+<td>第200-500章</td>
+</tr>
+<tr>
+<td>—</td>
+<td>势力扩张、与G/C/T/S区博弈</td>
+<td>第500-800章</td>
+</tr>
+<tr>
+<td><strong>末日后期（数年-十年）</strong></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>—</td>
+<td>与圣城冲突升级</td>
+<td>第800-1000章</td>
+</tr>
+<tr>
+<td>—</td>
+<td>圣城攻略战</td>
+<td>第1000-1300章</td>
+</tr>
+<tr>
+<td>—</td>
+<td>攻灭圣城</td>
+<td>第1300-1500章</td>
+</tr>
+<tr>
+<td><strong>终局</strong></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>—</td>
+<td>冲击十星、对抗圣教/圣廷</td>
+<td>第1500-1700章</td>
+</tr>
+<tr>
+<td>—</td>
+<td>传送到上级空间/天界</td>
+<td>第1700-1739章</td>
+</tr>
+<tr>
+<td>—</td>
+<td>被告知需去"战场"、成神之路开始</td>
+<td>结局</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_8">四、参考信息</h2>
+<h3 id="_9">小说基本信息</h3>
+<ul>
+<li><strong>书名</strong>：轮盘世界</li>
+<li><strong>类型</strong>：重生+末世+升级流+系统流（融合无限流元素）</li>
+<li><strong>背景年份</strong>：2220年</li>
+<li><strong>总章节数</strong>：约1739章（已识别最后章节为"投影之战"）</li>
+<li><strong>总字数</strong>：约300万+字（8.8MB文本）</li>
+<li><strong>编码</strong>：GBK（原始文件）</li>
+</ul>
+<h3 id="_10">主要创意亮点</h3>
+<ol>
+<li><strong>轮盘抽奖系统</strong>：以物理转盘形式呈现的"抽卡"机制</li>
+<li><strong>魔晶货币体系</strong>：击杀怪物可获得的实体货币，既是资源也是力量的象征</li>
+<li><strong>多层力量体系</strong>：进化者+职业+血脉+战法，不断拓展的力量上限</li>
+<li><strong>秘境探索</strong>：类似副本的异空间，增加世界探索深度</li>
+<li><strong>势力争霸</strong>：幸存者势力间复杂的博弈和战争</li>
+<li><strong>天界揭秘</strong>：从末世生存→探索真相→揭示更大世界观的叙事升级</li>
+</ol>
+<hr />
+<p><em>返回<a onclick="navigateTo('../首页')" class="wiki-link">首页</a></em></p>
+</div>
+<div class="page-content active" id="page-首页">
+<h1 id="_1">轮盘世界 · 维基百科</h1>
+<blockquote>
+<p>基于原著小说《轮盘世界》世界观整理的完整百科全书，服务于开放世界RPG游戏制作。</p>
+</blockquote>
+<hr />
+<h2 id="_2">📚 目录导航</h2>
+<h3 id="_3">一、<a onclick="navigateTo('世界观/概述')" class="wiki-link">世界观</a></h3>
+<p>末日轮盘的运行机制、力量体系、时间线与世界规则</p>
+<h3 id="_4">二、<a onclick="navigateTo('人物档案/人物总览')" class="wiki-link">人物档案</a></h3>
+<p>主角团、关键NPC、反派、传奇强者的完整档案</p>
+<h3 id="_5">三、<a onclick="navigateTo('组织与势力/势力总览')" class="wiki-link">组织与势力</a></h3>
+<p>幸存者营地、军事组织、公会、商团等所有势力</p>
+<h3 id="_6">四、<a onclick="navigateTo('地图与地点/地点总览')" class="wiki-link">地图与地点</a></h3>
+<p>城市、基地、重要建筑、危险区域的完整地理</p>
+<h3 id="_7">五、<a onclick="navigateTo('怪物图鉴/怪物总览')" class="wiki-link">怪物图鉴</a></h3>
+<p>丧尸、变异兽、变异植物、地狱兽等所有怪物</p>
+<h3 id="_8">六、<a onclick="navigateTo('道具与能力/道具总览')" class="wiki-link">道具与能力</a></h3>
+<p>强化药剂、武器、职业证书、功能卡、血脉等所有物品</p>
+<h3 id="_9">七、<a onclick="navigateTo('情节概要/情节总览')" class="wiki-link">情节概要</a></h3>
+<p>完整剧情线、关键事件、重大转折</p>
+<h3 id="_10">八、<a onclick="navigateTo('附录/附录总览')" class="wiki-link">附录</a></h3>
+<p>术语表、战力排行、时间线、参考资料</p>
+<hr />
+<h2 id="_11">快速导航</h2>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>末日轮盘</strong></td>
+<td>末日降临后出现在世界各地的巨大转盘，可消耗魔晶进行抽奖，是获取力量的唯一途径</td>
+</tr>
+<tr>
+<td><strong>魔晶</strong></td>
+<td>击杀怪物获得的晶体，分为不同等级/颜色，是末日后世界的核心货币</td>
+</tr>
+<tr>
+<td><strong>强化人/进化者</strong></td>
+<td>通过强化药剂提升身体能力的人类，分为不同等阶</td>
+</tr>
+<tr>
+<td><strong>职业者</strong></td>
+<td>通过职业证书获得特殊技能的人类，拥有超越常人的战斗能力</td>
+</tr>
+<tr>
+<td><strong>变异兽</strong></td>
+<td>末日降临后被感染的动物，体型巨大化并具有特殊能力</td>
+</tr>
+<tr>
+<td><strong>变异植物</strong></td>
+<td>被末日力量感染的植物，具有攻击性和特殊能力</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><em>本维基基于小说《轮盘世界》全文分析整理</em></p>
+</div>
+  </div>
+</div>
+
+<script>
+// ===== Page Data =====
+const PAGES = {
+  "世界观/概述": "<h1 id=\"_1\">世界观 · 概述</h1>\n<blockquote>\n<p>本章节详细阐述《轮盘世界》的核心世界观设定，包括末日起因、轮盘体系、力量层级、职业系统、世界规则等。</p>\n</blockquote>\n<hr />\n<h2 id=\"_2\">一、末日降临</h2>\n<h3 id=\"11\">1.1 末日开端</h3>\n<ul>\n<li><strong>时间</strong>：2220年9月10日 16:40</li>\n<li><strong>事件</strong>：一场毁灭性的灾难突然降临地球</li>\n<li><strong>表现</strong>：</li>\n<li>天空出现巨大蘑菇云般的爆炸</li>\n<li>一艘<strong>金色圣光战甲</strong>（九级十层轮盘顶级奖励之一）出现在天际</li>\n<li>大量人类在灾难中死亡，随后转化为丧尸</li>\n<li>地球上的动植物发生恐怖变异</li>\n<li><strong>末日轮盘</strong>在世界各地随机出现</li>\n</ul>\n<h3 id=\"12\">1.2 末日成因</h3>\n<ul>\n<li>天空中的战争：高等级存在之间的战斗导致末日开始</li>\n<li>巨大的\"根\"状物从天空延伸至地面，释放怪物</li>\n<li>金色圣光战甲的出现暗示有超越人类认知的战争在进行</li>\n<li>最终揭示：末日背后存在<strong>上层世界/天界</strong>的幕后操纵者</li>\n</ul>\n<h3 id=\"13\">1.3 末日影响</h3>\n<ul>\n<li><strong>人口锐减</strong>：大量人类在灾难和丧尸潮中死亡</li>\n<li><strong>环境剧变</strong>：动植物大规模变异，生态环境彻底改变</li>\n<li><strong>社会崩塌</strong>：原有秩序崩溃，幸存者形成新势力</li>\n<li><strong>人类进化</strong>：幸存者通过轮盘获得力量，成为进化者</li>\n<li><strong>秘境出现</strong>：特殊区域随末日降临而出现，充满危险与机遇</li>\n</ul>\n<hr />\n<h2 id=\"_3\">二、轮盘体系</h2>\n<h3 id=\"21\">2.1 轮盘概述</h3>\n<p>末日轮盘是末日后世界最核心的存在。它是一个巨大的转盘装置，散落在世界各地。幸存者消耗魔晶来转动轮盘，随机获得奖励。</p>\n<h3 id=\"22\">2.2 轮盘等级</h3>\n<table>\n<thead>\n<tr>\n<th>等级</th>\n<th>标识</th>\n<th>魔晶槽位</th>\n<th>稀有度</th>\n<th>说明</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>一道轮盘</td>\n<td>黄色水晶宝石</td>\n<td>1个（普通）/ 多个（稀有）</td>\n<td>最常见</td>\n<td>分布最广</td>\n</tr>\n<tr>\n<td>二道轮盘</td>\n<td>橘色/红色宝石</td>\n<td>10个</td>\n<td>较稀有</td>\n<td>奖励品质提升</td>\n</tr>\n<tr>\n<td>三道轮盘</td>\n<td>—</td>\n<td>—</td>\n<td>—</td>\n<td>可获职业证书</td>\n</tr>\n<tr>\n<td>七彩轮盘</td>\n<td>七彩</td>\n<td>—</td>\n<td>极稀有</td>\n<td>职业证书、契约卷轴</td>\n</tr>\n<tr>\n<td>九级十层轮盘</td>\n<td>金色圣光</td>\n<td>—</td>\n<td>传说级</td>\n<td>最强装备来源</td>\n</tr>\n</tbody>\n</table>\n<h3 id=\"23\">2.3 轮盘结构</h3>\n<ul>\n<li><strong>底座</strong>：巨大的圆形底座，镶嵌对应等级的宝石</li>\n<li><strong>指针</strong>：黑色/红色指针，指向奖励区域</li>\n<li><strong>槽位</strong>：投入魔晶的凹槽，数量决定轮盘等级</li>\n<li><strong>面板</strong>：显示可获得的奖励图标</li>\n<li><strong>奖励台</strong>：获奖物品出现的位置</li>\n</ul>\n<h3 id=\"24\">2.4 使用规则</h3>\n<ol>\n<li>投入魔晶至槽位</li>\n<li>指针在奖励图标间旋转</li>\n<li>指针停止时指向的图标即为奖励</li>\n<li>奖励从奖励台中出现</li>\n<li>可无限次使用</li>\n<li>多层轮盘需逐层转动，层层叠加可获最终大奖</li>\n</ol>\n<h3 id=\"25\">2.5 轮盘特性</h3>\n<ul>\n<li><strong>随机性</strong>：奖励完全随机</li>\n<li><strong>独立性</strong>：每个轮盘奖励池不同</li>\n<li><strong>占据性</strong>：强者占据优质轮盘，收取\"使用费\"</li>\n<li><strong>多样性</strong>：不同位置轮盘奖励倾向不同</li>\n<li><strong>进化性</strong>：末日推进可能带来轮盘进化</li>\n</ul>\n<hr />\n<h2 id=\"_4\">三、力量体系</h2>\n<h3 id=\"31\">3.1 进化者等阶</h3>\n<table>\n<thead>\n<tr>\n<th>等阶</th>\n<th>能力提升</th>\n<th>所需药剂</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>普通人</td>\n<td>基础人类能力</td>\n<td>—</td>\n</tr>\n<tr>\n<td>一星进化者</td>\n<td>身体素质约5倍提升</td>\n<td>一星进化药剂</td>\n</tr>\n<tr>\n<td>二星进化者</td>\n<td>大幅超越常人</td>\n<td>二星进化药剂</td>\n</tr>\n<tr>\n<td>三星进化者</td>\n<td>可正面对抗复数怪物</td>\n<td>三星进化药剂</td>\n</tr>\n<tr>\n<td>...</td>\n<td>...</td>\n<td>...</td>\n</tr>\n<tr>\n<td>十星进化者</td>\n<td>准神级战力</td>\n<td>十星进化药剂</td>\n</tr>\n</tbody>\n</table>\n<h3 id=\"32\">3.2 职业体系</h3>\n<h4 id=\"_5\">战斗职业</h4>\n<table>\n<thead>\n<tr>\n<th>职业</th>\n<th>说明</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>战士</td>\n<td>近战物理输出</td>\n</tr>\n<tr>\n<td>狙击手</td>\n<td>远程精准打击</td>\n</tr>\n<tr>\n<td>骑士</td>\n<td>重装坦克</td>\n</tr>\n<tr>\n<td>刺客</td>\n<td>潜行暗杀</td>\n</tr>\n<tr>\n<td>拳师</td>\n<td>徒手格斗</td>\n</tr>\n<tr>\n<td>机械师</td>\n<td>机械操控</td>\n</tr>\n<tr>\n<td>法师（冰/火/雷等）</td>\n<td>元素魔法</td>\n</tr>\n<tr>\n<td>召唤师</td>\n<td>召唤战兽</td>\n</tr>\n</tbody>\n</table>\n<h4 id=\"_6\">辅助职业</h4>\n<table>\n<thead>\n<tr>\n<th>职业</th>\n<th>说明</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>药师</td>\n<td>制作药剂</td>\n</tr>\n<tr>\n<td>医师</td>\n<td>治疗能力</td>\n</tr>\n<tr>\n<td>锻造师</td>\n<td>制作装备</td>\n</tr>\n<tr>\n<td>附魔师</td>\n<td>装备附魔</td>\n</tr>\n<tr>\n<td>工程匠师</td>\n<td>建筑与机械</td>\n</tr>\n<tr>\n<td>荣耀工匠</td>\n<td>附魔+锻造+采集综合</td>\n</tr>\n</tbody>\n</table>\n<h4 id=\"_7\">职业等级</h4>\n<div class=\"codehilite\"><pre><span></span><code>见习 → 初级 → 中级 → 高级 → 大师 → 宗师 → 传说\n</code></pre></div>\n\n<h4 id=\"_8\">叶默的职业</h4>\n<ul>\n<li><strong>荣耀工匠</strong>：辅助职业，含附魔、锻造、采集等综合技能</li>\n<li><strong>绿园使</strong>：可操控变异植物</li>\n</ul>\n<h3 id=\"33\">3.3 功能卡体系</h3>\n<p>通过轮盘获得的特殊卡片：\n- <strong>透视卡</strong>：获得透视视觉\n- <strong>视觉强化卡</strong>：增强视力\n- <strong>危险感知卡</strong>：感知周围危险\n- <strong>石肤卡</strong>：皮肤石化，大幅提升防御\n- <strong>感知卡</strong>：增强各种感知能力\n- <strong>战兽卡</strong>：召唤/操控特定战兽</p>\n<h3 id=\"34\">3.4 装备等级</h3>\n<table>\n<thead>\n<tr>\n<th>品级</th>\n<th>颜色</th>\n<th>说明</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>普通</td>\n<td>白色</td>\n<td>基础装备</td>\n</tr>\n<tr>\n<td>优秀</td>\n<td>绿色</td>\n<td>属性强化</td>\n</tr>\n<tr>\n<td>稀有</td>\n<td>紫色</td>\n<td>特殊效果</td>\n</tr>\n<tr>\n<td>史诗</td>\n<td>金色</td>\n<td>强力特殊能力</td>\n</tr>\n<tr>\n<td>传说</td>\n<td>—</td>\n<td>独一无二</td>\n</tr>\n<tr>\n<td>七彩</td>\n<td>七彩</td>\n<td>顶级装备</td>\n</tr>\n</tbody>\n</table>\n<h3 id=\"35\">3.5 血脉体系</h3>\n<ul>\n<li>可通过轮盘获得特殊血脉</li>\n<li>赋予持有者特殊能力或属性加成</li>\n<li>可能具有遗传性和可升级性</li>\n<li>圣城势力依靠血统传承获得力量</li>\n</ul>\n<hr />\n<h2 id=\"_9\">四、魔晶体系</h2>\n<h3 id=\"41\">4.1 魔晶概述</h3>\n<p>魔晶是所有被末日感染的生物头部生成的晶体，是转动轮盘的唯一\"货币\"，末日世界的硬通货。</p>\n<h3 id=\"42\">4.2 魔晶等级与颜色</h3>\n<table>\n<thead>\n<tr>\n<th>等级</th>\n<th>颜色</th>\n<th>来源</th>\n<th>轮盘对应</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>一级</td>\n<td>白色</td>\n<td>普通丧尸、低级变异虫</td>\n<td>一道轮盘</td>\n</tr>\n<tr>\n<td>二级</td>\n<td>绿色</td>\n<td>进化丧尸、变异兽</td>\n<td>二道轮盘</td>\n</tr>\n<tr>\n<td>三级</td>\n<td>紫色</td>\n<td>高等变异兽</td>\n<td>—</td>\n</tr>\n<tr>\n<td>四级</td>\n<td>红色</td>\n<td>稀有怪物</td>\n<td>—</td>\n</tr>\n<tr>\n<td>五级</td>\n<td>金色</td>\n<td>地狱兽级</td>\n<td>—</td>\n</tr>\n<tr>\n<td>...</td>\n<td>...</td>\n<td>...</td>\n<td>—</td>\n</tr>\n<tr>\n<td>九级</td>\n<td>彩色</td>\n<td>准神级怪物</td>\n<td>九级轮盘</td>\n</tr>\n</tbody>\n</table>\n<h3 id=\"43\">4.3 魔晶用途</h3>\n<ul>\n<li>转动轮盘（最主要用途）</li>\n<li>交易货币</li>\n<li>特殊装备/药剂的材料</li>\n</ul>\n<hr />\n<h2 id=\"_10\">五、世界地理</h2>\n<h3 id=\"51\">5.1 核心区域</h3>\n<ul>\n<li><strong>城市废墟</strong>：末日前的城市，现在遍布丧尸</li>\n<li><strong>郊区荒地</strong>：变异植物的领地</li>\n<li><strong>秘境</strong>：末日降临后出现的特殊异空间，充满危险与机遇</li>\n<li><strong>北方冰原</strong>：圣教/圣廷的地盘</li>\n</ul>\n<h3 id=\"52\">5.2 重要地点</h3>\n<table>\n<thead>\n<tr>\n<th>地点</th>\n<th>类型</th>\n<th>说明</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>锦盛华庭小区</td>\n<td>居民区</td>\n<td>末日初始地，有一道轮盘</td>\n</tr>\n<tr>\n<td>大学校园</td>\n<td>教育区</td>\n<td>主角学校，初始活动区</td>\n</tr>\n<tr>\n<td>绿洲山庄</td>\n<td>幸存者基地</td>\n<td>叶默创立的大本营</td>\n</tr>\n<tr>\n<td>地下城</td>\n<td>幸存者据点</td>\n<td>大型聚集地</td>\n</tr>\n<tr>\n<td>圣城</td>\n<td>古城</td>\n<td>安禄德家族统治</td>\n</tr>\n<tr>\n<td>布落圣城</td>\n<td>古族秘境</td>\n<td>部落古族聚居地</td>\n</tr>\n<tr>\n<td>通天城</td>\n<td>中立城市</td>\n<td>各方交易中心</td>\n</tr>\n<tr>\n<td>不落圣城</td>\n<td>古代遗迹</td>\n<td>已灭亡的圣城</td>\n</tr>\n</tbody>\n</table>\n<hr />\n<h2 id=\"_11\">六、世界规则</h2>\n<h3 id=\"61\">6.1 感染规则</h3>\n<ul>\n<li>被丧尸抓伤/咬伤会感染</li>\n<li>感染后转化为丧尸</li>\n<li>丧尸的魔晶未被取出时，即使只剩头部也能通过吞噬血肉再生</li>\n</ul>\n<h3 id=\"62\">6.2 生存法则</h3>\n<ul>\n<li>食物和水极度稀缺</li>\n<li>部分变异生物肉可食用，且能强化身体</li>\n<li>轮盘是最重要战略资源</li>\n<li>强者掌控一切</li>\n</ul>\n<h3 id=\"63\">6.3 天界（上层世界）</h3>\n<ul>\n<li>比十星进化者更高层次的位面</li>\n<li>需\"入场券\"方可进入</li>\n<li>末日背后真正的幕后操纵者所在</li>\n<li>小说结尾揭示的更大世界观</li>\n</ul>\n<hr />\n<p><em>返回<a onclick=\"navigateTo('../首页')\" class=\"wiki-link\">首页</a></em></p>",
+  "世界观/轮盘系统详解": "<h1 id=\"_1\">世界观 · 轮盘系统详解</h1>\n<blockquote>\n<p>末日轮盘是《轮盘世界》最核心的设定，是末日力量的来源和人类生存的根基。</p>\n</blockquote>\n<hr />\n<h2 id=\"_2\">一、轮盘的起源</h2>\n<ul>\n<li><strong>出现时间</strong>：2220年9月10日16:40，与末日降临同时</li>\n<li><strong>出现方式</strong>：从天空坠落，随机散布在世界各地</li>\n<li><strong>本质</strong>：由超越人类认知的高等存在制造/投放的力量分配装置</li>\n<li><strong>幕后</strong>：天界/上级空间的操纵者通过轮盘控制地球人类的进化进程</li>\n</ul>\n<hr />\n<h2 id=\"_3\">二、轮盘等级体系</h2>\n<h3 id=\"21\">2.1 一级轮盘</h3>\n<div class=\"codehilite\"><pre><span></span><code>┌─────────────────────┐\n│  镶嵌黄色水晶宝石      │\n│  1个魔晶槽位          │\n│  (稀有版: 7+槽位)     │\n│  10个奖励分区         │\n│  指针: 黑色/红色       │\n└─────────────────────┘\n</code></pre></div>\n\n<ul>\n<li><strong>转一次消耗</strong>：1枚一级魔晶</li>\n<li><strong>常见奖励</strong>：一级进化药剂、弩、食物、水、医药箱、简单武器</li>\n<li><strong>稀有奖励</strong>：一级进化药剂（最佳单次奖励）</li>\n<li><strong>分布</strong>：最常见，几乎每个区域都有</li>\n</ul>\n<h3 id=\"22\">2.2 二级轮盘</h3>\n<ul>\n<li><strong>转一次消耗</strong>：10枚一级魔晶（或等值更高级魔晶）</li>\n<li><strong>奖励池</strong>：一级进化药剂、不完全免疫药剂、臂盾（灰色品质白色装备）、更高级武器</li>\n<li><strong>出现位置</strong>：特定地点（如学校体育馆）</li>\n</ul>\n<h3 id=\"23\">2.3 三级轮盘</h3>\n<ul>\n<li><strong>转一次消耗</strong>：100枚一级魔晶</li>\n<li><strong>奖励池</strong>：更高级药剂、职业相关物品、高品质装备</li>\n</ul>\n<h3 id=\"24\">2.4 彩色轮盘</h3>\n<div class=\"codehilite\"><pre><span></span><code>彩色轮盘分为:\n  三彩轮盘 (3色)\n  五彩轮盘 (5色)\n  七彩轮盘 (7色)  ← 最常见的高级轮盘\n  九彩轮盘 (9色)\n\n注意: 不存在偶色彩轮盘 (4/6/8彩)\n</code></pre></div>\n\n<ul>\n<li><strong>特点</strong>：</li>\n<li>唯一可转出<strong>职业证书</strong>和<strong>契约皮卷</strong>的轮盘</li>\n<li>存在时间限制（数分钟至十分钟）</li>\n<li>黑色区域 = 轮空（转盘可能爆炸，直接杀死使用者！）</li>\n<li>投入魔晶需达到能量总和要求（低级魔晶也可，只要总量够）</li>\n<li><strong>风险</strong>：如在时限内未满足能量要求，之前投入的魔晶全部损失</li>\n</ul>\n<h3 id=\"25\">2.5 九级十层轮盘</h3>\n<ul>\n<li><strong>转一次消耗</strong>：海量顶级魔晶</li>\n<li><strong>顶级奖励</strong>：金色圣光战甲、传说级装备、超级技能卡等</li>\n</ul>\n<h3 id=\"26\">2.6 特殊轮盘类型</h3>\n<table>\n<thead>\n<tr>\n<th>类型</th>\n<th>说明</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>微型轮盘</td>\n<td>可携带，8格选项（4奖励4惩罚），需1枚高级魔晶</td>\n</tr>\n<tr>\n<td>母巢轮盘</td>\n<td>大型怪物身上的轮盘，可转出通往对应空间的钥匙</td>\n</tr>\n<tr>\n<td>职业轮盘</td>\n<td>专门产出职业相关物品</td>\n</tr>\n</tbody>\n</table>\n<hr />\n<h2 id=\"_4\">三、轮盘使用机制</h2>\n<h3 id=\"31\">3.1 基本流程</h3>\n<div class=\"codehilite\"><pre><span></span><code><span class=\"mf\">1.</span><span class=\"w\"> </span><span class=\"n\">将魔晶投入槽位</span>\n<span class=\"w\">   </span><span class=\"err\">↓</span>\n<span class=\"mf\">2.</span><span class=\"w\"> </span><span class=\"n\">红色指针开始旋转</span>\n<span class=\"w\">   </span><span class=\"err\">↓</span>\n<span class=\"mf\">3.</span><span class=\"w\"> </span><span class=\"n\">指针在奖励图标间快速切换</span>\n<span class=\"w\">   </span><span class=\"err\">↓</span>\n<span class=\"mf\">4.</span><span class=\"w\"> </span><span class=\"n\">指针停止</span><span class=\"w\"> </span><span class=\"err\">→</span><span class=\"w\"> </span><span class=\"n\">指向的图标</span><span class=\"w\"> </span><span class=\"o\">=</span><span class=\"w\"> </span><span class=\"n\">获得奖励</span>\n<span class=\"w\">   </span><span class=\"err\">↓</span>\n<span class=\"mf\">5.</span><span class=\"w\"> </span><span class=\"n\">奖励物品出现在下方奖励台</span>\n</code></pre></div>\n\n<h3 id=\"32\">3.2 关键规则</h3>\n<ul>\n<li><strong>无限使用</strong>：只要投币就能无限次旋转</li>\n<li><strong>完全随机</strong>：没有任何规律或保底机制</li>\n<li><strong>独立运作</strong>：每个轮盘有独立的奖励池</li>\n<li><strong>多人共用</strong>：多个幸存者可轮流使用同一轮盘</li>\n</ul>\n<h3 id=\"33\">3.3 多层轮盘机制</h3>\n<p>部分高级轮盘为多层结构：</p>\n<div class=\"codehilite\"><pre><span></span><code>   第三层奖励（最佳）\n  ┌──────────┐\n  │ 第二层奖励 │\n  │ ┌──────┐ │\n  │ │第一层  │ │\n  │ │奖励   │ │\n  │ └──────┘ │\n  └──────────┘\n</code></pre></div>\n\n<ul>\n<li>每层单独转动</li>\n<li>全部层转动后，奖励合并</li>\n<li>最终可能获得远超单层的超级大奖</li>\n</ul>\n<hr />\n<h2 id=\"_5\">四、轮盘奖励池</h2>\n<h3 id=\"41\">4.1 消耗品类</h3>\n<ul>\n<li>各类进化药剂（一星至九星）</li>\n<li>免疫药剂（不完全/完全）</li>\n<li>精神力药水（蓝瓶）</li>\n<li>治疗药水</li>\n<li>食物和净水</li>\n</ul>\n<h3 id=\"42\">4.2 装备类</h3>\n<ul>\n<li>武器（弩、手枪、砍刀、战刃等）</li>\n<li>防具（臂盾、护甲、棉袍等）</li>\n<li>饰品（各类戒指、项链等）</li>\n<li>特殊装备（空间水壶等）</li>\n</ul>\n<h3 id=\"43\">4.3 技能/能力类</h3>\n<ul>\n<li>功能卡（夜视、石肤、感知等）</li>\n<li>职业证书 + 契约皮卷</li>\n<li>技能卷轴</li>\n<li>武技秘籍</li>\n</ul>\n<h3 id=\"44\">4.4 特殊类</h3>\n<ul>\n<li>血脉物品</li>\n<li>宠物/战兽蛋</li>\n<li>秘境钥匙</li>\n<li>图纸/配方</li>\n<li>折扣卡</li>\n</ul>\n<hr />\n<h2 id=\"_6\">五、轮盘的占领与经济</h2>\n<h3 id=\"51\">5.1 轮盘占领</h3>\n<ul>\n<li>强者或势力会占领优质轮盘</li>\n<li>设置关卡，向外来者收取\"使用费\"</li>\n<li>末日后最珍贵的战略资源</li>\n</ul>\n<h3 id=\"52\">5.2 轮盘经济</h3>\n<div class=\"codehilite\"><pre><span></span><code>幸存者猎杀怪物 → 获得魔晶 → 支付轮盘使用费 → 转动轮盘 → 获得力量 → 猎杀更强怪物\n                                                    ↓\n                                              多余奖励 → 交易市场 → 换取魔晶/其他物资\n</code></pre></div>\n\n<hr />\n<h2 id=\"_7\">六、轮盘的隐藏真相</h2>\n<h3 id=\"61\">6.1 幕后操控</h3>\n<ul>\n<li>轮盘并非自然产生的神奇物品</li>\n<li>由天界/上级空间的高等存在设计</li>\n<li>目的是筛选和培养强者</li>\n</ul>\n<h3 id=\"62\">6.2 进化陷阱？</h3>\n<ul>\n<li>轮盘让人类变强 → 变强后达到九星 → 被强制传送到上级空间 → 成为\"战场\"上的棋子</li>\n<li>暗示整个地球末日可能是更高层次存在的实验/游戏</li>\n</ul>\n<h3 id=\"63\">6.3 最终的轮盘</h3>\n<ul>\n<li>母巢轮盘可转出通往上级空间的钥匙</li>\n<li>暗示轮盘体系与整个多元宇宙连通</li>\n</ul>\n<hr />\n<p><em>返回<a onclick=\"navigateTo('世界观/概述')\" class=\"wiki-link\">概述</a> | <a onclick=\"navigateTo('../首页')\" class=\"wiki-link\">首页</a></em></p>",
+  "人物档案/人物总览": "<h1 id=\"_1\">人物档案 · 人物总览</h1>\n<blockquote>\n<p>本章节收录《轮盘世界》中所有重要角色的人物档案，按出场顺序与重要程度排列。</p>\n</blockquote>\n<hr />\n<h2 id=\"_2\">核心主角</h2>\n<h3 id=\"_3\">叶默</h3>\n<ul>\n<li><strong>身份</strong>：主人公，重生者</li>\n<li><strong>前世</strong>：末日十年后的强大战士，在与敌人的最后一战中被偷袭杀害</li>\n<li><strong>性格</strong>：冷静、果断、理性，具有末日生存的老练思维，对敌人冷酷，对有潜力者给予机会</li>\n<li><strong>核心能力</strong>：</li>\n<li>十年末日战斗经验与生存技巧</li>\n<li>职业：<strong>荣耀工匠</strong>（辅助职业：附魔、锻造、采集）+ <strong>绿园使</strong>（操控变异植物）</li>\n<li>战兽：<strong>地皇犬</strong>（从末日初期即跟随的变异宠物）</li>\n<li><strong>关键装备</strong>：</li>\n<li>自然之杖（镶嵌自然宝石，释放元素技能）</li>\n<li>血色之剑（红色品级武器）</li>\n<li>魔力之弩</li>\n<li><strong>最终实力</strong>：十星进化者</li>\n<li><strong>组织</strong>：绿洲山庄创始人</li>\n<li><strong>目标</strong>：查明末日真相、保护重要之人、进入天界</li>\n</ul>\n<h3 id=\"_4\">温静（慕安媛）</h3>\n<ul>\n<li><strong>称号</strong>：杀戮玫瑰（未来十星强者之一）</li>\n<li><strong>初登场</strong>：锦盛华庭小区，身着浅色睡衣</li>\n<li><strong>性格</strong>：初期天真直率但观察力敏锐，后成长为果决的强者</li>\n<li><strong>与叶默关系</strong>：叶默重生后第一个遇到的人，知道她未来的潜力而刻意结交</li>\n<li><strong>成长</strong>：末日初期跟随叶默→短暂失踪→再次出现时已成长为强者</li>\n<li><strong>最终实力</strong>：十星进化者</li>\n</ul>\n<h3 id=\"_5\">白诗诗</h3>\n<ul>\n<li><strong>身份</strong>：叶默的前女友，大学校花</li>\n<li><strong>关系</strong>：与富二代校草高景涵有恋情</li>\n<li><strong>命运线</strong>：</li>\n<li>原世界线：末日初期与叶默分开，选择跟随高景涵，结局凄凉</li>\n<li>重生线：叶默尊重她的选择，劝她去找高景涵，并嘱咐远离危险</li>\n</ul>\n<hr />\n<h2 id=\"_6\">核心团队成员</h2>\n<h3 id=\"_7\">墨夜</h3>\n<ul>\n<li><strong>身份</strong>：女警，受过专业训练</li>\n<li><strong>出场</strong>：学校体育馆变异巨蚁危机时</li>\n<li><strong>能力</strong>：</li>\n<li>精通枪械</li>\n<li>具备古武术基础</li>\n<li>职业：法师（主修冰系）</li>\n<li><strong>标志技能</strong>：天怒风帆、冰系大型范围法术</li>\n<li><strong>最终实力</strong>：十星进化者</li>\n<li><strong>角色</strong>：叶默团队最核心的成员之一</li>\n</ul>\n<h3 id=\"_8\">赵晓丽（高老师）</h3>\n<ul>\n<li><strong>身份</strong>：大学女教师</li>\n<li><strong>性格</strong>：初期天真善良，不适应末日残酷</li>\n<li><strong>成长</strong>：被叶默教育后逐步改变，适应末日</li>\n<li><strong>角色</strong>：叶默团队核心成员</li>\n</ul>\n<h3 id=\"_9\">孙丽颖</h3>\n<ul>\n<li><strong>身份</strong>：大学女教师</li>\n<li><strong>性格</strong>：现实坚韧</li>\n<li><strong>成长轨迹</strong>：从普通教师蜕变为为保护魔晶能与人大打出手的战士</li>\n<li><strong>角色</strong>：叶默团队核心成员</li>\n</ul>\n<h3 id=\"_10\">盛元</h3>\n<ul>\n<li><strong>背景</strong>：与女友小颖一同在末日中挣扎，小颖被杀害</li>\n<li><strong>性格</strong>：顽强、隐忍、有骨气</li>\n<li><strong>动机</strong>：为女友报仇而活</li>\n<li><strong>职业</strong>：曾被组织逼迫交出职业证书，后在叶默帮助下复仇</li>\n<li><strong>角色</strong>：后期加入叶默团队</li>\n</ul>\n<h3 id=\"_11\">小奥</h3>\n<ul>\n<li><strong>身份</strong>：盛元的帮手</li>\n<li><strong>性格</strong>：活泼</li>\n<li><strong>角色</strong>：团队外围成员</li>\n</ul>\n<hr />\n<h2 id=\"_12\">末日初期的关键人物</h2>\n<h3 id=\"_13\">高景涵（高少）</h3>\n<ul>\n<li><strong>身份</strong>：富二代，大学校草</li>\n<li><strong>关系</strong>：白诗诗的新男友</li>\n<li><strong>评价</strong>：在和平环境下光鲜亮丽，末日环境下未必可靠</li>\n</ul>\n<h3 id=\"_14\">张浩泰</h3>\n<ul>\n<li><strong>身份</strong>：高景涵的跟班/打手</li>\n<li><strong>特征</strong>：体育生，身体强壮</li>\n<li><strong>行为</strong>：末日初期在食堂组织学生霸凌女生</li>\n<li><strong>结局</strong>：被叶默教训</li>\n</ul>\n<h3 id=\"_15\">黄金珠宝商一家</h3>\n<ul>\n<li><strong>身份</strong>：锦盛华庭小区住户</li>\n<li><strong>特征</strong>：在末日初期试图控制轮盘</li>\n</ul>\n<hr />\n<h2 id=\"_16\">后期关键角色</h2>\n<h3 id=\"_17\">红发（丧尸）</h3>\n<ul>\n<li><strong>身份</strong>：原本是叶默团队中的一员</li>\n<li><strong>转变</strong>：死后因某种原因复活，成为有意识的高级丧尸</li>\n<li><strong>能力</strong>：</li>\n<li>可操控丧尸群</li>\n<li>保留人类意识残留</li>\n<li>特殊技能：\"狂物之鸣\"</li>\n<li><strong>命运</strong>：独立行动，守护叶默的基地，逐渐与人类疏远</li>\n</ul>\n<h3 id=\"_18\">赵雅（小雅）</h3>\n<ul>\n<li><strong>身份</strong>：部落古族少女</li>\n<li><strong>特征</strong>：有语言障碍（初期）</li>\n<li><strong>出场</strong>：叶默在布落圣城附近遇到</li>\n<li><strong>关系</strong>：对叶默有好感</li>\n<li><strong>角色</strong>：沟通古族与叶默之间的桥梁</li>\n</ul>\n<h3 id=\"_19\">白昊（小白）</h3>\n<ul>\n<li><strong>身份</strong>：绿洲山庄重要成员</li>\n<li><strong>角色</strong>：叶默的忠实追随者</li>\n</ul>\n<h3 id=\"_20\">赵阔（小叶子）</h3>\n<ul>\n<li><strong>身份</strong>：叶默的合作伙伴</li>\n<li><strong>外号</strong>：小叶子</li>\n</ul>\n<h3 id=\"_21\">孙小丽</h3>\n<ul>\n<li><strong>身份</strong>：后期出现的强力战士</li>\n</ul>\n<hr />\n<h2 id=\"_22\">敌对与复杂角色</h2>\n<h3 id=\"_23\">安禄德（安禄）</h3>\n<ul>\n<li><strong>身份</strong>：圣城/布落圣城的统治者之一</li>\n<li><strong>实力</strong>：十星进化者（不完全体）</li>\n<li><strong>特征</strong>：依靠血统和家族传承获得力量，性格高傲</li>\n<li><strong>结局</strong>：在圣城被攻破时被叶默击败</li>\n</ul>\n<h3 id=\"_24\">圣子/圣女婿</h3>\n<ul>\n<li><strong>身份</strong>：圣城的继承者/统治者</li>\n<li><strong>特征</strong>：冷酷无情，视他人为棋子</li>\n<li><strong>结局</strong>：圣城破灭时败于叶默之手</li>\n</ul>\n<h3 id=\"_25\">哈鲁（圣骑士团长）</h3>\n<ul>\n<li><strong>身份</strong>：圣骑士团团长</li>\n<li><strong>实力</strong>：十星进化者</li>\n<li><strong>关系</strong>：初期与叶默合作对抗怪物，后期关系复杂</li>\n</ul>\n<h3 id=\"_26\">莉莲</h3>\n<ul>\n<li><strong>身份</strong>：北原高层强者</li>\n<li><strong>实力</strong>：十星进化者</li>\n<li><strong>势力</strong>：掌控\"圣教\"组织，拥有机械战甲和骑士团</li>\n</ul>\n<h3 id=\"_27\">山王</h3>\n<ul>\n<li><strong>身份</strong>：强大的古族领袖</li>\n<li><strong>实力</strong>：十星进化者</li>\n</ul>\n<h3 id=\"_28\">美食魔法使（美食魔法师）</h3>\n<ul>\n<li><strong>身份</strong>：后来出现的强大法师</li>\n<li><strong>特色</strong>：会制作各种特殊药剂和食物，来自远方异土</li>\n<li><strong>关系</strong>：与绿洲山庄建立贸易关系</li>\n</ul>\n<hr />\n<h2 id=\"_29\">次要角色</h2>\n<table>\n<thead>\n<tr>\n<th>角色</th>\n<th>身份</th>\n<th>备注</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>孔浩一</td>\n<td>荣耀联盟创建者</td>\n<td>叶默旧识</td>\n</tr>\n<tr>\n<td>柳铭</td>\n<td>后期联盟成员</td>\n<td>重要人物</td>\n</tr>\n<tr>\n<td>陈峰</td>\n<td>后期联盟成员</td>\n<td>重要人物</td>\n</tr>\n<tr>\n<td>王通</td>\n<td>后期联盟成员</td>\n<td>重要人物</td>\n</tr>\n<tr>\n<td>钱雪林</td>\n<td>后期联盟成员</td>\n<td>重要人物</td>\n</tr>\n<tr>\n<td>哈洛</td>\n<td>圣城战将</td>\n<td>-</td>\n</tr>\n<tr>\n<td>赵哈洛</td>\n<td>圣城战将</td>\n<td>-</td>\n</tr>\n<tr>\n<td>耶律撒</td>\n<td>圣城战将</td>\n<td>-</td>\n</tr>\n</tbody>\n</table>\n<hr />\n<p><em>返回<a onclick=\"navigateTo('../首页')\" class=\"wiki-link\">首页</a></em></p>",
+  "人物档案/叶默": "<h1 id=\"_1\">人物档案 · 叶默</h1>\n<blockquote>\n<p>主人公，重生者，末日后最强幸存者势力——天都山庄的创始人。</p>\n</blockquote>\n<hr />\n<h2 id=\"_2\">基本资料</h2>\n<table>\n<thead>\n<tr>\n<th>属性</th>\n<th>内容</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong>姓名</strong></td>\n<td>叶默</td>\n</tr>\n<tr>\n<td><strong>身份</strong></td>\n<td>大学生 → 天都山庄领主</td>\n</tr>\n<tr>\n<td><strong>前世</strong></td>\n<td>末日十年后的三星进化者，战队成员</td>\n</tr>\n<tr>\n<td><strong>死因（前世）</strong></td>\n<td>与强敌战斗中被偷袭杀害</td>\n</tr>\n<tr>\n<td><strong>重生时间</strong></td>\n<td>2220年9月10日 15:35（末日降临前1小时5分钟）</td>\n</tr>\n<tr>\n<td><strong>性格</strong></td>\n<td>冷静、果断、理性、有末日老练思维</td>\n</tr>\n<tr>\n<td><strong>最终实力</strong></td>\n<td>十星进化者</td>\n</tr>\n</tbody>\n</table>\n<hr />\n<h2 id=\"_3\">职业体系</h2>\n<h3 id=\"_4\">第一职业：荣耀工匠（光辉）</h3>\n<ul>\n<li><strong>类型</strong>：辅助职业（制造/锻造系）</li>\n<li><strong>来源</strong>：彩色轮盘</li>\n<li><strong>技能槽</strong>：5个（远超普通职业，但升级难度5倍）</li>\n<li><strong>核心技能</strong>：</li>\n<li><strong>同质强化</strong>：将物品与相同材料融合增强属性（可将普通砍刀强化至白色品质）</li>\n<li><strong>采集术</strong>：高效从怪物尸体收集材料</li>\n<li><strong>镶嵌</strong>：将宝石嵌入装备</li>\n<li><strong>锻造</strong>：使用图纸+魔晶合成成品装备</li>\n<li><strong>附魔</strong>：为装备添加额外属性</li>\n<li><strong>特殊效果</strong>：所有锻造品自动附带<strong>工匠印记</strong></li>\n</ul>\n<h3 id=\"_5\">第二职业：园丁（绿园使）</h3>\n<ul>\n<li><strong>类型</strong>：特殊战斗职业（植物操控系）</li>\n<li><strong>来源</strong>：彩色轮盘</li>\n<li><strong>核心技能</strong>：</li>\n<li><strong>种植</strong>：使植物快速生长、发芽、成熟，并能产生变异</li>\n<li><strong>激化（催生）</strong>：主动控制植物攻击、缠绕等</li>\n<li><strong>特殊效果</strong>：绑定的变异植物不会攻击职业持有者</li>\n</ul>\n<h3 id=\"_6\">第三职业（前世记忆）：枪手</h3>\n<ul>\n<li><strong>类型</strong>：远程战斗职业</li>\n<li><strong>来源</strong>：前世经验</li>\n</ul>\n<hr />\n<h2 id=\"_7\">关键战兽</h2>\n<h3 id=\"_8\">地皇犬</h3>\n<ul>\n<li><strong>来源</strong>：白诗诗收养的流浪狗，末日降临后变异</li>\n<li><strong>进化</strong>：食用变异怪物蛋后觉醒，体型增至极狼大小，头部生成白色魔晶</li>\n<li><strong>天赋技能</strong>：毛针刺（射出全身毛发远程穿刺攻击）</li>\n<li><strong>最终实力</strong>：十星战兽</li>\n</ul>\n<h3 id=\"_9\">黑猫</h3>\n<ul>\n<li><strong>最终实力</strong>：十星战兽</li>\n</ul>\n<hr />\n<h2 id=\"_10\">标志性装备</h2>\n<table>\n<thead>\n<tr>\n<th>装备</th>\n<th>品级</th>\n<th>说明</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>战刃·沙尘（终极形态）</td>\n<td>蓝色稀有</td>\n<td>伤害+20，攻速+25，吸血+20，附带\"沙尘暴击\"\"沙尘乱舞\"</td>\n</tr>\n<tr>\n<td>宇宙之盒</td>\n<td>神话（自创）</td>\n<td>存储/恢复/标记回返/同调融合四功能</td>\n</tr>\n<tr>\n<td>自然之杖</td>\n<td>稀有</td>\n<td>镶嵌自然宝石释放元素技能</td>\n</tr>\n<tr>\n<td>血色之剑</td>\n<td>—</td>\n<td>红色品级近战武器</td>\n</tr>\n<tr>\n<td>魔力之弩</td>\n<td>—</td>\n<td>远程武器</td>\n</tr>\n</tbody>\n</table>\n<hr />\n<h2 id=\"_11\">成长轨迹</h2>\n<div class=\"codehilite\"><pre><span></span><code>普通人 → 一星进化者（末日第1天）\n       → 获取荣耀工匠职业（末日初期）\n       → 获取园丁职业（末日初期）\n       → 二星进化者\n       → 三星进化者（超过前世等级）\n       → 四星至六星进化者（中期）\n       → 七星至八星进化者（中后期）\n       → 九星进化者（后期）\n       → 十星进化者（终局）\n       → 进入天界/上级空间\n</code></pre></div>\n\n<hr />\n<h2 id=\"_12\">人际关系网</h2>\n<div class=\"codehilite\"><pre><span></span><code>             白诗诗（前女友）\n                ↓\n叶默 ←→ 温静/慕安媛（杀戮玫瑰，十星战友）\n  │\n  ├── 墨夜（女警，冰法，十星核心成员）\n  ├── 金英（教师，神罚使者，治疗者）\n  ├── 盛元（壮汉战士，复仇者）\n  ├── 小虎（侦察兵）\n  ├── 乐乐（开心果）\n  ├── 小白（忠实追随者）\n  ├── 赵阔（合作伙伴&quot;小叶子&quot;）\n  └── 红发（有意识丧尸，独立守护者）\n\n敌对关系:\n  叶默 ──对抗── 安禄德（圣城统治者）\n              圣子/圣女婿\n              莉莲（圣教领袖，亦敌亦友）\n              各路敌对势力首领\n</code></pre></div>\n\n<hr />\n<h2 id=\"_13\">核心目标与动机</h2>\n<h3 id=\"_14\">第一阶段：生存与变强</h3>\n<ul>\n<li>利用前世经验在末日中活下去</li>\n<li>快速成为进化者</li>\n<li>建立安全的基地</li>\n</ul>\n<h3 id=\"_15\">第二阶段：建立势力</h3>\n<ul>\n<li>组建可靠团队</li>\n<li>建设天都山庄</li>\n<li>在各方势力中立足</li>\n</ul>\n<h3 id=\"_16\">第三阶段：寻找真相</h3>\n<ul>\n<li>查明末日背后的真相</li>\n<li>调查金色圣光战甲的来历</li>\n<li>找到杀害自己前世的凶手</li>\n</ul>\n<h3 id=\"_17\">第四阶段：超脱</h3>\n<ul>\n<li>冲击十星进化者</li>\n<li>进入天界/上级空间</li>\n<li>成为\"神\"或彻底揭开末日之谜</li>\n</ul>\n<hr />\n<h2 id=\"_18\">战斗风格</h2>\n<ul>\n<li><strong>经验驱动</strong>：十年的末日战斗经验，对各类怪物弱点了如指掌</li>\n<li><strong>武器精通</strong>：枪法（枪斗术）、刀法、弓弩皆精</li>\n<li><strong>战术思维</strong>：优先评估威胁等级，精准打击弱点</li>\n<li><strong>资源优化</strong>：善于利用环境和道具取得优势</li>\n<li><strong>植物辅助</strong>：园丁职业允许他操控变异植物协同作战</li>\n</ul>\n<hr />\n<p><em>返回<a onclick=\"navigateTo('人物档案/人物总览')\" class=\"wiki-link\">人物总览</a> | <a onclick=\"navigateTo('../首页')\" class=\"wiki-link\">首页</a></em></p>",
+  "地图与地点/地点总览": "<h1 id=\"_1\">地图与地点 · 地点总览</h1>\n<blockquote>\n<p>本章节收录《轮盘世界》中所有重要地点、区域、秘境与地标信息。</p>\n</blockquote>\n<hr />\n<h2 id=\"_2\">一、地点概述</h2>\n<p>末日降临后，地球的地理格局发生剧变。原有的城市沦为废墟和丧尸的巢穴，同时出现了大量<strong>秘境</strong>——由金色圣光爆炸形成的异空间裂隙。幸存者们围绕轮盘建立基地，形成了新的地理政治格局。</p>\n<hr />\n<h2 id=\"_3\">二、城市与废墟</h2>\n<h3 id=\"21\">2.1 大学城</h3>\n<ul>\n<li><strong>类型</strong>：末日初始区域</li>\n<li><strong>描述</strong>：叶默所在的大学校园及周边</li>\n<li><strong>重要地点</strong>：</li>\n<li><strong>大学体育馆</strong>：第一个彩色轮盘所在地</li>\n<li><strong>学校广播室</strong>：第二个轮盘+彩色轮盘所在地</li>\n<li><strong>学校食堂</strong>：幸存者聚集地</li>\n<li><strong>教学楼</strong>：初期叶默收集魔晶的场所</li>\n<li><strong>怪物分布</strong>：普通丧尸密集区（师生转化）</li>\n</ul>\n<h3 id=\"22\">2.2 锦盛华庭小区</h3>\n<ul>\n<li><strong>类型</strong>：住宅区</li>\n<li><strong>重要性</strong>：末日初始地点之一，设有一道轮盘</li>\n<li><strong>结构</strong>：高档小区，七层小楼，数十栋楼，住户约千余人</li>\n<li><strong>环境</strong>：有人工湖、园林景观、地下车库</li>\n<li><strong>关键建筑</strong>：别墅一楼（第一个轮盘+地下储藏室所在地）</li>\n</ul>\n<h3 id=\"23\">2.3 英雄城（英城）</h3>\n<ul>\n<li><strong>类型</strong>：大型城市</li>\n<li><strong>归属</strong>：天都势力范围</li>\n<li><strong>描述</strong>：末日前的重要城市，后被叶默势力控制</li>\n</ul>\n<hr />\n<h2 id=\"_4\">三、幸存者基地</h2>\n<h3 id=\"31\">3.1 天湖别苑 / 天都山庄</h3>\n<ul>\n<li><strong>别名</strong>：天都基地</li>\n<li><strong>创始人</strong>：叶默</li>\n<li><strong>定位</strong>：末日后最强大的幸存者基地</li>\n<li><strong>演变</strong>：从一个小别墅区 → 发展为超级要塞</li>\n<li><strong>设施</strong>：</li>\n<li>锻造工坊（高级装备生产）</li>\n<li>药剂工坊（进化药剂生产）</li>\n<li>城墙防御系统</li>\n<li>军事训练场</li>\n<li>交易市场</li>\n<li><strong>军事实力</strong>：数千核心战士，多名十星进化者，多只十星战兽</li>\n<li><strong>势力范围</strong>：以天都山庄为中心的广袤区域</li>\n</ul>\n<h3 id=\"32\">3.2 地下城</h3>\n<ul>\n<li><strong>类型</strong>：大型幸存者聚集据点</li>\n<li><strong>功能</strong>：提供庇护和交易场所</li>\n<li><strong>特征</strong>：地下的安全区域</li>\n</ul>\n<h3 id=\"33-gg1\">3.3 G区（G1区）</h3>\n<ul>\n<li><strong>类型</strong>：军方势力基地</li>\n<li><strong>特点</strong>：以装甲和重武器为主</li>\n<li><strong>装备</strong>：坦克、装甲车等重型武器</li>\n</ul>\n<h3 id=\"34-cc1-c4\">3.4 C区（C1-C4区）</h3>\n<ul>\n<li><strong>类型</strong>：大型商业/军事复合势力基地</li>\n<li><strong>特点</strong>：多位战区指挥官，规模庞大</li>\n</ul>\n<h3 id=\"35-t\">3.5 T区</h3>\n<ul>\n<li><strong>类型</strong>：科技制造势力基地</li>\n<li><strong>特点</strong>：以技术研发和装备制造见长</li>\n</ul>\n<h3 id=\"36-s\">3.6 S区</h3>\n<ul>\n<li><strong>类型</strong>：大型综合势力基地</li>\n<li><strong>地位</strong>：顶级势力级别</li>\n</ul>\n<hr />\n<h2 id=\"_5\">四、秘境（异空间）</h2>\n<h3 id=\"41\">4.1 秘境概述</h3>\n<ul>\n<li><strong>来源</strong>：由金色圣光爆炸后形成的空间裂隙</li>\n<li><strong>分布</strong>：秘境钥匙随机散落世界各地</li>\n<li><strong>等级分类</strong>（按危险度）：\n  | 颜色 | 危险等级 | 说明 |\n  |------|----------|------|\n  | 白色 | 最低 | 入门级秘境 |\n  | 绿色 | 低 | 适合低星进化者 |\n  | 蓝色 | 中 | 需要一定实力 |\n  | 红色 | 高 | 高风险高回报 |\n  | 黑色 | 最高 | 极危险，顶级强者也需谨慎 |</li>\n</ul>\n<h3 id=\"42\">4.2 重要秘境</h3>\n<h4 id=\"_6\">不鲁得秘境（死亡秘境）</h4>\n<ul>\n<li><strong>类型</strong>：黑色/高级秘境</li>\n<li><strong>重要性</strong>：叶默在此获取大量资源和装备</li>\n<li><strong>内部地点</strong>：</li>\n<li>上河村</li>\n<li>宝石山（天然矿石产地）</li>\n<li>不落城（秘境中的城市）</li>\n</ul>\n<h4 id=\"_7\">镜界（镜界）</h4>\n<ul>\n<li><strong>类型</strong>：另一个大型秘境/异空间</li>\n<li><strong>特征</strong>：与镜像/反射相关的特殊规则</li>\n</ul>\n<hr />\n<h2 id=\"_8\">五、国际势力领地</h2>\n<h3 id=\"51\">5.1 圣城</h3>\n<ul>\n<li><strong>位置</strong>：意大利/欧洲地区</li>\n<li><strong>性质</strong>：宗教色彩浓厚的西方势力主城</li>\n<li><strong>建筑</strong>：巨大皇宫（后被摧毁的大型建筑/生命体）</li>\n<li><strong>防御</strong>：圣殿骑士团、审判团、圣城守军</li>\n<li><strong>结局</strong>：被叶默率军攻破并毁灭</li>\n</ul>\n<h3 id=\"52\">5.2 布落圣城</h3>\n<ul>\n<li><strong>位置</strong>：秘境区域</li>\n<li><strong>性质</strong>：古代人类后裔（古族）聚居地</li>\n<li><strong>社会</strong>：部落制，有酋长、长老</li>\n<li><strong>圣物</strong>：圣水（可沟通两个世界）</li>\n</ul>\n<h3 id=\"53\">5.3 不落圣城</h3>\n<ul>\n<li><strong>性质</strong>：已灭亡的古代圣城</li>\n<li><strong>定位</strong>：历史遗迹</li>\n</ul>\n<hr />\n<h2 id=\"_9\">六、特殊地点</h2>\n<h3 id=\"61\">6.1 通天城</h3>\n<ul>\n<li><strong>类型</strong>：中立交易城市</li>\n<li><strong>定位</strong>：各方势力的交易中心</li>\n<li><strong>特征</strong>：在各方势力间保持中立</li>\n</ul>\n<h3 id=\"62\">6.2 兽潮平原</h3>\n<ul>\n<li><strong>类型</strong>：古族活动区域</li>\n<li><strong>特征</strong>：大量变异兽出没</li>\n</ul>\n<h3 id=\"63\">6.3 北方冰原</h3>\n<ul>\n<li><strong>类型</strong>：极寒地带</li>\n<li><strong>势力</strong>：圣教/圣廷的大本营</li>\n</ul>\n<hr />\n<h2 id=\"_10\">七、天界/上级空间</h2>\n<h3 id=\"71\">7.1 上级空间</h3>\n<ul>\n<li><strong>定位</strong>：比地球更高层次的位面</li>\n<li><strong>进入条件</strong>：达到九星进化者后被强制传送</li>\n<li><strong>管理者</strong>：带翅膀的类人生物（翼人/矮人）</li>\n<li><strong>设施</strong>：</li>\n<li>庞大的地下宫殿</li>\n<li>训练设施</li>\n<li>集结区</li>\n<li><strong>功能</strong>：汇集各世界的\"代表\"，进行训练</li>\n</ul>\n<h3 id=\"72\">7.2 战场</h3>\n<ul>\n<li><strong>定位</strong>：上级空间中的战斗区域</li>\n<li><strong>目的</strong>：学习\"战法\"，证明实力</li>\n<li><strong>最终目标</strong>：获得成为\"神\"的资格</li>\n</ul>\n<hr />\n<h2 id=\"_11\">八、地理分布示意图（概念）</h2>\n<div class=\"codehilite\"><pre><span></span><code><span class=\"w\">                   </span><span class=\"n\">北方冰原</span>\n<span class=\"w\">                  </span><span class=\"o\">[</span><span class=\"n\">圣教/圣廷</span><span class=\"o\">]</span>\n<span class=\"w\">                      </span><span class=\"o\">|</span>\n<span class=\"w\">                      </span><span class=\"o\">|</span>\n<span class=\"w\">    </span><span class=\"o\">[</span><span class=\"n\">G区</span><span class=\"o\">]</span><span class=\"err\">——</span><span class=\"o\">[</span><span class=\"n\">C区</span><span class=\"o\">]</span><span class=\"err\">——</span><span class=\"o\">[</span><span class=\"n\">天都山庄</span><span class=\"o\">]</span><span class=\"err\">——</span><span class=\"o\">[</span><span class=\"n\">S区</span><span class=\"o\">]</span><span class=\"err\">——</span><span class=\"o\">[</span><span class=\"n\">T区</span><span class=\"o\">]</span>\n<span class=\"w\">      </span><span class=\"o\">|</span><span class=\"w\">       </span><span class=\"o\">|</span><span class=\"w\">        </span><span class=\"o\">|</span><span class=\"w\">          </span><span class=\"o\">|</span><span class=\"w\">        </span><span class=\"o\">|</span>\n<span class=\"w\">      </span><span class=\"o\">|</span><span class=\"w\">     </span><span class=\"o\">[</span><span class=\"n\">英雄城</span><span class=\"o\">]</span><span class=\"w\">   </span><span class=\"o\">|</span><span class=\"w\">      </span><span class=\"o\">[</span><span class=\"n\">营地</span><span class=\"o\">]</span><span class=\"w\">   </span><span class=\"o\">[</span><span class=\"n\">营地</span><span class=\"o\">]</span>\n<span class=\"w\">      </span><span class=\"o\">|</span><span class=\"w\">                </span><span class=\"o\">|</span>\n<span class=\"w\">    </span><span class=\"o\">[</span><span class=\"n\">秘境入口</span><span class=\"o\">]</span><span class=\"err\">————</span><span class=\"o\">[</span><span class=\"n\">通天城</span><span class=\"o\">]</span><span class=\"err\">————</span><span class=\"o\">[</span><span class=\"n\">地下城</span><span class=\"o\">]</span>\n<span class=\"w\">      </span><span class=\"o\">|</span><span class=\"w\">       </span><span class=\"p\">(</span><span class=\"n\">中立交易</span><span class=\"p\">)</span><span class=\"w\">      </span><span class=\"o\">|</span>\n<span class=\"w\">      </span><span class=\"o\">|</span><span class=\"w\">                        </span><span class=\"o\">|</span>\n<span class=\"w\">    </span><span class=\"o\">[</span><span class=\"n\">布落圣城</span><span class=\"o\">]</span><span class=\"w\">            </span><span class=\"o\">[</span><span class=\"n\">圣城(意大利)</span><span class=\"o\">]</span>\n<span class=\"w\">    </span><span class=\"p\">(</span><span class=\"n\">古族秘境</span><span class=\"p\">)</span><span class=\"w\">            </span><span class=\"p\">(</span><span class=\"n\">已毁灭</span><span class=\"p\">)</span>\n</code></pre></div>\n\n<hr />\n<p><em>返回<a onclick=\"navigateTo('../首页')\" class=\"wiki-link\">首页</a></em></p>",
+  "地图与地点/天都山庄": "<h1 id=\"_1\">地图与地点 · 天都山庄</h1>\n<blockquote>\n<p>叶默创立的末日后最强幸存者基地，从一个别墅区发展为超级军事要塞。</p>\n</blockquote>\n<hr />\n<h2 id=\"_2\">基本信息</h2>\n<table>\n<thead>\n<tr>\n<th>属性</th>\n<th>内容</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong>名称</strong></td>\n<td>天都山庄（天湖别苑 → 天都山庄 → 天都基地）</td>\n</tr>\n<tr>\n<td><strong>创始人</strong></td>\n<td>叶默</td>\n</tr>\n<tr>\n<td><strong>建立时间</strong></td>\n<td>末日降临后数日内</td>\n</tr>\n<tr>\n<td><strong>定位</strong></td>\n<td>末日后最强幸存者势力的大本营</td>\n</tr>\n<tr>\n<td><strong>人口</strong></td>\n<td>核心战士数千人 + 大量平民</td>\n</tr>\n<tr>\n<td><strong>特色</strong></td>\n<td>锻造工坊、药剂工坊、城墙防御、战兽部队</td>\n</tr>\n</tbody>\n</table>\n<hr />\n<h2 id=\"_3\">发展历程</h2>\n<h3 id=\"_4\">第一阶段：据点建立（末日初期）</h3>\n<div class=\"codehilite\"><pre><span></span><code>原址: 天湖别苑（高档小区）\n    ↓\n清理周边丧尸和变异生物\n    ↓\n利用别墅区作为初始营地\n    ↓\n园丁职业控制变异植物作为&quot;天然屏障&quot;\n</code></pre></div>\n\n<h3 id=\"-\">第二阶段：堡垒化（末日数周-数月）</h3>\n<div class=\"codehilite\"><pre><span></span><code>建立城墙防御系统\n    ↓\n建设锻造工坊（生产装备）\n    ↓\n建设药剂工坊（生产进化药剂）\n    ↓\n吸引幸存者投靠\n</code></pre></div>\n\n<h3 id=\"-_1\">第三阶段：超级要塞（末日数月-数年）</h3>\n<div class=\"codehilite\"><pre><span></span><code>扩大领地范围\n    ↓\n建立完整的军事体系\n    ↓\n控制周边城市（如英雄城）\n    ↓\n成为超一流势力\n</code></pre></div>\n\n<hr />\n<h2 id=\"_5\">设施布局</h2>\n<div class=\"codehilite\"><pre><span></span><code>         ┌──────────────────────┐\n         │     城墙防御系统      │\n         │  ┌────────────────┐  │\n         │  │   军事训练场    │  │\n         │  │   (练兵区)      │  │\n         │  ├────────────────┤  │\n         │  │   核心居住区    │  │\n         │  │  (将领+核心成员) │  │\n         │  ├────────────────┤  │\n         │  │   平民居住区    │  │\n         │  ├──────┬─────────┤  │\n         │  │锻造   │ 药剂    │  │\n         │  │工坊   │ 工坊    │  │\n         │  ├──────┴─────────┤  │\n         │  │   交易市场      │  │\n         │  └────────────────┘  │\n         │    变异植物防御圈     │\n         └──────────────────────┘\n</code></pre></div>\n\n<hr />\n<h2 id=\"_6\">核心设施</h2>\n<h3 id=\"_7\">锻造工坊</h3>\n<ul>\n<li><strong>功能</strong>：生产武器、装备、弹药</li>\n<li><strong>负责人</strong>：叶默（荣耀工匠）</li>\n<li><strong>产出</strong>：白色至蓝色品质装备</li>\n<li><strong>特色</strong>：可对现有装备进行附魔和升级</li>\n</ul>\n<h3 id=\"_8\">药剂工坊</h3>\n<ul>\n<li><strong>功能</strong>：生产进化药剂、免疫药剂、治疗药剂</li>\n<li><strong>原料</strong>：变异植物、魔晶、化学药品</li>\n<li><strong>产出</strong>：各等级进化药剂</li>\n</ul>\n<h3 id=\"_9\">城墙防御系统</h3>\n<ul>\n<li><strong>结构</strong>：多层防御工事</li>\n<li><strong>武器</strong>：弩炮、枪械、元素攻击点</li>\n<li><strong>补充</strong>：变异植物构成的天然防御带</li>\n</ul>\n<h3 id=\"_10\">交易市场</h3>\n<ul>\n<li><strong>类型</strong>：基地内部市场</li>\n<li><strong>交易物品</strong>：魔晶、装备、药剂、食物、材料</li>\n<li><strong>货币</strong>：以魔晶为基础的信用体系</li>\n</ul>\n<hr />\n<h2 id=\"_11\">军事力量</h2>\n<h3 id=\"_12\">核心战力（十星级）</h3>\n<ul>\n<li>叶默（领主）</li>\n<li>墨夜（冰系法师）</li>\n<li>其他十星进化者数名</li>\n<li>地皇犬（十星战兽）</li>\n<li>黑猫（十星战兽）</li>\n</ul>\n<h3 id=\"_13\">军队编制</h3>\n<ul>\n<li>正式编制战士数千人</li>\n<li>分多个战团</li>\n<li>配备标准化装备（天都山庄锻造）</li>\n</ul>\n<h3 id=\"_14\">防御特点</h3>\n<ul>\n<li>变异植物构成第一道防线</li>\n<li>城墙和防御工事为第二道防线</li>\n<li>进化者部队为机动防御力量</li>\n<li>战兽用于巡逻和预警</li>\n</ul>\n<hr />\n<h2 id=\"_15\">势力关系</h2>\n<table>\n<thead>\n<tr>\n<th>关系</th>\n<th>势力</th>\n<th>说明</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>合作</td>\n<td>荣耀联盟</td>\n<td>各战团互助</td>\n</tr>\n<tr>\n<td>互利</td>\n<td>布落圣城</td>\n<td>武器换魔晶交易</td>\n</tr>\n<tr>\n<td>合作+竞争</td>\n<td>圣教/圣廷</td>\n<td>贸易与对抗并存</td>\n</tr>\n<tr>\n<td>敌对(已灭)</td>\n<td>圣城</td>\n<td>被天都军攻灭</td>\n</tr>\n<tr>\n<td>中立</td>\n<td>通天城</td>\n<td>交易中心</td>\n</tr>\n</tbody>\n</table>\n<hr />\n<h2 id=\"_16\">战略意义</h2>\n<ol>\n<li><strong>轮盘控制</strong>：周边多个轮盘在天都控制之下</li>\n<li><strong>物资生产</strong>：自给自足的装备和药剂生产能力</li>\n<li><strong>人才聚集</strong>：最强进化者和职业者的汇聚地</li>\n<li><strong>贸易中心</strong>：与多方势力保持交易关系</li>\n<li><strong>军事威慑</strong>：能远征灭掉圣城的军事力量</li>\n</ol>\n<hr />\n<p><em>返回<a onclick=\"navigateTo('地图与地点/地点总览')\" class=\"wiki-link\">地点总览</a> | <a onclick=\"navigateTo('../首页')\" class=\"wiki-link\">首页</a></em></p>",
+  "怪物图鉴/丧尸等级详解": "<h1 id=\"s\">怪物图鉴 · 丧尸等级详解</h1>\n<blockquote>\n<p>丧尸是末日中最常见也最基础的怪物类型。本章节详细阐述丧尸的分类、等级、能力与应对策略。</p>\n</blockquote>\n<hr />\n<h2 id=\"s_1\">一、丧尸的诞生</h2>\n<h3 id=\"_1\">感染机制</h3>\n<div class=\"codehilite\"><pre><span></span><code>末日光线照射死亡 → 转化为丧尸 (初代)\n       OR\n被丧尸抓伤/咬伤 → 30分钟内感染 → 转化为丧尸\n</code></pre></div>\n\n<h3 id=\"s_2\">基础特征（普通丧尸）</h3>\n<table>\n<thead>\n<tr>\n<th>特征</th>\n<th>描述</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong>皮肤</strong></td>\n<td>灰黑色，布满暗红色/青紫色血管</td>\n</tr>\n<tr>\n<td><strong>眼睛</strong></td>\n<td>血红色，无瞳孔感</td>\n</tr>\n<tr>\n<td><strong>口部</strong></td>\n<td>长有尖牙，流出黏稠黑色液体</td>\n</tr>\n<tr>\n<td><strong>手指</strong></td>\n<td>长出墨绿色尖指甲</td>\n</tr>\n<tr>\n<td><strong>头发</strong></td>\n<td>稀疏脱落</td>\n</tr>\n<tr>\n<td><strong>智力</strong></td>\n<td>完全丧失，只剩嗜血本能</td>\n</tr>\n<tr>\n<td><strong>感官</strong></td>\n<td>视觉(动态敏感)、听觉(声敏)、嗅觉(活人气味)</td>\n</tr>\n<tr>\n<td><strong>弱点</strong></td>\n<td>头部是唯一致命要害</td>\n</tr>\n<tr>\n<td><strong>力量</strong></td>\n<td>约1.5-3倍普通人</td>\n</tr>\n<tr>\n<td><strong>速度</strong></td>\n<td>普通丧尸速度不快</td>\n</tr>\n</tbody>\n</table>\n<hr />\n<h2 id=\"_2\">二、等级体系</h2>\n<h3 id=\"21-s-s\">2.1 一级丧尸 (普通丧尸)</h3>\n<div class=\"codehilite\"><pre><span></span><code>魔晶: 白色一级\n力量: 约1.5-3倍普通人\n速度: 慢（初期）\n智力: 无（本能驱动）\n威胁: ★☆☆☆☆ (对强化人)\n      ★★★★☆ (对普通人)\n</code></pre></div>\n\n<ul>\n<li>最常见的类型</li>\n<li>单体威胁低，群体威胁高</li>\n<li>在城市区域密集分布</li>\n</ul>\n<h3 id=\"22-s\">2.2 二级丧尸</h3>\n<div class=\"codehilite\"><pre><span></span><code>魔晶: 灰色/白色二级\n力量: 明显提升\n速度: 显著加快\n防御: 皮肤开始硬化\n智力: 极低（有些许狩猎本能）\n威胁: ★★☆☆☆\n</code></pre></div>\n\n<h3 id=\"23-s-s\">2.3 三级丧尸 (铁臂丧尸)</h3>\n<div class=\"codehilite\"><pre><span></span><code>魔晶: 绿色三级\n特征: 一只手臂变异为粗大黑色巨臂\n力量: 极高的局部力量\n速度: 中等\n防御: 身体部位显著强化\n智力: 初级狩猎本能\n威胁: ★★★☆☆\n特殊: 巨臂可轻易撕碎木门和薄墙\n</code></pre></div>\n\n<h3 id=\"24-s\">2.4 四级丧尸</h3>\n<div class=\"codehilite\"><pre><span></span><code>魔晶: 蓝色四级\n特征: 已恢复部分智慧\n能力: 懂得伏击和基础战术\n速度: 全方位提升\n威胁: ★★★★☆\n特殊: 可能拥有基础天赋技能\n</code></pre></div>\n\n<h3 id=\"25-s\">2.5 五级丧尸及以上</h3>\n<div class=\"codehilite\"><pre><span></span><code>魔晶: 紫色五级 → 橙色六级 → 金色七级 → 彩色八级 → 黑色九级\n智力: 逐渐恢复，高阶接近人类\n能力: 各种天赋技能\n威胁: ★★★★★ 以上\n</code></pre></div>\n\n<h3 id=\"26\">2.6 特殊变种</h3>\n<table>\n<thead>\n<tr>\n<th>类型</th>\n<th>特征</th>\n<th>威胁</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong>尸童</strong></td>\n<td>儿童丧尸，速度极快、狡猾</td>\n<td>★★★★</td>\n</tr>\n<tr>\n<td><strong>喷毒丧尸</strong></td>\n<td>可喷射腐蚀性毒液</td>\n<td>★★★★</td>\n</tr>\n<tr>\n<td><strong>巨型头颅丧尸</strong></td>\n<td>可从口中射出触须/钩子吸取血肉</td>\n<td>★★★★★</td>\n</tr>\n<tr>\n<td><strong>尸猿</strong></td>\n<td>猿类丧尸，进化速度远超地面丧尸</td>\n<td>★★★★★+</td>\n</tr>\n</tbody>\n</table>\n<hr />\n<h2 id=\"s_3\">三、丧尸的再生能力</h2>\n<h3 id=\"_3\">核心规则</h3>\n<blockquote>\n<p>只要头部完整且魔晶未被取出，丧尸可以通过吞噬血肉<strong>再生完整身体</strong>！</p>\n</blockquote>\n<h3 id=\"_4\">机制</h3>\n<div class=\"codehilite\"><pre><span></span><code>只剩头部的丧尸\n    ↓\n吞噬足够血肉\n    ↓\n一段时间后\n    ↓\n生长出全新身体（四肢+躯干）\n</code></pre></div>\n\n<h3 id=\"_5\">游戏设计应用</h3>\n<ul>\n<li>击杀丧尸后必须取出魔晶才算彻底消灭</li>\n<li>如果只是砍掉头部但未取出魔晶 → 它可能被其他丧尸\"喂养\"后复活</li>\n<li>增加了末日世界的持续性威胁感</li>\n</ul>\n<hr />\n<h2 id=\"s_4\">四、丧尸行为模式</h2>\n<h3 id=\"41\">4.1 日常行为</h3>\n<ul>\n<li><strong>徘徊</strong>：无目标时缓慢游荡</li>\n<li><strong>聚集</strong>：向声源、光源、活人气息方向聚集</li>\n<li><strong>进食</strong>：发现活人/新鲜尸体时疯狂进食</li>\n<li><strong>转化</strong>：感染新的人类成为同类</li>\n</ul>\n<h3 id=\"42\">4.2 群体行为</h3>\n<ul>\n<li><strong>丧尸潮</strong>：数百至数万丧尸同时向某个方向移动</li>\n<li><strong>触发机制</strong>：爆炸声、大规模战斗、兽潮等</li>\n<li><strong>危险性</strong>：即使高级进化者也难以从丧尸潮中全身而退</li>\n</ul>\n<h3 id=\"43\">4.3 昼夜差异</h3>\n<ul>\n<li><strong>白天</strong>：活动性相对较低</li>\n<li><strong>夜晚</strong>：活跃度增加，危险性大幅提升</li>\n<li>高级丧尸没有明显的昼夜差异</li>\n</ul>\n<hr />\n<h2 id=\"_6\">五、应对策略</h2>\n<h3 id=\"51\">5.1 对普通人</h3>\n<table>\n<thead>\n<tr>\n<th>策略</th>\n<th>说明</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>避开</td>\n<td>最安全的选择</td>\n</tr>\n<tr>\n<td>安静</td>\n<td>不制造声响</td>\n</tr>\n<tr>\n<td>遮挡气味</td>\n<td>用丧尸血肉涂抹自身</td>\n</tr>\n<tr>\n<td>高处</td>\n<td>丧尸不会攀爬</td>\n</tr>\n<tr>\n<td>火攻</td>\n<td>丧尸怕火</td>\n</tr>\n</tbody>\n</table>\n<h3 id=\"52\">5.2 对进化者</h3>\n<table>\n<thead>\n<tr>\n<th>等级</th>\n<th>推荐策略</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>一星进化者</td>\n<td>可单挑数只普通丧尸，但需避免被包围</td>\n</tr>\n<tr>\n<td>二星进化者</td>\n<td>可清剿普通丧尸群，对二级丧尸需注意</td>\n</tr>\n<tr>\n<td>三星+进化者</td>\n<td>普通丧尸不再是威胁，但需注意特殊变种</td>\n</tr>\n</tbody>\n</table>\n<h3 id=\"53-s\">5.3 对高阶丧尸</h3>\n<ul>\n<li>需团队配合</li>\n<li>针对其天赋技能的弱点</li>\n<li>高级装备和技能卡的价值体现</li>\n</ul>\n<hr />\n<h2 id=\"_7\">六、魔晶获取</h2>\n<h3 id=\"s_5\">从丧尸取魔晶</h3>\n<div class=\"codehilite\"><pre><span></span><code><span class=\"mf\">1.</span><span class=\"w\"> </span><span class=\"n\">确认丧尸完全死亡</span><span class=\"err\">（</span><span class=\"n\">头部破坏</span><span class=\"err\">）</span>\n<span class=\"mf\">2.</span><span class=\"w\"> </span><span class=\"n\">使用刀具在头部寻找魔晶</span>\n<span class=\"mf\">3.</span><span class=\"w\"> </span><span class=\"n\">魔晶通常嵌在脑部中央位置</span>\n<span class=\"mf\">4.</span><span class=\"w\"> </span><span class=\"n\">小心取出</span><span class=\"err\">，</span><span class=\"n\">避免损坏</span>\n</code></pre></div>\n\n<h3 id=\"_8\">价值参考</h3>\n<table>\n<thead>\n<tr>\n<th>丧尸等级</th>\n<th>魔晶颜色</th>\n<th>相对价值</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>一级</td>\n<td>白色</td>\n<td>1</td>\n</tr>\n<tr>\n<td>二级</td>\n<td>灰色</td>\n<td>10+</td>\n</tr>\n<tr>\n<td>三级</td>\n<td>绿色</td>\n<td>100+</td>\n</tr>\n<tr>\n<td>四级+</td>\n<td>蓝色+</td>\n<td>1000+</td>\n</tr>\n</tbody>\n</table>\n<hr />\n<p><em>返回<a onclick=\"navigateTo('怪物图鉴/怪物总览')\" class=\"wiki-link\">怪物总览</a> | <a onclick=\"navigateTo('../首页')\" class=\"wiki-link\">首页</a></em></p>",
+  "怪物图鉴/怪物总览": "<h1 id=\"_1\">怪物图鉴 · 怪物总览</h1>\n<blockquote>\n<p>本章节收录《轮盘世界》中所有怪物类型，包括丧尸、变异兽、变异植物、地狱兽等。</p>\n</blockquote>\n<hr />\n<h2 id=\"_2\">一、怪物体系概述</h2>\n<p>末日降临后，地球上的生物受到末日力量的影响发生变异。所有怪物的共同特征是在头部生成\"魔晶\"——末日世界最核心的资源和货币。</p>\n<h3 id=\"_3\">怪物等级体系</h3>\n<table>\n<thead>\n<tr>\n<th>等级</th>\n<th>魔晶颜色</th>\n<th>威胁程度</th>\n<th>示例</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>一级</td>\n<td>黄色</td>\n<td>低（对强化人）</td>\n<td>普通丧尸</td>\n</tr>\n<tr>\n<td>二级</td>\n<td>—</td>\n<td>中</td>\n<td>进化丧尸、变异虫群</td>\n</tr>\n<tr>\n<td>三级+</td>\n<td>—</td>\n<td>高</td>\n<td>变异兽、变异植物</td>\n</tr>\n<tr>\n<td>高级</td>\n<td>—</td>\n<td>极高</td>\n<td>地狱兽、远古种</td>\n</tr>\n</tbody>\n</table>\n<hr />\n<h2 id=\"ss\">二、丧尸（丧尸）</h2>\n<h3 id=\"21-s\">2.1 普通丧尸</h3>\n<ul>\n<li><strong>来源</strong>：被末日力量感染死亡后转化的人类</li>\n<li><strong>外观</strong>：</li>\n<li>灰黑色皮肤，布满暗红色血管</li>\n<li>血红色眼睛</li>\n<li>嘴里长出獠牙，流着黏稠液体</li>\n<li>手指长出黑色尖指甲</li>\n<li>头发稀疏脱落</li>\n<li><strong>行为</strong>：</li>\n<li>失去理智，只剩嗜血本能</li>\n<li>以活人为食</li>\n<li>对声音和光线敏感</li>\n<li>单体力量约是普通人的2-3倍</li>\n<li><strong>弱点</strong>：</li>\n<li>头部是致命弱点</li>\n<li>攻击头部可一击败杀</li>\n<li><strong>感染机制</strong>：</li>\n<li>抓伤或咬伤会被感染</li>\n<li>感染者会变成同类</li>\n<li>无法治愈</li>\n<li><strong>再生能力</strong>：</li>\n<li>只要头部完整且魔晶未被取出</li>\n<li>可以通过吞噬血肉再生完整身体</li>\n</ul>\n<h3 id=\"22-s\">2.2 进化丧尸</h3>\n<ul>\n<li>末日数天后开始出现</li>\n<li>比普通丧尸更强壮、更快速</li>\n<li>部分具有特殊能力</li>\n<li>魔晶品质更高</li>\n<li>难以单独遇到（常聚集在丧尸群中）</li>\n</ul>\n<h3 id=\"23-s\">2.3 丧尸特征总结</h3>\n<ul>\n<li><strong>视觉</strong>：可看到运动物体</li>\n<li><strong>听觉</strong>：对声音敏感</li>\n<li><strong>嗅觉</strong>：可嗅到活人气味</li>\n<li><strong>速度</strong>：普通速度不快（初期），进化后增加</li>\n<li><strong>力量</strong>：超过普通成年人</li>\n<li><strong>智力</strong>：单体极低，群体可能产生简单的协同行为</li>\n</ul>\n<hr />\n<h2 id=\"_4\">三、变异虫类（变异昆虫）</h2>\n<h3 id=\"31\">3.1 变异黑甲虫（变异甲虫）</h3>\n<ul>\n<li><strong>外观</strong>：</li>\n<li>大小如老鼠/猫</li>\n<li>黑色甲壳</li>\n<li>多足</li>\n<li><strong>行为</strong>：</li>\n<li>群居，成群行动</li>\n<li>偏好腐肉和活人血肉</li>\n<li>会主动攻击人类</li>\n<li><strong>能力</strong>：</li>\n<li>喷射绿色/墨绿色腐蚀性液体</li>\n<li>腐蚀液可溶解木材、金属、人体</li>\n<li>甲壳随着成长变硬</li>\n<li><strong>成长</strong>：</li>\n<li>初期甲壳较软，可被普通刀具砍破</li>\n<li>随时间推移甲壳变硬</li>\n<li>成年后可长到狮子大小</li>\n<li>进化后可威胁高级进化者</li>\n<li><strong>食用价值</strong>：</li>\n<li>甲壳下的肉可食用</li>\n<li>含有丰富营养</li>\n<li>对强化人有额外好处</li>\n<li>需烤熟食用</li>\n</ul>\n<h3 id=\"32\">3.2 白蛆虫（白化巨蛆/白蛆）</h3>\n<ul>\n<li><strong>外观</strong>：白色巨型蛆虫状</li>\n<li><strong>特性</strong>：皮糙肉厚，难以击杀</li>\n<li><strong>危险等级</strong>：高（群居+高防御）</li>\n</ul>\n<h3 id=\"33\">3.3 其他变异昆虫</h3>\n<ul>\n<li>各类被感染的昆虫均有变异可能</li>\n<li>大小普遍增大数倍至数十倍</li>\n<li>保留原有昆虫特征但大幅强化</li>\n</ul>\n<hr />\n<h2 id=\"_5\">四、变异兽（变异兽）</h2>\n<p>变异兽是末日后被感染变异的动物，种类繁多，力量强大。</p>\n<h3 id=\"41\">4.1 变异兽特征</h3>\n<ul>\n<li>体型大幅增大</li>\n<li>具有超常的攻击性</li>\n<li>可能拥有特殊能力（酸液、毒气等）</li>\n<li>头部有魔晶</li>\n<li>部分变异兽的肉可食用且有强化效果</li>\n</ul>\n<h3 id=\"42\">4.2 已知变异兽类型</h3>\n<ul>\n<li><strong>变异犬/狼</strong>：速度极快，成群行动</li>\n<li><strong>变异猫科</strong>：潜伏和爆发力极强</li>\n<li><strong>变异鼠群</strong>：数量庞大</li>\n<li><strong>变异鸟类</strong>：空中威胁</li>\n<li><strong>变异蛇类</strong>：毒性强化</li>\n<li><strong>变异熊/大型猛兽</strong>：力量型怪物</li>\n<li><strong>变异蜘蛛</strong>：织网和毒素能力</li>\n<li><strong>变异蝎子</strong>：毒尾和甲壳</li>\n</ul>\n<h3 id=\"43\">4.3 战兽</h3>\n<ul>\n<li>部分变异兽可被职业者（召唤师等）驯服为战兽</li>\n<li>战兽与主人之间存在契约关系</li>\n<li>优秀战兽能极大增强主人战力</li>\n</ul>\n<hr />\n<h2 id=\"_6\">五、变异植物（变异植物）</h2>\n<h3 id=\"51\">5.1 概述</h3>\n<p>末日降临时，不仅是动物，植物也发生了恐怖的变异。变异植物极端危险，在末日后世界中，它们甚至能阻挡大部分兽潮入侵人类聚居地。</p>\n<h3 id=\"52\">5.2 变异植物特征</h3>\n<ul>\n<li><strong>食性改变</strong>：从光合作用变为嗜血</li>\n<li><strong>攻击性</strong>：主动捕食靠近的生物</li>\n<li><strong>生长速度</strong>：极快</li>\n<li><strong>体型</strong>：可长到极其巨大</li>\n<li><strong>能力</strong>：</li>\n<li>藤蔓缠绕</li>\n<li>毒液/腐蚀液喷射</li>\n<li>根须攻击</li>\n<li>花粉/孢子毒气</li>\n</ul>\n<h3 id=\"53\">5.3 变异植物与生态</h3>\n<ul>\n<li>变异植物构成末日后世界的新生态系统</li>\n<li>它们与变异兽互相制衡</li>\n<li>部分变异植物区域成为人类禁区</li>\n<li>但同时它们也阻挡了部分怪物入侵人类基地</li>\n</ul>\n<h3 id=\"54\">5.4 注意事项</h3>\n<ul>\n<li>即使是高级进化者也不愿意轻易进入变异植物区域</li>\n<li>需要火焰、特殊药剂等手段才能有效对抗</li>\n</ul>\n<hr />\n<h2 id=\"_7\">六、地狱兽与高等怪物</h2>\n<h3 id=\"61\">6.1 地狱兽</h3>\n<ul>\n<li>末日后期出现的超高等怪物</li>\n<li>具备恐怖的力量和防御</li>\n<li>通常体积极其庞大</li>\n<li>可能需要多支战队联合对抗</li>\n<li>掉落最高品质的魔晶</li>\n</ul>\n<h3 id=\"62\">6.2 异形种</h3>\n<ul>\n<li>来源不明的高级怪物</li>\n<li>形态多样，能力各异</li>\n<li>极度危险</li>\n</ul>\n<h3 id=\"63\">6.3 远古种</h3>\n<ul>\n<li>可能在末日前后就已存在的古代生物</li>\n<li>被末日力量唤醒或强化</li>\n<li>实力极其恐怖</li>\n</ul>\n<hr />\n<h2 id=\"_8\">七、怪物分布规律</h2>\n<h3 id=\"_9\">按时间分布</h3>\n<table>\n<thead>\n<tr>\n<th>时期</th>\n<th>主要怪物</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>末日当天</td>\n<td>普通丧尸、初级变异虫</td>\n</tr>\n<tr>\n<td>末日后数天</td>\n<td>进化丧尸、变异虫群</td>\n</tr>\n<tr>\n<td>末日后数周</td>\n<td>变异兽、变异植物</td>\n</tr>\n<tr>\n<td>末日后数月</td>\n<td>高等变异生物、地狱兽</td>\n</tr>\n<tr>\n<td>末日后数年+</td>\n<td>各种超高级怪物共存</td>\n</tr>\n</tbody>\n</table>\n<h3 id=\"_10\">按地理分布</h3>\n<ul>\n<li><strong>城市</strong>：丧尸密集区（人口密集导致）</li>\n<li><strong>郊外</strong>：变异植物和变异虫类</li>\n<li><strong>荒野</strong>：变异兽领地</li>\n<li><strong>特殊区域</strong>：高等怪物/地狱兽领地</li>\n</ul>\n<hr />\n<p><em>返回<a onclick=\"navigateTo('../首页')\" class=\"wiki-link\">首页</a></em></p>",
+  "情节概要/情节总览": "<h1 id=\"_1\">情节概要 · 情节总览</h1>\n<blockquote>\n<p>本章节收录《轮盘世界》的完整剧情线，包括主要故事弧、关键事件与重大转折。</p>\n</blockquote>\n<hr />\n<h2 id=\"_2\">一、前世：末日后十年</h2>\n<ul>\n<li><strong>时间</strong>：末日十年后</li>\n<li><strong>叶默状态</strong>：三星进化者（或更高），隶属某个战队</li>\n<li><strong>结局</strong>：在一场与强敌的战斗中被偷袭杀害</li>\n<li><strong>末日前兆</strong>：十年间人类始终处于防御状态，未能揭开末日真相</li>\n<li><strong>金色圣光战甲</strong>：始终是一个未解之谜</li>\n<li><strong>重生契机</strong>：死亡后意识回归，重生至末日降临前1小时</li>\n</ul>\n<hr />\n<h2 id=\"1-50\">二、第一阶段：重生与末日降临（第1-50章）</h2>\n<h3 id=\"21-2220910-1535\">2.1 重生（2220年9月10日 15:35）</h3>\n<ul>\n<li>叶默在2220年9月10日15:35醒来，发现自己回到了末日降临前1小时</li>\n<li>确认不是幻境，而是真正的重生</li>\n<li>与女友白诗诗见面，告知危险并尊重她的选择</li>\n</ul>\n<h3 id=\"22-1535-1640\">2.2 紧急准备（15:35-16:40）</h3>\n<ul>\n<li>前往医院购买大量医疗物资和药品</li>\n<li>去野外装备店购买开山刀和户外工具套装</li>\n<li>赶往<strong>锦盛华庭小区</strong></li>\n</ul>\n<h3 id=\"23-1640\">2.3 末日降临（16:40）</h3>\n<ul>\n<li>天空出现巨大蘑菇云爆炸</li>\n<li>金色圣光战甲一角闪现于天际</li>\n<li>爆炸和冲击波席卷整个城市</li>\n<li>大量人类死亡并开始转化为丧尸</li>\n<li><strong>末日轮盘</strong>出现在锦盛华庭别墅一楼</li>\n</ul>\n<h3 id=\"24\">2.4 第一夜</h3>\n<ul>\n<li>遇到<strong>温静（慕安媛/杀戮玫瑰）</strong>，未来十星强者</li>\n<li>猎杀丧尸收集一级魔晶（获得21枚黄色一级魔晶）</li>\n<li>第一次转动轮盘：抽到弩 + 一级进化药剂</li>\n<li>成为<strong>一星进化者</strong>，身体素质5倍提升</li>\n<li>对抗变异甲虫群的袭击，保护温静</li>\n</ul>\n<h3 id=\"25\">2.5 离开小区</h3>\n<ul>\n<li>温静失踪（短暂失去联系）</li>\n<li>叶默被一女子呼救引出，在校园区域活动</li>\n<li>获得<strong>荣耀工匠</strong>职业</li>\n<li>遇到<strong>墨夜</strong>（女警），联手对抗变异巨蚁</li>\n<li>获得<strong>园丁</strong>职业</li>\n</ul>\n<hr />\n<h2 id=\"50-200\">三、第二阶段：基地建立与团队组建（第50-200章）</h2>\n<h3 id=\"31\">3.1 占领天湖别苑</h3>\n<ul>\n<li>选定<strong>天湖别苑</strong>作为基地位置</li>\n<li>清理周边丧尸和变异生物</li>\n<li>利用荣耀工匠职业锻造装备</li>\n<li>使用园丁职业控制变异植物作为防御</li>\n</ul>\n<h3 id=\"32\">3.2 团队组建</h3>\n<ul>\n<li><strong>墨夜</strong>：女警，冰系法师，核心战力</li>\n<li><strong>金英</strong>：教师，神罚使徒→神罚使者，治疗者</li>\n<li><strong>盛元</strong>：壮汉战士，为女友复仇</li>\n<li><strong>小虎</strong>：侦察兵，枪法精准</li>\n<li><strong>乐乐</strong>：团队开心果</li>\n<li><strong>地皇犬</strong>：由流浪狗变异而来的战兽</li>\n</ul>\n<h3 id=\"33\">3.3 第一次兽潮</h3>\n<ul>\n<li>\"聚宝盆\"事件触发怪物潮</li>\n<li>尸猿等高级怪物出现</li>\n<li>叶默展示实力，成功防御</li>\n<li>大量魔晶入账，势力开始扩张</li>\n</ul>\n<h3 id=\"34\">3.4 基地发展</h3>\n<ul>\n<li>天湖别苑→正式更名为<strong>天都山庄</strong></li>\n<li>建立锻造工坊、药剂工坊</li>\n<li>城墙防御系统建立</li>\n<li>吸引各路人马投靠</li>\n</ul>\n<hr />\n<h2 id=\"200-600\">四、第三阶段：秘境探索与势力扩张（第200-600章）</h2>\n<h3 id=\"41\">4.1 秘境探险</h3>\n<ul>\n<li>获得秘境钥匙，进入死亡秘境</li>\n<li>在秘境中获取大量魔晶和稀有材料</li>\n<li>发现<strong>布落圣城</strong>，与古族建立联系</li>\n<li>用武器换取古族的魔晶，互利共赢</li>\n</ul>\n<h3 id=\"42\">4.2 势力博弈</h3>\n<ul>\n<li>与<strong>G区、C区、T区、S区</strong>等各方势力接触</li>\n<li>参加大规模竞拍会</li>\n<li>天都山庄逐渐成为一流势力</li>\n</ul>\n<h3 id=\"43\">4.3 红发的故事</h3>\n<ul>\n<li>一名团队成员死后变异为有意识的特殊丧尸</li>\n<li>可操控丧尸群，保留人类意识</li>\n<li>逐渐与人类疏远但守护基地</li>\n</ul>\n<h3 id=\"44\">4.4 镜界探险</h3>\n<ul>\n<li>进入另一个大型秘境（镜界）</li>\n<li>获取稀有装备和材料</li>\n</ul>\n<hr />\n<h2 id=\"600-900\">五、第四阶段：圣城之战（第600-900章）</h2>\n<h3 id=\"51\">5.1 与圣城的冲突</h3>\n<ul>\n<li>圣城（意大利地区）与天都山庄发生摩擦</li>\n<li>圣城势力强大，有圣殿骑士团和审判团</li>\n<li>冲突逐步升级为全面战争</li>\n</ul>\n<h3 id=\"52\">5.2 圣城攻略战</h3>\n<ul>\n<li>叶默率天都军远征圣城</li>\n<li>与圣城九星强者<strong>宫殿巨人</strong>展开惊天大战</li>\n<li>圣殿骑士团与天都精锐的全面对抗</li>\n</ul>\n<h3 id=\"53\">5.3 圣城覆灭</h3>\n<ul>\n<li>圣城被攻陷</li>\n<li>地面裂开，巨大\"茧\"状怪物出现（圣城地下之物）</li>\n<li>安禄德圣子以血祭方式吸收圣城所有生命之力</li>\n<li>叶默联合天界降临者最终获胜</li>\n</ul>\n<hr />\n<h2 id=\"900-1739\">六、第五阶段：天界之路（第900-1739章/结局）</h2>\n<h3 id=\"61\">6.1 十星之路</h3>\n<ul>\n<li>收集九级魔晶（彩色魔晶）</li>\n<li>冲击十星进化者</li>\n<li>制作\"宇宙之盒\"等神级装备</li>\n</ul>\n<h3 id=\"62\">6.2 对抗圣教/圣廷</h3>\n<ul>\n<li>北方冰原的圣教势力</li>\n<li>机械战甲部队与骑士团</li>\n<li>与莉莲（十星强者）的对决与合作</li>\n</ul>\n<h3 id=\"63\">6.3 攻灭圣城</h3>\n<ul>\n<li>集齐力量后发动最终战役</li>\n<li>圣城安禄德家族的覆灭</li>\n<li>叶默达到九星/十星巅峰</li>\n</ul>\n<h3 id=\"64\">6.4 被传送至上级空间</h3>\n<ul>\n<li>达到九星后强制传送</li>\n<li>进入由翼人/矮人管理的上级空间</li>\n<li>与其他世界的人类代表集结</li>\n<li>开始学习\"战法\"（新的力量体系）</li>\n</ul>\n<h3 id=\"65\">6.5 结局</h3>\n<ul>\n<li>被告知当前只是\"入场券\"的获得阶段</li>\n<li>接下来要去\"战场\"证明自己</li>\n<li>目标是成为\"神\"或揭开末日真相</li>\n<li><strong>开放式结局</strong>：更大的世界观被揭示——地球末日只是更高层次存在设计的\"试炼场\"</li>\n</ul>\n<hr />\n<h2 id=\"_3\">七、关键主题与核心谜题</h2>\n<h3 id=\"71\">7.1 末日真相</h3>\n<ul>\n<li>末日并非自然灾难，而是<strong>被制造的</strong></li>\n<li>金色圣光战甲是高等存在之间的战斗装备</li>\n<li>地球上的一切（生物、植物、矿物）都像是被\"投放\"的</li>\n<li>幕后有超越人类认知的存在在操控</li>\n</ul>\n<h3 id=\"72\">7.2 轮回与重生</h3>\n<ul>\n<li>叶默的重生可能不只是巧合</li>\n<li>可能与更高层次的安排有关</li>\n</ul>\n<h3 id=\"73\">7.3 力量的本质</h3>\n<ul>\n<li>从轮盘获取力量 → 从职业系统获取力量 → 从\"战法\"获取力量</li>\n<li>力量体系的不断升级暗示更大的世界观</li>\n</ul>\n<hr />\n<h2 id=\"_4\">八、章节数量统计</h2>\n<p>根据提取的章节标题，小说共约<strong>1739章</strong>以上（最后可识别的章节为第1739章\"投影之战\"），总计超过101,000行文本。</p>\n<hr />\n<p><em>返回<a onclick=\"navigateTo('../首页')\" class=\"wiki-link\">首页</a></em></p>",
+  "组织与势力/势力总览": "<h1 id=\"_1\">组织与势力 · 势力总览</h1>\n<blockquote>\n<p>本章节收录《轮盘世界》中所有重要组织、势力、营地与军团的信息，按实力等级与重要程度排列。</p>\n</blockquote>\n<hr />\n<h2 id=\"_2\">一、势力评级体系</h2>\n<table>\n<thead>\n<tr>\n<th>等级</th>\n<th>说明</th>\n<th>示例组织</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong>S级</strong></td>\n<td>顶级势力，拥有最强战力和最大领地</td>\n<td>S组织</td>\n</tr>\n<tr>\n<td><strong>A级</strong></td>\n<td>一流势力</td>\n<td>各类大型战队</td>\n</tr>\n<tr>\n<td><strong>B级</strong></td>\n<td>二流势力</td>\n<td>中型营地</td>\n</tr>\n<tr>\n<td><strong>C级</strong></td>\n<td>中等势力</td>\n<td>C组织</td>\n</tr>\n<tr>\n<td><strong>T级</strong></td>\n<td>特殊评级</td>\n<td>T组织</td>\n</tr>\n<tr>\n<td><strong>G级</strong></td>\n<td>较低评级</td>\n<td>G组织</td>\n</tr>\n</tbody>\n</table>\n<hr />\n<h2 id=\"_3\">二、叶默势力</h2>\n<h3 id=\"_4\">绿洲山庄（绿洲山庄）</h3>\n<ul>\n<li><strong>创始人</strong>：叶默</li>\n<li><strong>成立时间</strong>：叶默从秘境返回后建立</li>\n<li><strong>核心成员</strong>：</li>\n<li>叶默（领主）</li>\n<li>墨夜（法师，十星）</li>\n<li>赵晓丽、孙丽颖（教师→战士）</li>\n<li>盛元、小奥</li>\n<li>白昊（小白，忠实追随者）</li>\n<li>红发（高级丧尸，后期独立）</li>\n<li><strong>战兽</strong>：地皇犬、黑猫（十星战兽）</li>\n<li><strong>军事力量</strong>：</li>\n<li>核心战士数千人</li>\n<li>完整的军制和装备体系</li>\n<li><strong>经济设施</strong>：</li>\n<li>锻造工坊（生产高级装备）</li>\n<li>药剂工坊（生产进化药剂）</li>\n<li>城墙防御系统</li>\n<li><strong>领地</strong>：以绿洲山庄为中心的广袤区域</li>\n<li><strong>成就</strong>：拥有多只十星战兽和多名十星进化者，攻灭圣城，成为末世最强幸存者组织</li>\n</ul>\n<hr />\n<h2 id=\"_5\">三、圣城势力</h2>\n<h3 id=\"_6\">圣城（圣城）</h3>\n<ul>\n<li><strong>位置</strong>：秘境/布落圣城区域</li>\n<li><strong>统治者</strong>：安禄德家族</li>\n<li><strong>社会结构</strong>：</li>\n<li>等级森严的贵族制度</li>\n<li>奴隶制度（将俘虏变为\"奴兵\"）</li>\n<li><strong>军事力量</strong>：</li>\n<li>圣骑士团（团长：哈鲁，十星进化者）</li>\n<li>多名高级战将（哈洛、赵哈洛、耶律撒等）</li>\n<li><strong>继承人</strong>：圣子/圣女婿（冷酷无情，视他人为棋子）</li>\n<li><strong>特色</strong>：依靠血统和家族传承获得力量</li>\n<li><strong>结局</strong>：被叶默率绿洲山庄大军攻破并毁灭</li>\n</ul>\n<h3 id=\"_7\">布落圣城（部落古族）</h3>\n<ul>\n<li><strong>定位</strong>：秘境中的古代人类后裔聚居地</li>\n<li><strong>社会结构</strong>：部落制（酋长、长老层级）</li>\n<li><strong>文化特征</strong>：</li>\n<li>与秘境共存</li>\n<li>使用古武技和特殊装备</li>\n<li>不使用魔晶（不知道其价值）</li>\n<li><strong>圣物</strong>：圣水（可沟通两个世界）</li>\n<li><strong>与叶默关系</strong>：叶默通过交易武器换取魔晶，建立互利关系</li>\n</ul>\n<hr />\n<h2 id=\"_8\">四、北方势力</h2>\n<h3 id=\"_9\">圣教/圣廷（圣教/圣廷）</h3>\n<ul>\n<li><strong>位置</strong>：北方冰原</li>\n<li><strong>领袖</strong>：莉莲（十星进化者）</li>\n<li><strong>军事实力</strong>：</li>\n<li>机械战甲部队</li>\n<li>骑士团</li>\n<li>多名高阶进化者</li>\n<li><strong>与绿洲山庄关系</strong>：既有贸易又有竞争</li>\n</ul>\n<h3 id=\"temple\">Temple（圣殿）</h3>\n<ul>\n<li><strong>位置</strong>：北方冰原</li>\n<li><strong>性质</strong>：强大组织</li>\n</ul>\n<hr />\n<h2 id=\"_10\">五、联盟与公会</h2>\n<h3 id=\"_11\">荣耀联盟（荣耀联盟）</h3>\n<ul>\n<li><strong>创建者</strong>：孔浩一（叶默旧识）</li>\n<li><strong>成员</strong>：多名十星进化者、众多战团</li>\n<li><strong>宗旨</strong>：各大战团互助互利</li>\n<li><strong>与叶默关系</strong>：合作关系，但内部存在派系分歧</li>\n</ul>\n<hr />\n<h2 id=\"_12\">六、城市与中立势力</h2>\n<h3 id=\"_13\">通天城（通天城）</h3>\n<ul>\n<li><strong>定位</strong>：中立交易城市</li>\n<li><strong>功能</strong>：各方势力交易中心</li>\n<li><strong>特色</strong>：在各方势力间保持中立</li>\n</ul>\n<h3 id=\"_14\">地下城（地下城）</h3>\n<ul>\n<li><strong>定位</strong>：幸存者大型聚集据点</li>\n<li><strong>功能</strong>：提供庇护和交易场所</li>\n</ul>\n<hr />\n<h2 id=\"_15\">七、中小型势力</h2>\n<table>\n<thead>\n<tr>\n<th>组织</th>\n<th>性质</th>\n<th>备注</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>天虎帮</td>\n<td>小型组织</td>\n<td>被叶默剿灭</td>\n</tr>\n<tr>\n<td>红月会</td>\n<td>小型组织</td>\n<td>-</td>\n</tr>\n<tr>\n<td>暗夜</td>\n<td>杀手/佣兵组织</td>\n<td>-</td>\n</tr>\n<tr>\n<td>夜血团</td>\n<td>雇佣兵/杀手组织</td>\n<td>-</td>\n</tr>\n<tr>\n<td>各大战队</td>\n<td>冒险/战斗团体</td>\n<td>围绕轮盘和任务运作</td>\n</tr>\n</tbody>\n</table>\n<hr />\n<h2 id=\"_16\">八、商业势力</h2>\n<h3 id=\"_17\">轮盘交易网络</h3>\n<ul>\n<li>在基地间运输和交易物资</li>\n<li>使用魔晶作为通用货币</li>\n<li>掌握装备、药剂流通渠道</li>\n</ul>\n<h3 id=\"_18\">工坊体系</h3>\n<ul>\n<li>锻造工坊：生产武器和装备</li>\n<li>药剂工坊：生产各类强化药剂</li>\n<li>附魔工坊：为装备附加特殊效果</li>\n</ul>\n<hr />\n<h2 id=\"_19\">九、幕后势力</h2>\n<h3 id=\"_20\">神秘组织（上层世界/天界）</h3>\n<ul>\n<li><strong>性质</strong>：比十星更高层次的存在</li>\n<li><strong>作用</strong>：控制\"入场券\"的发放，决定谁能进入天界</li>\n<li><strong>定位</strong>：末日背后真正的幕后操纵者</li>\n<li><strong>揭示时间</strong>：小说结尾才揭露</li>\n</ul>\n<hr />\n<h2 id=\"_21\">十、势力间关系图</h2>\n<div class=\"codehilite\"><pre><span></span><code>绿洲山庄 ←→ 荣耀联盟（合作，有分歧）\n     ↓\n  攻灭圣城\n     ↓\n布落圣城 ←→ 绿洲山庄（贸易互利）\n     ↓\n通天城（中立交易中心）\n     ↓\n圣教/圣廷 ←→ 绿洲山庄（贸易+竞争）\n     ↓\n上层世界/天界（幕后操纵）\n</code></pre></div>\n\n<hr />\n<p><em>返回<a onclick=\"navigateTo('../首页')\" class=\"wiki-link\">首页</a></em></p>",
+  "道具与能力/道具总览": "<h1 id=\"_1\">道具与能力 · 道具总览</h1>\n<blockquote>\n<p>本章节收录《轮盘世界》中所有重要物品、装备、药剂、技能、职业与能力系统。</p>\n</blockquote>\n<hr />\n<h2 id=\"_2\">一、进化药剂</h2>\n<h3 id=\"11\">1.1 基础进化药剂</h3>\n<table>\n<thead>\n<tr>\n<th>名称</th>\n<th>效果</th>\n<th>来源</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>一星进化药剂</td>\n<td>身体能力约5倍提升</td>\n<td>轮盘奖励/自制</td>\n</tr>\n<tr>\n<td>二星进化药剂</td>\n<td>在等阶基础上继续提升</td>\n<td>轮盘/高级制作</td>\n</tr>\n<tr>\n<td>三星进化药剂</td>\n<td>大幅超越人类极限</td>\n<td>轮盘</td>\n</tr>\n<tr>\n<td>四星至九星进化药剂</td>\n<td>逐步提升至超人战力</td>\n<td>高级轮盘</td>\n</tr>\n<tr>\n<td>十星进化药剂</td>\n<td>冲击十星，准神级</td>\n<td>顶级奖励</td>\n</tr>\n</tbody>\n</table>\n<h3 id=\"12\">1.2 辅助药剂</h3>\n<table>\n<thead>\n<tr>\n<th>名称</th>\n<th>效果</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>免疫药剂</td>\n<td>完全防止丧尸感染</td>\n</tr>\n<tr>\n<td>不完全免疫药剂</td>\n<td>降低感染概率</td>\n</tr>\n<tr>\n<td>远视药水</td>\n<td>数小时内极大增强远视能力</td>\n</tr>\n<tr>\n<td>蓝瓶（精神力药水）</td>\n<td>小瓶加速恢复，大瓶即时恢复精神力</td>\n</tr>\n<tr>\n<td>狂暴药剂</td>\n<td>激发战斗状态，短时间大幅强化</td>\n</tr>\n<tr>\n<td>解毒药剂</td>\n<td>对抗变异生物毒素</td>\n</tr>\n</tbody>\n</table>\n<h3 id=\"13\">1.3 药剂来源</h3>\n<ul>\n<li><strong>轮盘奖励</strong>：最常见来源</li>\n<li><strong>药师制作</strong>：拥有药师职业的进化者使用配方制作</li>\n<li><strong>改良配方</strong>：可用替代材料改良，效果提升约10%</li>\n</ul>\n<hr />\n<h2 id=\"_3\">二、武器装备</h2>\n<h3 id=\"21\">2.1 装备品质等级</h3>\n<table>\n<thead>\n<tr>\n<th>品质</th>\n<th>颜色</th>\n<th>说明</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>普通</td>\n<td>白色</td>\n<td>基础装备</td>\n</tr>\n<tr>\n<td>优秀</td>\n<td>绿色</td>\n<td>属性强化</td>\n</tr>\n<tr>\n<td>稀有</td>\n<td>蓝色</td>\n<td>特殊效果</td>\n</tr>\n<tr>\n<td>史诗</td>\n<td>紫色</td>\n<td>强力技能</td>\n</tr>\n<tr>\n<td>传说</td>\n<td>橙色</td>\n<td>独一无二</td>\n</tr>\n<tr>\n<td>神话</td>\n<td>金色</td>\n<td>最顶级</td>\n</tr>\n<tr>\n<td>特殊</td>\n<td>彩色</td>\n<td>极罕见</td>\n</tr>\n</tbody>\n</table>\n<h3 id=\"22\">2.2 重要武器</h3>\n<table>\n<thead>\n<tr>\n<th>名称</th>\n<th>品质</th>\n<th>说明</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>弩</td>\n<td>白色</td>\n<td>初期轮盘奖励，10支弩箭</td>\n</tr>\n<tr>\n<td>沙漠之鹰（改良手枪）</td>\n<td>白色</td>\n<td>叶默用\"同质强化\"改造的手枪</td>\n</tr>\n<tr>\n<td>白色砍刀</td>\n<td>白色</td>\n<td>附魔\"坚韧+2\"的砍刀</td>\n</tr>\n<tr>\n<td>战刃·沙尘</td>\n<td>蓝色（三形态）</td>\n<td>图1:伤害10；图2:伤害15+沙尘；图3:伤害+20,攻速+25,吸血+20,附带技能\"沙尘暴击\"\"沙尘乱舞\"</td>\n</tr>\n<tr>\n<td>血红之枪</td>\n<td>—</td>\n<td>攻击型长枪</td>\n</tr>\n<tr>\n<td>自然之杖</td>\n<td>稀有</td>\n<td>镶嵌自然宝石释放元素技能</td>\n</tr>\n<tr>\n<td>风之剑/风沙战刀</td>\n<td>绿→蓝→橙</td>\n<td>多级图纸进化武器，最终形态有\"飞沙\"\"风沙领域\"技能</td>\n</tr>\n<tr>\n<td>红缨枪</td>\n<td>高级</td>\n<td>火焰长枪</td>\n</tr>\n</tbody>\n</table>\n<h3 id=\"23\">2.3 重要防具</h3>\n<table>\n<thead>\n<tr>\n<th>名称</th>\n<th>品质</th>\n<th>说明</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>臂盾</td>\n<td>灰色(白色级)</td>\n<td>轮盘奖励，可用同质强化升级</td>\n</tr>\n<tr>\n<td>变异树皮护甲</td>\n<td>白色</td>\n<td>变异柳树皮制作，韧性+2</td>\n</tr>\n<tr>\n<td>棉袍</td>\n<td>白色</td>\n<td>附魔\"坚韧+2\"的基础布衣</td>\n</tr>\n<tr>\n<td>金色圣光战甲</td>\n<td>传说</td>\n<td>九级轮盘十大奖励之一，可飞行，最强装备</td>\n</tr>\n<tr>\n<td>水纹之盾</td>\n<td>蓝色</td>\n<td>防御型装备</td>\n</tr>\n<tr>\n<td>缤纷婚纱</td>\n<td>特殊</td>\n<td>专为治疗职业设计的装备</td>\n</tr>\n</tbody>\n</table>\n<h3 id=\"24\">2.4 特殊装备</h3>\n<table>\n<thead>\n<tr>\n<th>名称</th>\n<th>说明</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>空间水壶（1立方米）</td>\n<td>空间装备，内在容量1立方米，物品保鲜</td>\n</tr>\n<tr>\n<td>全元武装台</td>\n<td>金色品质多功能武装平台</td>\n</tr>\n<tr>\n<td>宇宙之盒</td>\n<td>叶默自创神级装备，四大功能：存储、恢复、标记回返、同调融合</td>\n</tr>\n<tr>\n<td>荣耀权杖</td>\n<td>圣城圣女标志性装备</td>\n</tr>\n<tr>\n<td>追踪者/猎手/破坏者</td>\n<td>枪械的三种模式（狙击形态）</td>\n</tr>\n</tbody>\n</table>\n<hr />\n<h2 id=\"_4\">三、能力卡与技能</h2>\n<h3 id=\"31\">3.1 功能卡</h3>\n<table>\n<thead>\n<tr>\n<th>卡牌名称</th>\n<th>效果</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>夜视功能卡</td>\n<td>增强夜视能力</td>\n</tr>\n<tr>\n<td>视觉强化卡</td>\n<td>增强视力</td>\n</tr>\n<tr>\n<td>危险感知卡</td>\n<td>感知周围危险</td>\n</tr>\n<tr>\n<td>石肤卡</td>\n<td>皮肤岩石化，大幅提升防御</td>\n</tr>\n<tr>\n<td>感知卡</td>\n<td>增强各种感知能力</td>\n</tr>\n<tr>\n<td>宠物卡</td>\n<td>控制一只变异动物</td>\n</tr>\n<tr>\n<td>召唤术·地狱魔犬</td>\n<td>召唤地狱魔犬战斗伙伴，持续10分钟</td>\n</tr>\n<tr>\n<td>多功能折扣卡</td>\n<td>秘境商店中20%折扣</td>\n</tr>\n</tbody>\n</table>\n<h3 id=\"32\">3.2 特殊物品</h3>\n<table>\n<thead>\n<tr>\n<th>物品</th>\n<th>效果</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>秘境钥匙</td>\n<td>解锁秘境，由金色圣光投放世界各地</td>\n</tr>\n<tr>\n<td>均衡宝珠</td>\n<td>强制同等级1v1决斗，双方属性拉平</td>\n</tr>\n<tr>\n<td>职业技能升级卷轴</td>\n<td>升级某项职业技能</td>\n</tr>\n<tr>\n<td>入场券</td>\n<td>进入天界的必备凭证</td>\n</tr>\n<tr>\n<td>金色布片</td>\n<td>神秘材料，吸收伤害后自行修复，如\"有生命的布料\"</td>\n</tr>\n<tr>\n<td>圣水</td>\n<td>布落圣城的圣物，可沟通两个世界</td>\n</tr>\n</tbody>\n</table>\n<h3 id=\"33\">3.3 战斗技能/武技</h3>\n<ul>\n<li><strong>枪斗术</strong>：高级枪法技巧，叶默前世掌握</li>\n<li><strong>毛针刺</strong>：地皇犬天赋技能，射出全身毛发远程攻击</li>\n<li><strong>裂风之爪</strong>：猿类守护兽天赋技能</li>\n<li><strong>甩尾</strong>：守护兽通用攻击技能</li>\n<li><strong>水波之盾</strong>：四尾魔蜥防御技能</li>\n<li><strong>极寒之息</strong>：四尾魔蜥冰系攻击</li>\n<li><strong>多重冰锥</strong>：四尾魔蜥范围冰系攻击</li>\n<li><strong>天怒风帆</strong>：墨夜的标志性冰系大招</li>\n<li><strong>狂物之鸣</strong>：红发丧尸的特殊技能</li>\n</ul>\n<hr />\n<h2 id=\"_5\">四、职业证书与技能体系</h2>\n<h3 id=\"41\">4.1 战斗职业</h3>\n<table>\n<thead>\n<tr>\n<th>职业</th>\n<th>类型</th>\n<th>说明</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>战士</td>\n<td>近战物理</td>\n<td>基础战斗职业</td>\n</tr>\n<tr>\n<td>狙击手/枪手</td>\n<td>远程</td>\n<td>精准远程打击</td>\n</tr>\n<tr>\n<td>骑士</td>\n<td>坦克</td>\n<td>重装防御</td>\n</tr>\n<tr>\n<td>刺客</td>\n<td>暗杀</td>\n<td>潜行暗杀</td>\n</tr>\n<tr>\n<td>拳师</td>\n<td>格斗</td>\n<td>徒手格斗</td>\n</tr>\n<tr>\n<td>机械师</td>\n<td>技术</td>\n<td>机械操控</td>\n</tr>\n<tr>\n<td>法师（冰/火/雷等）</td>\n<td>魔法</td>\n<td>元素法术</td>\n</tr>\n<tr>\n<td>召唤师</td>\n<td>召唤</td>\n<td>召唤战兽</td>\n</tr>\n<tr>\n<td>傀儡师</td>\n<td>操控</td>\n<td>操控傀儡</td>\n</tr>\n</tbody>\n</table>\n<h3 id=\"42\">4.2 辅助职业</h3>\n<table>\n<thead>\n<tr>\n<th>职业</th>\n<th>类型</th>\n<th>说明</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>药师</td>\n<td>制作</td>\n<td>制作药剂</td>\n</tr>\n<tr>\n<td>医师</td>\n<td>治疗</td>\n<td>治疗伤者</td>\n</tr>\n<tr>\n<td>锻造师</td>\n<td>制作</td>\n<td>制作装备</td>\n</tr>\n<tr>\n<td>附魔师</td>\n<td>附魔</td>\n<td>为装备附魔</td>\n</tr>\n<tr>\n<td>工程匠师</td>\n<td>建造</td>\n<td>建筑与机械</td>\n</tr>\n<tr>\n<td>厨师/食物师</td>\n<td>制作</td>\n<td>制作增益食物</td>\n</tr>\n<tr>\n<td>裁缝</td>\n<td>制作</td>\n<td>制作防具</td>\n</tr>\n<tr>\n<td>符文师/铭文师</td>\n<td>附魔</td>\n<td>符文制作</td>\n</tr>\n<tr>\n<td>建筑师</td>\n<td>建造</td>\n<td>建造防御工事</td>\n</tr>\n<tr>\n<td>种植者/农民</td>\n<td>生产</td>\n<td>种植变异植物</td>\n</tr>\n<tr>\n<td>商人</td>\n<td>经济</td>\n<td>交易加成</td>\n</tr>\n</tbody>\n</table>\n<h3 id=\"43\">4.3 特殊职业</h3>\n<table>\n<thead>\n<tr>\n<th>职业</th>\n<th>说明</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>荣耀工匠（光辉）</td>\n<td>叶默第一职业：同质强化+采集术+镶嵌+锻造+附魔，5个技能槽独立升级</td>\n</tr>\n<tr>\n<td>园丁（绿园使）</td>\n<td>叶默第二职业：种植+激化，可操控变异植物</td>\n</tr>\n<tr>\n<td>神罚使徒→神罚使者</td>\n<td>金英的职业：治疗/辅助→进化为\"亲和之触\"技能</td>\n</tr>\n<tr>\n<td>占卜者/预言家</td>\n<td>预知未来</td>\n</tr>\n<tr>\n<td>幻术师</td>\n<td>制造幻象</td>\n</tr>\n<tr>\n<td>空间法师</td>\n<td>空间相关能力</td>\n</tr>\n<tr>\n<td>心灵师</td>\n<td>心灵控制</td>\n</tr>\n</tbody>\n</table>\n<h3 id=\"44\">4.4 职业等级</h3>\n<div class=\"codehilite\"><pre><span></span><code>见习（见习）→ 初级（初级）→ 中级（中级）→ 高级（高级）→ 大师（大师）→ 宗师（宗师）→ 传说（传说）\n</code></pre></div>\n\n<hr />\n<h2 id=\"_6\">五、血脉体系</h2>\n<ul>\n<li>可通过轮盘获得<strong>血统物品</strong></li>\n<li>赋予持有者特殊能力或属性加成</li>\n<li>圣城安禄德家族依靠血统传承获得力量</li>\n<li>可能具有遗传性和可升级性</li>\n</ul>\n<hr />\n<h2 id=\"_7\">六、材料与资源</h2>\n<h3 id=\"61\">6.1 锻造材料</h3>\n<table>\n<thead>\n<tr>\n<th>材料</th>\n<th>用途</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>血蛙爪尖</td>\n<td>附魔穿透属性（穿透+4至+6）</td>\n</tr>\n<tr>\n<td>猿类怪兽爪/鳞片/尖牙</td>\n<td>锻造与附魔</td>\n</tr>\n<tr>\n<td>柳树皮</td>\n<td>提供韧性属性</td>\n</tr>\n<tr>\n<td>合金结合物</td>\n<td>锻造战刃所需</td>\n</tr>\n<tr>\n<td>雾樟木</td>\n<td>蓝色品质战刃所需</td>\n</tr>\n<tr>\n<td>沙兽筋肉</td>\n<td>升级战刃</td>\n</tr>\n<tr>\n<td>墨鱼汁粉</td>\n<td>制造材料</td>\n</tr>\n<tr>\n<td>千年木心汁</td>\n<td>终极战刃材料</td>\n</tr>\n<tr>\n<td>地底炎兽羽毛</td>\n<td>终极战刃材料</td>\n</tr>\n<tr>\n<td>火山结晶</td>\n<td>终极战刃材料</td>\n</tr>\n<tr>\n<td>浓缩风之枝干</td>\n<td>终极战刃材料</td>\n</tr>\n<tr>\n<td>星辰铁</td>\n<td>终极战刃材料</td>\n</tr>\n<tr>\n<td>黑魔晶</td>\n<td>终极战刃材料</td>\n</tr>\n</tbody>\n</table>\n<h3 id=\"62\">6.2 植物资源</h3>\n<table>\n<thead>\n<tr>\n<th>资源</th>\n<th>说明</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>金榆树</td>\n<td>树叶可制装备，果实按百分比提升实力（8级果实提升约60%持续2周-1个月）</td>\n</tr>\n<tr>\n<td>人面菇</td>\n<td>地下植物，果实可食用，块茎甘甜增强体质</td>\n</tr>\n<tr>\n<td>食人花种子</td>\n<td>园丁职业操控的材料</td>\n</tr>\n<tr>\n<td>焦竹树果实</td>\n<td>红色(嵌入装备)、绿色(制装备)、白色(入药)、黄色(提升实力)</td>\n</tr>\n</tbody>\n</table>\n<hr />\n<p><em>返回<a onclick=\"navigateTo('../首页')\" class=\"wiki-link\">首页</a></em></p>",
+  "附录/游戏化设计参考": "<h1 id=\"_1\">附录 · 游戏化设计参考</h1>\n<blockquote>\n<p>基于《轮盘世界》世界观设计开放世界RPG游戏的核心参考。</p>\n</blockquote>\n<hr />\n<h2 id=\"_2\">一、游戏核心循环</h2>\n<div class=\"codehilite\"><pre><span></span><code>探索世界 → 猎杀怪物 → 获取魔晶 → 转动轮盘(抽卡/抽奖)\n    ↑                                        ↓\n    │                                    获取奖励\n    │                                        ↓\n    └────────── 变强后挑战更难内容 ←──── 进化/装备/技能提升\n</code></pre></div>\n\n<hr />\n<h2 id=\"_3\">二、核心系统设计建议</h2>\n<h3 id=\"21\">2.1 轮盘抽奖系统</h3>\n<div class=\"codehilite\"><pre><span></span><code>设计要点:\n- 多个等级轮盘分布在世界各地\n- 消耗魔晶（货币）抽奖\n- 随机奖励池（类似gacha）\n- 稀有轮盘有使用限制/占领机制\n- 彩色轮盘 = SSR/UR级奖励（职业解锁）\n</code></pre></div>\n\n<h3 id=\"22\">2.2 魔晶货币系统</h3>\n<div class=\"codehilite\"><pre><span></span><code>击杀怪物 → 获得魔晶\n         ↓\n用途: 转轮盘 / 交易 / 锻造材料 / 强化装备\n         ↓\n不同颜色魔晶 = 不同价值层级\n         ↓\n高阶魔晶极难获取 → 驱动玩家挑战高难内容\n</code></pre></div>\n\n<h3 id=\"23\">2.3 进化者等级系统</h3>\n<div class=\"codehilite\"><pre><span></span><code>玩家等级 = 星阶进化者\n  一星 → 二星 → ... → 十星\n  每星突破需要: 对应进化药剂\n  进化药剂来源: 轮盘抽奖 / 高级制作 / 副本BOSS掉落\n</code></pre></div>\n\n<h3 id=\"24\">2.4 职业系统</h3>\n<div class=\"codehilite\"><pre><span></span><code>分为两大分支:\n  战斗职业 (战士/枪手/法师/召唤师/刺客...)\n  辅助职业 (锻造师/药师/附魔师/厨师...)\n\n获取方式: 彩色轮盘抽出职业证书\n职业等级: 见习 → 初级 → 中级 → 高级 → 大师 → 宗师 → 传说\n升级方式: 熟练度积累 + 进阶试炼任务\n</code></pre></div>\n\n<hr />\n<h2 id=\"_4\">三、开放世界设计</h2>\n<h3 id=\"31\">3.1 区域分级</h3>\n<table>\n<thead>\n<tr>\n<th>区域</th>\n<th>怪物等级</th>\n<th>轮盘等级</th>\n<th>推荐玩家等级</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>新手城市区</td>\n<td>一级丧尸</td>\n<td>一级轮盘</td>\n<td>普通人→一星</td>\n</tr>\n<tr>\n<td>郊外荒地</td>\n<td>变异虫/植物</td>\n<td>二级轮盘</td>\n<td>一星→二星</td>\n</tr>\n<tr>\n<td>废弃城区</td>\n<td>二级丧尸/变异兽</td>\n<td>三级轮盘</td>\n<td>二星→三星</td>\n</tr>\n<tr>\n<td>秘境（白/绿）</td>\n<td>守护兽/高级怪物</td>\n<td>彩色轮盘</td>\n<td>三星→五星</td>\n</tr>\n<tr>\n<td>秘境（蓝/红）</td>\n<td>地狱兽/异形</td>\n<td>高级轮盘</td>\n<td>五星→七星</td>\n</tr>\n<tr>\n<td>圣城区域</td>\n<td>顶级怪物/敌对势力</td>\n<td>顶级轮盘</td>\n<td>七星→九星</td>\n</tr>\n<tr>\n<td>秘境（黑）</td>\n<td>准神级怪物</td>\n<td>传说轮盘</td>\n<td>九星→十星</td>\n</tr>\n</tbody>\n</table>\n<h3 id=\"32\">3.2 动态事件</h3>\n<ul>\n<li><strong>兽潮</strong>：周期性大规模怪物攻城</li>\n<li><strong>聚宝盆</strong>：稀有事件，召唤BOSS但奖励丰厚</li>\n<li><strong>势力战争</strong>：NPC势力间的冲突，玩家可选边</li>\n<li><strong>轮盘刷新</strong>：限时彩色轮盘出现</li>\n</ul>\n<hr />\n<h2 id=\"_5\">四、战斗系统</h2>\n<h3 id=\"41\">4.1 基础战斗</h3>\n<ul>\n<li>动作向/半动作向</li>\n<li>近战+远程+技能</li>\n<li>弱点系统（头部、魔晶位置等）</li>\n<li>闪避/格挡/受身</li>\n</ul>\n<h3 id=\"42\">4.2 职业技能系统</h3>\n<ul>\n<li>每个职业3-5个主动技能</li>\n<li>精神力/魔力资源管理</li>\n<li>技能升级树</li>\n<li>双职业切换（参考叶默）</li>\n</ul>\n<h3 id=\"43\">4.3 战兽系统</h3>\n<ul>\n<li>可驯服变异兽为战兽</li>\n<li>战兽有独立成长线</li>\n<li>战斗中可召唤/指挥</li>\n<li>主人与战兽协同技能</li>\n</ul>\n<hr />\n<h2 id=\"_6\">五、经济系统</h2>\n<h3 id=\"51\">5.1 货币层级</h3>\n<div class=\"codehilite\"><pre><span></span><code>一级魔晶 (白) — 基础货币\n二级魔晶 (灰) — 中级货币\n三级魔晶 (绿) — 高级货币\n四级魔晶 (蓝) → 持续升级\n</code></pre></div>\n\n<h3 id=\"52\">5.2 轮盘经济</h3>\n<div class=\"codehilite\"><pre><span></span><code>玩家获取魔晶 → 选择轮盘消费 → 随机获得奖励\n                                   ↓\n                          自用 / 交易给其他玩家(NPC)\n</code></pre></div>\n\n<h3 id=\"53\">5.3 制作经济</h3>\n<div class=\"codehilite\"><pre><span></span><code>收集材料(打怪+采集) → 锻造/制药/附魔 → 产出装备/消耗品 → 交易\n</code></pre></div>\n\n<hr />\n<h2 id=\"_7\">六、剧情适配</h2>\n<h3 id=\"61\">6.1 主线任务</h3>\n<ol>\n<li>末日降临 → 初次使用轮盘</li>\n<li>获取第一个职业</li>\n<li>建立/加入营地</li>\n<li>第一次兽潮防御</li>\n<li>探索第一个秘境</li>\n<li>与各势力建立关系</li>\n<li>圣城远征（最终主线）</li>\n<li>天界之路（终局内容/扩展DLC）</li>\n</ol>\n<h3 id=\"62\">6.2 支线任务</h3>\n<ul>\n<li>队友角色任务线</li>\n<li>势力声望任务</li>\n<li>秘境探索任务</li>\n<li>稀有轮盘线索任务</li>\n<li>传奇装备制作任务</li>\n</ul>\n<hr />\n<h2 id=\"_8\">七、社交与多人</h2>\n<h3 id=\"71\">7.1 可选模式</h3>\n<ul>\n<li><strong>单人模式</strong>：扮演叶默，体验原著剧情</li>\n<li><strong>联机合作</strong>：多人组队探索秘境、对抗兽潮</li>\n<li><strong>势力战</strong>：玩家加入不同势力进行PVP</li>\n</ul>\n<h3 id=\"72\">7.2 角色自定义</h3>\n<ul>\n<li>创建原创角色（非叶默）</li>\n<li>选择初始职业路线</li>\n<li>通过轮盘获取随机职业/技能（Roguelike元素）</li>\n<li>在同一世界观下书写自己的故事</li>\n</ul>\n<hr />\n<h2 id=\"_9\">八、核心设计哲学</h2>\n<ol>\n<li><strong>轮盘 = 核心驱动力</strong>：一切围绕\"打怪→获得魔晶→转轮盘→变强\"循环</li>\n<li><strong>随机性 = 重玩价值</strong>：轮盘的完全随机性带来每局不同的体验</li>\n<li><strong>职业多样性 = 玩法深度</strong>：战斗+辅助双职业体系提供丰富的Build空间</li>\n<li><strong>势力博弈 = 世界活力</strong>：动态的势力关系让世界有生命力</li>\n<li><strong>渐进式揭秘 = 叙事张力</strong>：从末日生存到天界真相的层层递进</li>\n</ol>\n<hr />\n<p><em>返回<a onclick=\"navigateTo('附录/附录总览')\" class=\"wiki-link\">附录总览</a> | <a onclick=\"navigateTo('../首页')\" class=\"wiki-link\">首页</a></em></p>",
+  "附录/附录总览": "<h1 id=\"_1\">附录 · 附录总览</h1>\n<blockquote>\n<p>本章节收录《轮盘世界》的术语表、时间线、战力排行榜及其他参考资料。</p>\n</blockquote>\n<hr />\n<h2 id=\"_2\">一、术语表</h2>\n<h3 id=\"a\">A</h3>\n<table>\n<thead>\n<tr>\n<th>术语</th>\n<th>说明</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong>暗夜</strong></td>\n<td>杀手/佣兵组织</td>\n</tr>\n</tbody>\n</table>\n<h3 id=\"b\">B</h3>\n<table>\n<thead>\n<tr>\n<th>术语</th>\n<th>说明</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong>白诗诗</strong></td>\n<td>叶默前女友，大学校花</td>\n</tr>\n<tr>\n<td><strong>白蛆虫（白化巨蛆）</strong></td>\n<td>白色巨型蛆虫状变异怪物</td>\n</tr>\n<tr>\n<td><strong>变异虫</strong></td>\n<td>各种被末日力量感染的昆虫，体型增大数倍至数十倍</td>\n</tr>\n<tr>\n<td><strong>变异兽</strong></td>\n<td>被末日力量感染的动物，体型增大且具有特殊能力</td>\n</tr>\n<tr>\n<td><strong>变异植物</strong></td>\n<td>被末日力量感染的植物，具有攻击性</td>\n</tr>\n<tr>\n<td><strong>不落圣城</strong></td>\n<td>已灭亡的古代圣城</td>\n</tr>\n<tr>\n<td><strong>不鲁得秘境（死亡秘境）</strong></td>\n<td>叶默大量获取资源和装备的秘境</td>\n</tr>\n<tr>\n<td><strong>布落圣城</strong></td>\n<td>古族秘境中的城市，古代人类后裔聚居地</td>\n</tr>\n</tbody>\n</table>\n<h3 id=\"c\">C</h3>\n<table>\n<thead>\n<tr>\n<th>术语</th>\n<th>说明</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong>采集术</strong></td>\n<td>从怪物尸体高效收集材料的职业技能</td>\n</tr>\n<tr>\n<td><strong>彩色轮盘</strong></td>\n<td>三彩/五彩/七彩/九彩轮盘，唯一可转出职业证书的轮盘</td>\n</tr>\n<tr>\n<td><strong>传说品质</strong></td>\n<td>橙色装备等级，独一无二</td>\n</tr>\n<tr>\n<td><strong>传说级职业</strong></td>\n<td>职业体系的最高等级</td>\n</tr>\n</tbody>\n</table>\n<h3 id=\"d\">D</h3>\n<table>\n<thead>\n<tr>\n<th>术语</th>\n<th>说明</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong>地皇犬</strong></td>\n<td>叶默的战兽，由流浪狗变异进化而成</td>\n</tr>\n<tr>\n<td><strong>地狱兽</strong></td>\n<td>由普通动物多次进化而成的高级变异兽</td>\n</tr>\n<tr>\n<td><strong>锻造</strong></td>\n<td>使用图纸与魔晶合成为成品的技能</td>\n</tr>\n<tr>\n<td><strong>多功能折扣卡</strong></td>\n<td>秘境商店中享受20%折扣的功能卡</td>\n</tr>\n</tbody>\n</table>\n<h3 id=\"e-g\">E-G</h3>\n<table>\n<thead>\n<tr>\n<th>术语</th>\n<th>说明</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong>二级轮盘</strong></td>\n<td>需10枚一级魔晶转动，奖励品质优于一级</td>\n</tr>\n<tr>\n<td><strong>二阶强化人/二星进化者</strong></td>\n<td>身体素质约10倍于普通人</td>\n</tr>\n<tr>\n<td><strong>附魔</strong></td>\n<td>为装备添加属性的职业技能</td>\n</tr>\n<tr>\n<td><strong>感染规则</strong></td>\n<td>被丧尸抓咬后会被感染，半小时内转化为丧尸</td>\n</tr>\n<tr>\n<td><strong>G区</strong></td>\n<td>军方装甲部队势力</td>\n</tr>\n<tr>\n<td><strong>G组织</strong></td>\n<td>较低评级的势力</td>\n</tr>\n<tr>\n<td><strong>工程匠师</strong></td>\n<td>建筑与机械制造职业</td>\n</tr>\n<tr>\n<td><strong>功能卡</strong></td>\n<td>轮盘获得的特殊效果卡片</td>\n</tr>\n<tr>\n<td><strong>古族</strong></td>\n<td>生活在秘境中的古代人类后裔，使用古武技</td>\n</tr>\n</tbody>\n</table>\n<h3 id=\"h\">H</h3>\n<table>\n<thead>\n<tr>\n<th>术语</th>\n<th>说明</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong>黑色秘境</strong></td>\n<td>最高危险等级的秘境</td>\n</tr>\n<tr>\n<td><strong>黑魔晶</strong></td>\n<td>顶级锻造材料</td>\n</tr>\n<tr>\n<td><strong>红发</strong></td>\n<td>特殊女尸进化而成的高级丧尸，保留人类意识</td>\n</tr>\n<tr>\n<td><strong>红月会</strong></td>\n<td>小型势力组织</td>\n</tr>\n</tbody>\n</table>\n<h3 id=\"j\">J</h3>\n<table>\n<thead>\n<tr>\n<th>术语</th>\n<th>说明</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong>机械师</strong></td>\n<td>机械操控型战斗职业</td>\n</tr>\n<tr>\n<td><strong>极寒之息</strong></td>\n<td>冰系变异兽的天赋技能</td>\n</tr>\n<tr>\n<td><strong>技能槽</strong></td>\n<td>职业拥有的技能位置，每个需独立升级</td>\n</tr>\n<tr>\n<td><strong>激化（催生）</strong></td>\n<td>园丁职业主动操控植物的技能</td>\n</tr>\n<tr>\n<td><strong>金榆树</strong></td>\n<td>特殊树木，果实能按百分比提升实力</td>\n</tr>\n<tr>\n<td><strong>金色品质</strong></td>\n<td>神话级装备，最顶级</td>\n</tr>\n<tr>\n<td><strong>金色圣光战甲</strong></td>\n<td>九级轮盘十大奖励之一，最强飞行战甲</td>\n</tr>\n<tr>\n<td><strong>金色布片</strong></td>\n<td>神秘材料，吸收伤害后自行修复</td>\n</tr>\n<tr>\n<td><strong>锦盛华庭小区</strong></td>\n<td>末日初始地点之一，设有一道轮盘</td>\n</tr>\n<tr>\n<td><strong>镜界</strong></td>\n<td>与镜像/反射相关的大型特殊秘境</td>\n</tr>\n<tr>\n<td><strong>均衡宝珠</strong></td>\n<td>强制同等级1v1决斗的特殊物品</td>\n</tr>\n<tr>\n<td><strong>九级轮盘</strong></td>\n<td>传说级轮盘，需彩色魔晶</td>\n</tr>\n</tbody>\n</table>\n<h3 id=\"k\">K</h3>\n<table>\n<thead>\n<tr>\n<th>术语</th>\n<th>说明</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong>空间水壶</strong></td>\n<td>1立方米空间装备，物品保鲜</td>\n</tr>\n<tr>\n<td><strong>狂暴药剂</strong></td>\n<td>短时间大幅强化战斗状态的药剂</td>\n</tr>\n<tr>\n<td><strong>狂物之鸣</strong></td>\n<td>红发丧尸的特殊技能</td>\n</tr>\n</tbody>\n</table>\n<h3 id=\"l\">L</h3>\n<table>\n<thead>\n<tr>\n<th>术语</th>\n<th>说明</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong>蓝色品质</strong></td>\n<td>稀有级装备</td>\n</tr>\n<tr>\n<td><strong>裂风之爪</strong></td>\n<td>守护兽的天赋攻击技能</td>\n</tr>\n<tr>\n<td><strong>绿园使（园丁）</strong></td>\n<td>叶默的第二职业：种植+操控变异植物</td>\n</tr>\n<tr>\n<td><strong>绿色品质</strong></td>\n<td>优秀级装备</td>\n</tr>\n<tr>\n<td><strong>轮盘</strong></td>\n<td>末日轮盘的简称，散布世界各地的抽奖转盘</td>\n</tr>\n<tr>\n<td><strong>轮盘占据</strong></td>\n<td>强者势力占据优质轮盘收取使用费</td>\n</tr>\n</tbody>\n</table>\n<h3 id=\"m\">M</h3>\n<table>\n<thead>\n<tr>\n<th>术语</th>\n<th>说明</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong>毛针刺</strong></td>\n<td>地皇犬的天赋技能，射出全身毛发攻击</td>\n</tr>\n<tr>\n<td><strong>秘境</strong></td>\n<td>由金色圣光爆炸后形成的异空间裂隙</td>\n</tr>\n<tr>\n<td><strong>秘境钥匙</strong></td>\n<td>由金色圣光投放的进入秘境的钥匙</td>\n</tr>\n<tr>\n<td><strong>免疫药剂</strong></td>\n<td>防止丧尸感染的药剂</td>\n</tr>\n<tr>\n<td><strong>冥想</strong></td>\n<td>被动增加25%精神力恢复速度的技能</td>\n</tr>\n<tr>\n<td><strong>魔晶</strong></td>\n<td>怪物头部生成的晶体，是轮盘货币和硬通货</td>\n</tr>\n<tr>\n<td><strong>墨夜</strong></td>\n<td>女警，叶默团队核心成员，冰系法师</td>\n</tr>\n</tbody>\n</table>\n<h3 id=\"n\">N</h3>\n<table>\n<thead>\n<tr>\n<th>术语</th>\n<th>说明</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong>奴兵</strong></td>\n<td>圣城将被俘者变为奴隶士兵的制度</td>\n</tr>\n</tbody>\n</table>\n<h3 id=\"p\">P</h3>\n<table>\n<thead>\n<tr>\n<th>术语</th>\n<th>说明</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong>品质等级</strong></td>\n<td>白(普通)→绿(优秀)→蓝(稀有)→紫(史诗)→橙(传说)→金(神话)→彩(特殊)</td>\n</tr>\n</tbody>\n</table>\n<h3 id=\"q\">Q</h3>\n<table>\n<thead>\n<tr>\n<th>术语</th>\n<th>说明</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong>契约皮卷</strong></td>\n<td>获得职业时与职业徽章一起出现的绑定物品</td>\n</tr>\n<tr>\n<td><strong>枪斗术</strong></td>\n<td>叶默前世掌握的高级枪法技巧</td>\n</tr>\n<tr>\n<td><strong>全员武装台</strong></td>\n<td>金色品质的多功能武装平台</td>\n</tr>\n</tbody>\n</table>\n<h3 id=\"r\">R</h3>\n<table>\n<thead>\n<tr>\n<th>术语</th>\n<th>说明</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong>荣耀工匠（光辉）</strong></td>\n<td>叶默的第一职业：同质强化+采集+镶嵌+锻造+附魔</td>\n</tr>\n<tr>\n<td><strong>入场券</strong></td>\n<td>进入天界/上级空间的必需凭证</td>\n</tr>\n<tr>\n<td><strong>人面菇</strong></td>\n<td>地下变异植物，果实可食用且增强体质</td>\n</tr>\n</tbody>\n</table>\n<h3 id=\"s\">S</h3>\n<table>\n<thead>\n<tr>\n<th>术语</th>\n<th>说明</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong>丧尸</strong></td>\n<td>末日感染后转化的人类怪物</td>\n</tr>\n<tr>\n<td><strong>丧尸再生</strong></td>\n<td>只要头部完整且魔晶未取出，可通过吞噬血肉再生</td>\n</tr>\n<tr>\n<td><strong>沙尘暴击</strong></td>\n<td>战刃·沙尘的主动技能</td>\n</tr>\n<tr>\n<td><strong>沙尘乱舞</strong></td>\n<td>战刃·沙尘的终极主动技能</td>\n</tr>\n<tr>\n<td><strong>上级空间</strong></td>\n<td>比地球更高层次的位面，幕后存在所在</td>\n</tr>\n<tr>\n<td><strong>兽潮</strong></td>\n<td>由\"聚宝盆\"事件触发的大规模怪物攻城</td>\n</tr>\n<tr>\n<td><strong>甩尾</strong></td>\n<td>守护兽的通用攻击技能</td>\n</tr>\n<tr>\n<td><strong>水波之盾</strong></td>\n<td>水系守护兽的防御技能</td>\n</tr>\n<tr>\n<td><strong>四尾魔蜥</strong></td>\n<td>四级水系守护兽</td>\n</tr>\n<tr>\n<td><strong>圣城</strong></td>\n<td>意大利地区的西方宗教势力主城</td>\n</tr>\n<tr>\n<td><strong>圣教/圣廷</strong></td>\n<td>北方冰原的强大组织</td>\n</tr>\n<tr>\n<td><strong>圣骑士团</strong></td>\n<td>圣城/圣教的骑士武装力量</td>\n</tr>\n<tr>\n<td><strong>圣水</strong></td>\n<td>布落圣城的圣物，可沟通两个世界</td>\n</tr>\n<tr>\n<td><strong>史诗品质</strong></td>\n<td>紫色装备等级</td>\n</tr>\n<tr>\n<td><strong>石肤卡</strong></td>\n<td>皮肤岩石化大幅提升防御的功能卡</td>\n</tr>\n</tbody>\n</table>\n<h3 id=\"t\">T</h3>\n<table>\n<thead>\n<tr>\n<th>术语</th>\n<th>说明</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong>天都山庄</strong></td>\n<td>叶默创立的末日后最强幸存者基地</td>\n</tr>\n<tr>\n<td><strong>天赋技能</strong></td>\n<td>怪物和战兽出生自带或进化觉醒的特殊技能</td>\n</tr>\n<tr>\n<td><strong>天虎帮</strong></td>\n<td>被叶默剿灭的小型敌对组织</td>\n</tr>\n<tr>\n<td><strong>天界</strong></td>\n<td>上级空间的称谓，比地球更高层次的世界</td>\n</tr>\n<tr>\n<td><strong>通天城</strong></td>\n<td>中立交易城市</td>\n</tr>\n<tr>\n<td><strong>同质强化</strong></td>\n<td>将物品与相同材料融合增强属性的职业技能</td>\n</tr>\n</tbody>\n</table>\n<h3 id=\"w\">W</h3>\n<table>\n<thead>\n<tr>\n<th>术语</th>\n<th>说明</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong>温静（慕安媛）</strong></td>\n<td>\"杀戮玫瑰\"，未来十星顶级强者</td>\n</tr>\n<tr>\n<td><strong>武技</strong></td>\n<td>超越常规训练的战斗技巧，仅大师和宗师能创造</td>\n</tr>\n</tbody>\n</table>\n<h3 id=\"x\">X</h3>\n<table>\n<thead>\n<tr>\n<th>术语</th>\n<th>说明</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong>下级/见习职业</strong></td>\n<td>职业体系入门级</td>\n</tr>\n<tr>\n<td><strong>星辰铁</strong></td>\n<td>终极战刃·沙尘的稀有锻造材料</td>\n</tr>\n<tr>\n<td><strong>血蛙</strong></td>\n<td>红色蛙型群居怪物，额头有魔晶，强腐蚀性唾液</td>\n</tr>\n<tr>\n<td><strong>血蛙爪尖</strong></td>\n<td>附魔穿透属性的材料</td>\n</tr>\n</tbody>\n</table>\n<h3 id=\"y\">Y</h3>\n<table>\n<thead>\n<tr>\n<th>术语</th>\n<th>说明</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong>一级轮盘</strong></td>\n<td>最基础最常见的轮盘，一次转需1枚一级魔晶</td>\n</tr>\n<tr>\n<td><strong>一阶强化人/一星进化者</strong></td>\n<td>身体素质约5倍于普通人</td>\n</tr>\n<tr>\n<td><strong>夜血团</strong></td>\n<td>雇佣兵/杀手组织</td>\n</tr>\n<tr>\n<td><strong>英雄城（英城）</strong></td>\n<td>天都势力范围的大型城市</td>\n</tr>\n<tr>\n<td><strong>园丁职业</strong></td>\n<td>参见\"绿园使\"</td>\n</tr>\n<tr>\n<td><strong>宇宙之盒</strong></td>\n<td>叶默自创神级装备，存储/恢复/标记回返/同调融合四功能</td>\n</tr>\n</tbody>\n</table>\n<h3 id=\"z\">Z</h3>\n<table>\n<thead>\n<tr>\n<th>术语</th>\n<th>说明</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong>战法</strong></td>\n<td>上级空间/天界中使用的高级战斗体系</td>\n</tr>\n<tr>\n<td><strong>战场</strong></td>\n<td>上级空间中证明实力获取成神资格的区域</td>\n</tr>\n<tr>\n<td><strong>战刃·沙尘</strong></td>\n<td>叶默锻造的三形态进化近战武器</td>\n</tr>\n<tr>\n<td><strong>战兽</strong></td>\n<td>被驯服/契约的变异兽，与主人并肩战斗</td>\n</tr>\n<tr>\n<td><strong>职业徽章</strong></td>\n<td>从彩色轮盘获得的职业身份物品</td>\n</tr>\n<tr>\n<td><strong>职业体系</strong></td>\n<td>战斗职业与辅助职业两大类</td>\n</tr>\n<tr>\n<td><strong>职业等级</strong></td>\n<td>见习→初级→中级→高级→大师→宗师→传说</td>\n</tr>\n<tr>\n<td><strong>种植</strong></td>\n<td>园丁职业使植物生长变异的核心技能</td>\n</tr>\n<tr>\n<td><strong>紫色品质</strong></td>\n<td>史诗级装备</td>\n</tr>\n<tr>\n<td><strong>自然之杖</strong></td>\n<td>可镶嵌自然宝石释放元素技能的稀有装备</td>\n</tr>\n</tbody>\n</table>\n<hr />\n<h2 id=\"_3\">二、战力排行榜（设定参考）</h2>\n<h3 id=\"_4\">顶级强者（十星进化者级）</h3>\n<table>\n<thead>\n<tr>\n<th>排名</th>\n<th>角色</th>\n<th>势力</th>\n<th>特点</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>1</td>\n<td>叶默</td>\n<td>天都山庄</td>\n<td>荣耀工匠+园丁双职业，自创宇宙之盒</td>\n</tr>\n<tr>\n<td>—</td>\n<td>温静（慕安媛）</td>\n<td>—</td>\n<td>杀戮玫瑰，十星强者</td>\n</tr>\n<tr>\n<td>—</td>\n<td>墨夜</td>\n<td>天都山庄</td>\n<td>冰系法师，天怒风帆</td>\n</tr>\n<tr>\n<td>—</td>\n<td>莉莲</td>\n<td>圣教/圣廷</td>\n<td>机械战甲+骑士团</td>\n</tr>\n<tr>\n<td>—</td>\n<td>安禄德</td>\n<td>圣城</td>\n<td>血统传承，不完全体十星</td>\n</tr>\n<tr>\n<td>—</td>\n<td>哈鲁</td>\n<td>圣骑士团</td>\n<td>骑士团长，十星</td>\n</tr>\n<tr>\n<td>—</td>\n<td>山王</td>\n<td>古族</td>\n<td>部落领袖，十星</td>\n</tr>\n</tbody>\n</table>\n<h3 id=\"_5\">顶级战兽</h3>\n<table>\n<thead>\n<tr>\n<th>战兽</th>\n<th>主人</th>\n<th>实力</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>地皇犬</td>\n<td>叶默</td>\n<td>十星（逐步进化）</td>\n</tr>\n<tr>\n<td>黑猫</td>\n<td>天都山庄</td>\n<td>十星</td>\n</tr>\n</tbody>\n</table>\n<h3 id=\"_6\">最强装备</h3>\n<table>\n<thead>\n<tr>\n<th>装备</th>\n<th>品质</th>\n<th>持有者</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>金色圣光战甲</td>\n<td>传说/神话</td>\n<td>天空之战神秘者</td>\n</tr>\n<tr>\n<td>宇宙之盒</td>\n<td>神话（自创）</td>\n<td>叶默</td>\n</tr>\n<tr>\n<td>战刃·沙尘（终极形态）</td>\n<td>蓝色稀有</td>\n<td>叶默</td>\n</tr>\n<tr>\n<td>荣耀权杖</td>\n<td>—</td>\n<td>圣城圣女</td>\n</tr>\n</tbody>\n</table>\n<hr />\n<h2 id=\"_7\">三、完整时间线</h2>\n<table>\n<thead>\n<tr>\n<th>时间</th>\n<th>事件</th>\n<th>章节范围</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong>末日前</strong></td>\n<td></td>\n<td></td>\n</tr>\n<tr>\n<td>2220.9.10 15:35</td>\n<td>叶默重生</td>\n<td>第2章</td>\n</tr>\n<tr>\n<td>2220.9.10 15:35-16:30</td>\n<td>采购物资、见白诗诗</td>\n<td>第2-3章</td>\n</tr>\n<tr>\n<td>2220.9.10 16:30</td>\n<td>到达锦盛华庭</td>\n<td>第3章</td>\n</tr>\n<tr>\n<td><strong>末日爆发</strong></td>\n<td></td>\n<td></td>\n</tr>\n<tr>\n<td>2220.9.10 16:40</td>\n<td>天空爆炸、金色圣光战甲出现、末日降临</td>\n<td>第3-4章</td>\n</tr>\n<tr>\n<td>2220.9.10 16:40-17:00</td>\n<td>轮盘出现、叶默遇温静</td>\n<td>第4-5章</td>\n</tr>\n<tr>\n<td><strong>末日第1天</strong></td>\n<td></td>\n<td></td>\n</tr>\n<tr>\n<td>傍晚</td>\n<td>收集21枚一级魔晶、转轮盘</td>\n<td>第5-6章</td>\n</tr>\n<tr>\n<td>夜晚</td>\n<td>叶默成为一星进化者、获得弩</td>\n<td>第7-8章</td>\n</tr>\n<tr>\n<td>深夜</td>\n<td>对抗变异甲虫群</td>\n<td>第8章</td>\n</tr>\n<tr>\n<td>深夜后</td>\n<td>温静短暂失踪、叶默继续猎杀</td>\n<td>第9-10章</td>\n</tr>\n<tr>\n<td><strong>末日第1天夜间</strong></td>\n<td></td>\n<td></td>\n</tr>\n<tr>\n<td>—</td>\n<td>遇到墨夜女警</td>\n<td>第10-15章</td>\n</tr>\n<tr>\n<td>—</td>\n<td>获取职业证书（荣耀工匠+园丁）</td>\n<td>第15-30章</td>\n</tr>\n<tr>\n<td>—</td>\n<td>占领天湖别苑作为基地</td>\n<td>第30-50章</td>\n</tr>\n<tr>\n<td><strong>末日初期（数天-数周）</strong></td>\n<td></td>\n<td></td>\n</tr>\n<tr>\n<td>—</td>\n<td>第一次兽潮、尸猿出现</td>\n<td>第50-100章</td>\n</tr>\n<tr>\n<td>—</td>\n<td>建立天都山庄、团队成型</td>\n<td>第100-200章</td>\n</tr>\n<tr>\n<td><strong>末日中期（数月-数年）</strong></td>\n<td></td>\n<td></td>\n</tr>\n<tr>\n<td>—</td>\n<td>秘境探险、与布落圣城古族建立关系</td>\n<td>第200-500章</td>\n</tr>\n<tr>\n<td>—</td>\n<td>势力扩张、与G/C/T/S区博弈</td>\n<td>第500-800章</td>\n</tr>\n<tr>\n<td><strong>末日后期（数年-十年）</strong></td>\n<td></td>\n<td></td>\n</tr>\n<tr>\n<td>—</td>\n<td>与圣城冲突升级</td>\n<td>第800-1000章</td>\n</tr>\n<tr>\n<td>—</td>\n<td>圣城攻略战</td>\n<td>第1000-1300章</td>\n</tr>\n<tr>\n<td>—</td>\n<td>攻灭圣城</td>\n<td>第1300-1500章</td>\n</tr>\n<tr>\n<td><strong>终局</strong></td>\n<td></td>\n<td></td>\n</tr>\n<tr>\n<td>—</td>\n<td>冲击十星、对抗圣教/圣廷</td>\n<td>第1500-1700章</td>\n</tr>\n<tr>\n<td>—</td>\n<td>传送到上级空间/天界</td>\n<td>第1700-1739章</td>\n</tr>\n<tr>\n<td>—</td>\n<td>被告知需去\"战场\"、成神之路开始</td>\n<td>结局</td>\n</tr>\n</tbody>\n</table>\n<hr />\n<h2 id=\"_8\">四、参考信息</h2>\n<h3 id=\"_9\">小说基本信息</h3>\n<ul>\n<li><strong>书名</strong>：轮盘世界</li>\n<li><strong>类型</strong>：重生+末世+升级流+系统流（融合无限流元素）</li>\n<li><strong>背景年份</strong>：2220年</li>\n<li><strong>总章节数</strong>：约1739章（已识别最后章节为\"投影之战\"）</li>\n<li><strong>总字数</strong>：约300万+字（8.8MB文本）</li>\n<li><strong>编码</strong>：GBK（原始文件）</li>\n</ul>\n<h3 id=\"_10\">主要创意亮点</h3>\n<ol>\n<li><strong>轮盘抽奖系统</strong>：以物理转盘形式呈现的\"抽卡\"机制</li>\n<li><strong>魔晶货币体系</strong>：击杀怪物可获得的实体货币，既是资源也是力量的象征</li>\n<li><strong>多层力量体系</strong>：进化者+职业+血脉+战法，不断拓展的力量上限</li>\n<li><strong>秘境探索</strong>：类似副本的异空间，增加世界探索深度</li>\n<li><strong>势力争霸</strong>：幸存者势力间复杂的博弈和战争</li>\n<li><strong>天界揭秘</strong>：从末世生存→探索真相→揭示更大世界观的叙事升级</li>\n</ol>\n<hr />\n<p><em>返回<a onclick=\"navigateTo('../首页')\" class=\"wiki-link\">首页</a></em></p>",
+  "首页": "<h1 id=\"_1\">轮盘世界 · 维基百科</h1>\n<blockquote>\n<p>基于原著小说《轮盘世界》世界观整理的完整百科全书，服务于开放世界RPG游戏制作。</p>\n</blockquote>\n<hr />\n<h2 id=\"_2\">📚 目录导航</h2>\n<h3 id=\"_3\">一、<a onclick=\"navigateTo('世界观/概述')\" class=\"wiki-link\">世界观</a></h3>\n<p>末日轮盘的运行机制、力量体系、时间线与世界规则</p>\n<h3 id=\"_4\">二、<a onclick=\"navigateTo('人物档案/人物总览')\" class=\"wiki-link\">人物档案</a></h3>\n<p>主角团、关键NPC、反派、传奇强者的完整档案</p>\n<h3 id=\"_5\">三、<a onclick=\"navigateTo('组织与势力/势力总览')\" class=\"wiki-link\">组织与势力</a></h3>\n<p>幸存者营地、军事组织、公会、商团等所有势力</p>\n<h3 id=\"_6\">四、<a onclick=\"navigateTo('地图与地点/地点总览')\" class=\"wiki-link\">地图与地点</a></h3>\n<p>城市、基地、重要建筑、危险区域的完整地理</p>\n<h3 id=\"_7\">五、<a onclick=\"navigateTo('怪物图鉴/怪物总览')\" class=\"wiki-link\">怪物图鉴</a></h3>\n<p>丧尸、变异兽、变异植物、地狱兽等所有怪物</p>\n<h3 id=\"_8\">六、<a onclick=\"navigateTo('道具与能力/道具总览')\" class=\"wiki-link\">道具与能力</a></h3>\n<p>强化药剂、武器、职业证书、功能卡、血脉等所有物品</p>\n<h3 id=\"_9\">七、<a onclick=\"navigateTo('情节概要/情节总览')\" class=\"wiki-link\">情节概要</a></h3>\n<p>完整剧情线、关键事件、重大转折</p>\n<h3 id=\"_10\">八、<a onclick=\"navigateTo('附录/附录总览')\" class=\"wiki-link\">附录</a></h3>\n<p>术语表、战力排行、时间线、参考资料</p>\n<hr />\n<h2 id=\"_11\">快速导航</h2>\n<table>\n<thead>\n<tr>\n<th>概念</th>\n<th>说明</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td><strong>末日轮盘</strong></td>\n<td>末日降临后出现在世界各地的巨大转盘，可消耗魔晶进行抽奖，是获取力量的唯一途径</td>\n</tr>\n<tr>\n<td><strong>魔晶</strong></td>\n<td>击杀怪物获得的晶体，分为不同等级/颜色，是末日后世界的核心货币</td>\n</tr>\n<tr>\n<td><strong>强化人/进化者</strong></td>\n<td>通过强化药剂提升身体能力的人类，分为不同等阶</td>\n</tr>\n<tr>\n<td><strong>职业者</strong></td>\n<td>通过职业证书获得特殊技能的人类，拥有超越常人的战斗能力</td>\n</tr>\n<tr>\n<td><strong>变异兽</strong></td>\n<td>末日降临后被感染的动物，体型巨大化并具有特殊能力</td>\n</tr>\n<tr>\n<td><strong>变异植物</strong></td>\n<td>被末日力量感染的植物，具有攻击性和特殊能力</td>\n</tr>\n</tbody>\n</table>\n<hr />\n<p><em>本维基基于小说《轮盘世界》全文分析整理</em></p>"
+};
+
+// ===== Current State =====
+let currentPage = "首页";
+let isDark = true;
+
+// ===== Navigation =====
+function navigateTo(pageId) {
+  if (!PAGES[pageId]) {
+    console.warn("Page not found:", pageId);
+    return;
+  }
+
+  // Update current page
+  currentPage = pageId;
+
+  // Update active states
+  document.querySelectorAll(".page-content").forEach(el => el.classList.remove("active"));
+  const pageEl = document.getElementById("page-" + pageId.replace(/[\/]/g, "-"));
+  if (pageEl) pageEl.classList.add("active");
+
+  // Update nav active
+  document.querySelectorAll(".nav-item").forEach(el => el.classList.remove("active"));
+  const navItem = document.querySelector(`.nav-item[data-page="${pageId}"]`);
+  if (navItem) {
+    navItem.classList.add("active");
+    // Expand parent category
+    const category = navItem.closest(".nav-category");
+    if (category) category.classList.remove("collapsed");
+  }
+
+  // Update breadcrumb
+  updateBreadcrumb(pageId);
+
+  // Scroll to top
+  document.getElementById("mainContent").scrollTop = 0;
+
+  // Close sidebar on mobile
+  closeSidebar();
+
+  // Save to hash
+  window.location.hash = encodeURIComponent(pageId);
+}
+
+function updateBreadcrumb(pageId) {
+  const parts = pageId.split("/");
+  const breadcrumb = document.getElementById("breadcrumb");
+  breadcrumb.innerHTML = parts.map((p, i) => {
+    const label = i === parts.length - 1 ? p : p;
+    return i < parts.length - 1
+      ? `<span>${label}</span> / `
+      : `<span style="color:var(--accent)">${label}</span>`;
+  }).join("");
+}
+
+// ===== Sidebar Toggle =====
+function toggleSidebar() {
+  const sidebar = document.getElementById("sidebar");
+  const overlay = document.querySelector(".sidebar-overlay");
+  sidebar.classList.toggle("open");
+  overlay.classList.toggle("active");
+}
+
+function closeSidebar() {
+  const sidebar = document.getElementById("sidebar");
+  const overlay = document.querySelector(".sidebar-overlay");
+  sidebar.classList.remove("open");
+  overlay.classList.remove("active");
+}
+
+// ===== Category Toggle =====
+function toggleCategory(el) {
+  el.parentElement.classList.toggle("collapsed");
+}
+
+// ===== Search =====
+let searchTimeout;
+function onSearch(query) {
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(() => performSearch(query), 150);
+}
+
+function performSearch(query) {
+  const resultsEl = document.getElementById("searchResults");
+  const q = query.trim().toLowerCase();
+
+  if (!q) {
+    resultsEl.classList.remove("active");
+    resultsEl.innerHTML = "";
+    return;
+  }
+
+  const results = [];
+  for (const [pageId, html] of Object.entries(PAGES)) {
+    // Strip HTML tags for text search
+    const text = html.replace(/<[^>]+>/g, " ");
+    const lower = text.toLowerCase();
+    const idx = lower.indexOf(q);
+    if (idx >= 0) {
+      // Get page title from first h1
+      const titleMatch = html.match(/<h1[^>]*>(.*?)<\/h1>/);
+      const title = titleMatch ? titleMatch[1].replace(/<[^>]+>/g, "") : pageId;
+
+      // Get context around match
+      let start = Math.max(0, idx - 30);
+      let end = Math.min(text.length, idx + q.length + 80);
+      let context = text.substring(start, end).trim();
+      if (start > 0) context = "…" + context;
+      if (end < text.length) context = context + "…";
+
+      // Highlight match in context
+      const ctxLower = context.toLowerCase();
+      const matchIdx = ctxLower.indexOf(q);
+      if (matchIdx >= 0) {
+        context = context.substring(0, matchIdx)
+          + "<mark>" + context.substring(matchIdx, matchIdx + q.length) + "</mark>"
+          + context.substring(matchIdx + q.length);
+      }
+
+      results.push({ pageId, title, context, idx });
+    }
+  }
+
+  // Sort by match position (earlier = more relevant)
+  results.sort((a, b) => a.idx - b.idx);
+
+  if (results.length > 0) {
+    resultsEl.innerHTML = results.slice(0, 20).map(r =>
+      `<div class="search-result-item" onclick="navigateTo('${r.pageId}');document.getElementById('searchResults').classList.remove('active');document.getElementById('searchInput').value='';">
+        <div class="match-title">${r.title}</div>
+        <div class="match-context">${r.context}</div>
+      </div>`
+    ).join("");
+    resultsEl.classList.add("active");
+  } else {
+    resultsEl.innerHTML = '<div class="search-no-results">未找到匹配结果</div>';
+    resultsEl.classList.add("active");
+  }
+}
+
+// Close search results on click outside
+document.addEventListener("click", function(e) {
+  const searchResults = document.getElementById("searchResults");
+  const searchInput = document.getElementById("searchInput");
+  if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+    searchResults.classList.remove("active");
+  }
+});
+
+// ===== Theme Toggle =====
+function toggleTheme() {
+  isDark = !isDark;
+  const btn = document.querySelector(".theme-toggle");
+  if (isDark) {
+    document.documentElement.style.setProperty("--bg", "#0f1117");
+    document.documentElement.style.setProperty("--bg-sidebar", "#161822");
+    document.documentElement.style.setProperty("--bg-content", "#1a1d28");
+    document.documentElement.style.setProperty("--bg-card", "#212433");
+    document.documentElement.style.setProperty("--border", "#2a2d3a");
+    document.documentElement.style.setProperty("--text", "#c9d1d9");
+    document.documentElement.style.setProperty("--text-muted", "#8b949e");
+    document.documentElement.style.setProperty("--text-bright", "#e6edf3");
+    document.documentElement.style.setProperty("--heading", "#f0883e");
+    document.documentElement.style.setProperty("--table-stripe", "#1c1f2b");
+    document.documentElement.style.setProperty("--table-header", "#212433");
+    document.documentElement.style.setProperty("--code-bg", "#161822");
+    document.documentElement.style.setProperty("--code-text", "#c9d1d9");
+    document.documentElement.style.setProperty("--scrollbar-track", "#161822");
+    document.documentElement.style.setProperty("--scrollbar-thumb", "#2a2d3a");
+    document.documentElement.style.setProperty("--shadow", "0 2px 8px rgba(0,0,0,0.3)");
+    btn.innerHTML = "☀️ 亮色";
+  } else {
+    document.documentElement.style.setProperty("--bg", "#f6f8fa");
+    document.documentElement.style.setProperty("--bg-sidebar", "#ffffff");
+    document.documentElement.style.setProperty("--bg-content", "#ffffff");
+    document.documentElement.style.setProperty("--bg-card", "#ffffff");
+    document.documentElement.style.setProperty("--border", "#d0d7de");
+    document.documentElement.style.setProperty("--text", "#24292f");
+    document.documentElement.style.setProperty("--text-muted", "#656d76");
+    document.documentElement.style.setProperty("--text-bright", "#1f2328");
+    document.documentElement.style.setProperty("--heading", "#d46407");
+    document.documentElement.style.setProperty("--table-stripe", "#f6f8fa");
+    document.documentElement.style.setProperty("--table-header", "#f6f8fa");
+    document.documentElement.style.setProperty("--code-bg", "#f6f8fa");
+    document.documentElement.style.setProperty("--code-text", "#24292f");
+    document.documentElement.style.setProperty("--accent-dim", "#ddf4ff");
+    document.documentElement.style.setProperty("--link", "#0969da");
+    document.documentElement.style.setProperty("--scrollbar-track", "#f6f8fa");
+    document.documentElement.style.setProperty("--scrollbar-thumb", "#d0d7de");
+    document.documentElement.style.setProperty("--shadow", "0 1px 3px rgba(0,0,0,0.1)");
+    btn.innerHTML = "🌙 暗色";
+  }
+}
+
+// ===== Keyboard Shortcuts =====
+document.addEventListener("keydown", function(e) {
+  // Ctrl+K or / to focus search
+  if ((e.ctrlKey && e.key === "k") || (e.key === "/" && document.activeElement === document.body)) {
+    e.preventDefault();
+    document.getElementById("searchInput").focus();
+  }
+  // Escape to close search
+  if (e.key === "Escape") {
+    document.getElementById("searchResults").classList.remove("active");
+    document.getElementById("searchInput").blur();
+  }
+});
+
+// ===== Initialize =====
+function init() {
+  // Check hash
+  const hash = window.location.hash.slice(1);
+  const pageFromHash = hash ? decodeURIComponent(hash) : null;
+
+  // Navigate to hash or home
+  if (pageFromHash && PAGES[pageFromHash]) {
+    navigateTo(pageFromHash);
+  } else {
+    navigateTo("首页");
+  }
+
+  // Open search with Ctrl+K hint in placeholder
+  document.getElementById("searchInput").placeholder = "搜索... (Ctrl+K)";
+}
+
+// Start
+init();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,25 @@
+; project.godot
+; Godot 4.x 项目配置文件
+
+config_version=5
+
+[application]
+config/name="轮盘世界"
+config/description="卡牌构筑 Roguelike - 战斗框架"
+config/version="0.1.0"
+run/main_scene="res://scenes/battle/battle_scene.tscn"
+
+[gdscript]
+; 类型安全警告全部启用
+warning/unsafe_property_access=1
+warning/unsafe_method_access=1
+warning/unsafe_cast=1
+warning/unsafe_call_argument=1
+warning/return_value_discarded=1
+warning/untyped_declaration=1
+
+[autoload]
+EventBus="*res://scripts/autoload/event_bus.gd"
+
+[editor_plugins]
+enabled=PackedStringArray()

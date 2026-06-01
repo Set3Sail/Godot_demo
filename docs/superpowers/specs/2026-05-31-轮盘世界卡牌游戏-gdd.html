@@ -1,0 +1,3851 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>轮盘世界 · 卡牌Roguelike 游戏设计文档 (GDD)</title>
+<style>
+/* ===== Variables (Dark Theme) ===== */
+:root {
+  --bg: #0f1117;
+  --bg-sidebar: #161822;
+  --bg-content: #1a1d28;
+  --bg-card: #212433;
+  --border: #2a2d3a;
+  --text: #c9d1d9;
+  --text-muted: #8b949e;
+  --text-bright: #e6edf3;
+  --accent: #58a6ff;
+  --accent-dim: #1f6feb44;
+  --heading: #f0883e;
+  --h2-color: #f0883e;
+  --h3-color: #e6edf3;
+  --table-stripe: #1c1f2b;
+  --table-header: #212433;
+  --code-bg: #161822;
+  --code-text: #c9d1d9;
+  --link: #58a6ff;
+  --scrollbar-track: #161822;
+  --scrollbar-thumb: #2a2d3a;
+  --shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+/* ===== Reset ===== */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  line-height: 1.7;
+}
+
+/* ===== Sidebar TOC ===== */
+.sidebar {
+  width: 280px;
+  min-width: 280px;
+  background: var(--bg-sidebar);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 10;
+}
+
+.sidebar-header {
+  padding: 20px 16px 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sidebar-header h2 {
+  font-size: 16px;
+  color: var(--text-bright);
+  margin-bottom: 4px;
+}
+
+.sidebar-header .subtitle {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.toc-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 0;
+}
+
+.toc-scroll::-webkit-scrollbar { width: 4px; }
+.toc-scroll::-webkit-scrollbar-track { background: var(--scrollbar-track); }
+.toc-scroll::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 2px; }
+
+.toc-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.toc-list ul {
+  list-style: none;
+  padding-left: 16px;
+}
+
+.toc-list li {
+  margin: 0;
+}
+
+.toc-link {
+  display: block;
+  padding: 5px 16px;
+  font-size: 13px;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: all 0.15s;
+  border-left: 2px solid transparent;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.toc-link:hover {
+  color: var(--text-bright);
+  background: var(--accent-dim);
+  border-left-color: var(--accent);
+}
+
+.toc-link.active {
+  color: var(--accent);
+  background: var(--accent-dim);
+  border-left-color: var(--accent);
+}
+
+/* Top-level TOC items */
+.toc-list > li > .toc-link {
+  font-weight: 600;
+  color: var(--text);
+  font-size: 14px;
+  padding: 7px 16px;
+}
+
+/* ===== Main Content ===== */
+.main {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: var(--bg-content);
+  scroll-behavior: smooth;
+}
+
+.main::-webkit-scrollbar { width: 6px; }
+.main::-webkit-scrollbar-track { background: transparent; }
+.main::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 3px; }
+
+/* ===== Top Bar ===== */
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 20px;
+  background: var(--bg-sidebar);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.top-bar-title {
+  font-size: 14px;
+  color: var(--text-bright);
+  font-weight: 600;
+}
+
+.top-bar-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.15s;
+}
+
+.btn:hover { background: var(--accent-dim); border-color: var(--accent); }
+
+/* ===== Content Container ===== */
+.content-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 32px 40px 80px;
+}
+
+/* ===== Typography ===== */
+.content-container h1 {
+  font-size: 28px;
+  color: var(--heading);
+  margin-bottom: 8px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.content-container h2 {
+  font-size: 22px;
+  color: var(--heading);
+  margin: 36px 0 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.content-container h3 {
+  font-size: 18px;
+  color: var(--h3-color);
+  margin: 28px 0 12px;
+}
+
+.content-container h4 {
+  font-size: 15px;
+  color: var(--text-bright);
+  margin: 20px 0 8px;
+}
+
+.content-container h5 {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin: 16px 0 8px;
+}
+
+.content-container p {
+  margin: 10px 0;
+  color: var(--text);
+}
+
+.content-container ul, .content-container ol {
+  margin: 8px 0 8px 24px;
+  color: var(--text);
+}
+
+.content-container li { margin: 3px 0; }
+
+.content-container strong { color: var(--text-bright); font-weight: 600; }
+
+.content-container blockquote {
+  border-left: 3px solid var(--accent);
+  padding: 10px 16px;
+  margin: 16px 0;
+  background: var(--accent-dim);
+  border-radius: 0 6px 6px 0;
+  color: var(--text-muted);
+}
+
+.content-container blockquote p { margin: 4px 0; color: inherit; }
+
+.content-container a { color: var(--link); text-decoration: underline; text-underline-offset: 3px; }
+
+/* ===== Tables ===== */
+.content-container table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 14px 0;
+  font-size: 13px;
+}
+
+.content-container thead { background: var(--table-header); }
+
+.content-container th {
+  padding: 9px 12px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--text-bright);
+  border: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.content-container td {
+  padding: 7px 10px;
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+.content-container tbody tr:nth-child(even) { background: var(--table-stripe); }
+.content-container tbody tr:hover { background: var(--accent-dim); }
+
+/* ===== Code ===== */
+.content-container code {
+  background: var(--code-bg);
+  color: var(--code-text);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 13px;
+  font-family: "SF Mono", "Fira Code", "Cascadia Code", monospace;
+}
+
+.content-container pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 14px;
+  margin: 14px 0;
+  overflow-x: auto;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.content-container pre code {
+  background: none;
+  padding: 0;
+  border-radius: 0;
+  font-size: 12px;
+}
+
+.content-container hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 24px 0;
+}
+
+/* ===== Back to Top ===== */
+.back-to-top {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 40px;
+  height: 40px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  color: var(--text-muted);
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  z-index: 50;
+  opacity: 0.7;
+}
+
+.back-to-top:hover {
+  opacity: 1;
+  border-color: var(--accent);
+  color: var(--text-bright);
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+  .content-container { padding: 16px 16px 60px; }
+  .content-container h1 { font-size: 22px; }
+  .content-container h2 { font-size: 18px; }
+  .content-container table { font-size: 11px; }
+  .content-container th, .content-container td { padding: 5px 6px; }
+}
+
+/* ===== Print ===== */
+@media print {
+  .sidebar, .top-bar, .back-to-top { display: none; }
+  .main { overflow: visible; }
+  .content-container { max-width: none; padding: 0; }
+}
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <h2>📋 GDD 目录</h2>
+    <p class="subtitle">轮盘世界 · 卡牌Roguelike</p>
+  </div>
+  <nav class="toc-scroll">
+    <ul class="toc-list">
+<li><a href="#_1" class="toc-link">目录</a>
+<li><a href="#1" class="toc-link">1. 文档概述</a>
+<ul>
+<li><a href="#11" class="toc-link">1.1 游戏定位</a>
+<li><a href="#12" class="toc-link">1.2 核心差异化</a>
+<li><a href="#13" class="toc-link">1.3 术语定义</a>
+</ul></li>
+<li><a href="#2" class="toc-link">2. 核心系统</a>
+<ul>
+<li><a href="#21" class="toc-link">2.1 游戏核心循环</a>
+<li><a href="#22" class="toc-link">2.2 战斗系统</a>
+<ul>
+<li><a href="#_2" class="toc-link">回合流程</a>
+<li><a href="#_3" class="toc-link">意图系统</a>
+</ul></li>
+<li><a href="#23" class="toc-link">2.3 卡牌类型</a>
+<li><a href="#24" class="toc-link">2.4 轮盘系统</a>
+<ul>
+<li><a href="#_4" class="toc-link">魔晶获取</a>
+<li><a href="#_5" class="toc-link">轮盘等级</a>
+<li><a href="#_6" class="toc-link">轮盘转盘表现</a>
+</ul></li>
+<li><a href="#25" class="toc-link">2.5 地图节点类型</a>
+<li><a href="#26" class="toc-link">2.6 章节框架</a>
+</ul></li>
+<li><a href="#3" class="toc-link">3. 可选角色</a>
+<ul>
+<li><a href="#31" class="toc-link">3.1 角色总览</a>
+<li><a href="#32" class="toc-link">3.2 初始牌组模板</a>
+<li><a href="#33" class="toc-link">3.3 叶默 · 详细设定</a>
+<li><a href="#34" class="toc-link">3.4 墨夜 · 详细设定</a>
+<li><a href="#35" class="toc-link">3.5 温静 · 详细设定</a>
+<li><a href="#36" class="toc-link">3.6 盛元 · 详细设定</a>
+<li><a href="#37" class="toc-link">3.7 金英 · 详细设定</a>
+<li><a href="#38" class="toc-link">3.8 红发 · 详细设定</a>
+<li><a href="#39" class="toc-link">3.9 莉莲 · 详细设定（隐藏角色）</a>
+</ul></li>
+<li><a href="#4" class="toc-link">4. 卡牌图鉴</a>
+<ul>
+<li><a href="#41" class="toc-link">4.1 卡牌设计规范</a>
+<ul>
+<li><a href="#75-80" class="toc-link">稀有度分布（每角色 ~75-80 张）</a>
+<li><a href="#_7" class="toc-link">卡牌升级规则</a>
+<li><a href="#_8" class="toc-link">卡牌费用范围</a>
+</ul></li>
+<li><a href="#42-80" class="toc-link">4.2 叶默完整卡表（80张·范例）</a>
+<ul>
+<li><a href="#25_1" class="toc-link">普通卡（25张）</a>
+<li><a href="#25_2" class="toc-link">优秀卡（25张·代表）</a>
+<li><a href="#15" class="toc-link">稀有卡（15张·代表）</a>
+<li><a href="#7" class="toc-link">史诗卡（7张）</a>
+<li><a href="#3_1" class="toc-link">传说卡（3张）</a>
+</ul></li>
+<li><a href="#43" class="toc-link">4.3 全角色卡池摘要</a>
+<li><a href="#44" class="toc-link">4.4 卡牌获取途径</a>
+</ul></li>
+<li><a href="#5" class="toc-link">5. 敌人图鉴</a>
+<ul>
+<li><a href="#51" class="toc-link">5.1 敌人设计规范</a>
+<li><a href="#52-1" class="toc-link">5.2 第1章 · 末日降临</a>
+<ul>
+<li><a href="#4_1" class="toc-link">普通敌人（4种）</a>
+<li><a href="#2_1" class="toc-link">精英敌人（2种）</a>
+<li><a href="#boss" class="toc-link">Boss：变异蚁后</a>
+</ul></li>
+<li><a href="#53-2" class="toc-link">5.3 第2章 · 绿洲崛起</a>
+<ul>
+<li><a href="#5_1" class="toc-link">普通敌人（5种）</a>
+<li><a href="#3_2" class="toc-link">精英敌人（3种）</a>
+<li><a href="#boss_1" class="toc-link">Boss：尸猿王</a>
+</ul></li>
+<li><a href="#54-3" class="toc-link">5.4 第3章 · 秘境深处</a>
+<ul>
+<li><a href="#6" class="toc-link">普通敌人（6种）</a>
+<li><a href="#3_3" class="toc-link">精英敌人（3种）</a>
+<li><a href="#boss_2" class="toc-link">Boss：四尾魔蜥（不鲁得守护兽）</a>
+</ul></li>
+<li><a href="#55-4" class="toc-link">5.5 第4章 · 圣城陨落</a>
+<ul>
+<li><a href="#5_2" class="toc-link">普通敌人（5种）</a>
+<li><a href="#3_4" class="toc-link">精英敌人（3种）</a>
+<li><a href="#boss-boss" class="toc-link">Boss：安禄德圣子 + 宫殿巨人（双Boss战）</a>
+</ul></li>
+<li><a href="#56-5" class="toc-link">5.6 第5章 · 天界之路</a>
+<ul>
+<li><a href="#5_3" class="toc-link">普通敌人（5种）</a>
+<li><a href="#3_5" class="toc-link">精英敌人（3种）</a>
+<li><a href="#boss3" class="toc-link">最终Boss：翼人管理者（3阶段）</a>
+</ul></li>
+<li><a href="#57" class="toc-link">5.7 敌人阵容统计</a>
+</ul></li>
+<li><a href="#6_1" class="toc-link">6. 遗物图鉴</a>
+<ul>
+<li><a href="#61" class="toc-link">6.1 遗物设计规范</a>
+<li><a href="#62-7" class="toc-link">6.2 初始遗物（7个）</a>
+<li><a href="#63-15" class="toc-link">6.3 普通遗物（15个·白色品质）</a>
+<li><a href="#64-15" class="toc-link">6.4 优秀遗物（15个·绿色品质）</a>
+<li><a href="#65-10" class="toc-link">6.5 稀有遗物（10个·蓝色品质）</a>
+<li><a href="#66-boss6" class="toc-link">6.6 Boss遗物（6个·章节通关奖励）</a>
+<li><a href="#67-321" class="toc-link">6.7 角色专属遗物（每角色3个·共21个）</a>
+<ul>
+<li><a href="#_9" class="toc-link">叶默</a>
+<li><a href="#_10" class="toc-link">墨夜</a>
+<li><a href="#_11" class="toc-link">温静</a>
+<li><a href="#_12" class="toc-link">盛元</a>
+<li><a href="#_13" class="toc-link">金英</a>
+<li><a href="#_14" class="toc-link">红发</a>
+<li><a href="#_15" class="toc-link">莉莲</a>
+</ul></li>
+<li><a href="#68-5" class="toc-link">6.8 事件专属遗物（5个·命运事件获取）</a>
+</ul></li>
+<li><a href="#7_1" class="toc-link">7. 关卡设计</a>
+<ul>
+<li><a href="#71" class="toc-link">7.1 地图结构规范</a>
+<li><a href="#72" class="toc-link">7.2 节点分布公式</a>
+<li><a href="#73" class="toc-link">7.3 各章地图概要</a>
+<li><a href="#74" class="toc-link">7.4 特殊地图机制</a>
+<li><a href="#75" class="toc-link">7.5 章节间过渡</a>
+</ul></li>
+<li><a href="#8" class="toc-link">8. 命运事件</a>
+<ul>
+<li><a href="#81" class="toc-link">8.1 事件设计规范</a>
+<li><a href="#82" class="toc-link">8.2 事件分类</a>
+<li><a href="#83-17" class="toc-link">8.3 第1章事件（7个）</a>
+<li><a href="#84-27" class="toc-link">8.4 第2章事件（7个·代表）</a>
+<li><a href="#85-3-5" class="toc-link">8.5 第3-5章事件摘要</a>
+<li><a href="#86" class="toc-link">8.6 特殊条件触发事件</a>
+</ul></li>
+<li><a href="#9" class="toc-link">9. 局外系统</a>
+<ul>
+<li><a href="#91" class="toc-link">9.1 进化者等阶（角色等级）</a>
+<li><a href="#92-ascension" class="toc-link">9.2 挑战难度（Ascension）</a>
+<li><a href="#93" class="toc-link">9.3 存档与死亡机制</a>
+<ul>
+<li><a href="#_16" class="toc-link">存档规则</a>
+<li><a href="#_17" class="toc-link">死亡处理</a>
+</ul></li>
+<li><a href="#94" class="toc-link">9.4 主菜单结构</a>
+<li><a href="#95" class="toc-link">9.5 成就系统（代表）</a>
+<li><a href="#96" class="toc-link">9.6 游戏设置</a>
+</ul></li>
+<li><a href="#10" class="toc-link">10. 附录：总规模统计</a>
+<ul>
+<li><a href="#101" class="toc-link">10.1 内容规模总览</a>
+<li><a href="#102" class="toc-link">10.2 卡牌类型分布（全角色合计）</a>
+<li><a href="#103-1" class="toc-link">10.3 战斗数值参考（基础值·第1章）</a>
+<li><a href="#104" class="toc-link">10.4 设计参考来源</a>
+</ul></li>
+</li></ul>
+  </nav>
+</aside>
+
+<!-- Main Content -->
+<div class="main" id="mainContent">
+  <div class="top-bar">
+    <span class="top-bar-title">🎰 轮盘世界 · 游戏设计文档 (GDD) v1.0</span>
+    <div class="top-bar-actions">
+      <button class="btn" onclick="scrollToTop()" title="回到顶部">⬆ 顶部</button>
+    </div>
+  </div>
+  <div class="content-container">
+    <h1 id="roguelike-gdd">轮盘世界 · 卡牌 Roguelike 游戏设计文档 (GDD)</h1>
+<blockquote>
+<p><strong>基于原著小说《轮盘世界》世界观 | 类《杀戮尖塔》卡牌构筑 Roguelike</strong></p>
+<p>版本: v1.0 | 日期: 2026-05-31 | 状态: 策划阶段</p>
+</blockquote>
+<hr />
+<h2 id="_1">目录</h2>
+<ol>
+<li><a href="#1-文档概述">文档概述</a></li>
+<li><a href="#2-核心系统">核心系统</a></li>
+<li><a href="#3-可选角色">可选角色</a></li>
+<li><a href="#4-卡牌图鉴">卡牌图鉴</a></li>
+<li><a href="#5-敌人图鉴">敌人图鉴</a></li>
+<li><a href="#6-遗物图鉴">遗物图鉴</a></li>
+<li><a href="#7-关卡设计">关卡设计</a></li>
+<li><a href="#8-命运事件">命运事件</a></li>
+<li><a href="#9-局外系统">局外系统</a></li>
+<li><a href="#10-附录总规模统计">附录：总规模统计</a></li>
+</ol>
+<hr />
+<h2 id="1">1. 文档概述</h2>
+<h3 id="11">1.1 游戏定位</h3>
+<ul>
+<li><strong>类型</strong>: 卡牌构筑 Roguelike（Deckbuilding Roguelike）</li>
+<li><strong>参考</strong>: 《杀戮尖塔》(Slay the Spire) 核心玩法框架</li>
+<li><strong>主题</strong>: 基于《轮盘世界》原著世界观，剧情驱动</li>
+<li><strong>平台</strong>: PC（后续可扩展移动端）</li>
+<li><strong>目标</strong>: 单人剧情战役 + Ascension 挑战模式</li>
+</ul>
+<h3 id="12">1.2 核心差异化</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>杀戮尖塔</th>
+<th>轮盘世界</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>剧情</td>
+<td>无主线</td>
+<td><strong>5章剧情驱动</strong></td>
+</tr>
+<tr>
+<td>角色</td>
+<td>4人独立爬塔</td>
+<td><strong>7人（初始3+解锁3+隐藏1）</strong></td>
+</tr>
+<tr>
+<td>商店</td>
+<td>金币消费</td>
+<td><strong>轮盘节点：消耗魔晶，随机奖励</strong></td>
+</tr>
+<tr>
+<td>资源</td>
+<td>仅金币</td>
+<td><strong>魔晶（战斗获取，用于轮盘）</strong></td>
+</tr>
+<tr>
+<td>装备</td>
+<td>仅遗物</td>
+<td><strong>遗物 + 装备卡（新增卡牌类型）</strong></td>
+</tr>
+<tr>
+<td>进度</td>
+<td>通关即结束</td>
+<td><strong>章节存档 + 死亡可重试当前章</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="13">1.3 术语定义</h3>
+<table>
+<thead>
+<tr>
+<th>术语</th>
+<th>定义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>精神力</td>
+<td>卡牌费用资源，每回合回复 3 点</td>
+</tr>
+<tr>
+<td>魔晶</td>
+<td>击杀敌人获得的战斗临时货币，用于轮盘节点</td>
+</tr>
+<tr>
+<td>轮盘</td>
+<td>地图节点类型，消耗魔晶随机获取奖励</td>
+</tr>
+<tr>
+<td>锻造</td>
+<td>叶默专属机制，战斗中临时升级卡牌</td>
+</tr>
+<tr>
+<td>冰霜</td>
+<td>墨夜专属机制，叠层减伤并触发冻结</td>
+</tr>
+<tr>
+<td>标记</td>
+<td>温静专属机制，标记敌人增加伤害</td>
+</tr>
+<tr>
+<td>复仇</td>
+<td>盛元专属机制，损血增伤</td>
+</tr>
+<tr>
+<td>神罚</td>
+<td>金英专属机制，治疗转化为神圣伤害</td>
+</tr>
+<tr>
+<td>召唤</td>
+<td>红发专属机制，召唤丧尸随从</td>
+</tr>
+<tr>
+<td>战甲</td>
+<td>莉莲专属机制，攻击/防御双模式切换</td>
+</tr>
+<tr>
+<td>进化者等阶</td>
+<td>角色局外等级（1-10星）</td>
+</tr>
+<tr>
+<td>Ascension</td>
+<td>通关后解锁的挑战难度（1-20级）</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="2">2. 核心系统</h2>
+<h3 id="21">2.1 游戏核心循环</h3>
+<div class="codehilite"><pre><span></span><code>局外元进度（进化等阶/收集/成就）
+    ↓ 选择角色 + 章节，开始一局
+┌──────────────────────────────────┐
+│  章节地图探索                     │
+│  ┌──────┐  ┌──────┐  ┌──────┐   │
+│  │ 战斗  │→│ 轮盘  │→│ 事件  │   │
+│  │打怪攒│  │花魔晶│  │ 抉择  │   │
+│  │ 魔晶  │  │ 抽奖  │  │ 风险  │   │
+│  └──────┘  └──────┘  └──────┘   │
+│  ┌──────┐  ┌──────┐             │
+│  │ 营地  │→│ Boss │→ 通关存档   │
+│  │休息/ │  │ 关底  │             │
+│  │ 升级  │  └──────┘             │
+│  └──────┘                       │
+└──────────────────────────────────┘
+    ↓
+下一章 / 结局
+</code></pre></div>
+
+<h3 id="22">2.2 战斗系统</h3>
+<h4 id="_2">回合流程</h4>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>内容</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>回合开始</td>
+<td>抽满 5 张手牌 · 回复 3 点精神力</td>
+<td>遗物/能力可修改</td>
+</tr>
+<tr>
+<td>出牌阶段</td>
+<td>打出手牌消耗精神力</td>
+<td>卡牌费用 0-3（少数4）</td>
+</tr>
+<tr>
+<td>击杀奖励</td>
+<td>击杀敌人获得魔晶</td>
+<td>用于后续轮盘节点</td>
+</tr>
+<tr>
+<td>回合结束</td>
+<td>弃手牌 · 移除格挡 · 减益计时-1</td>
+<td>—</td>
+</tr>
+<tr>
+<td>敌人回合</td>
+<td>执行意图（攻击/防御/强化/特殊）</td>
+<td>意图在上回合已明示</td>
+</tr>
+</tbody>
+</table>
+<h4 id="_3">意图系统</h4>
+<p>所有敌人下回合意图<strong>完全明示</strong>（图标+数值）。精英/Boss 部分技能显示范围值。</p>
+<table>
+<thead>
+<tr>
+<th>意图类型</th>
+<th>图标</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>攻击</td>
+<td>⚔️</td>
+<td>显示伤害数值</td>
+</tr>
+<tr>
+<td>防御</td>
+<td>🛡️</td>
+<td>获得格挡</td>
+</tr>
+<tr>
+<td>强化</td>
+<td>⭐</td>
+<td>力量/敏捷/回复</td>
+</tr>
+<tr>
+<td>特殊</td>
+<td>💀</td>
+<td>施加负面状态/召唤/变身</td>
+</tr>
+</tbody>
+</table>
+<h3 id="23">2.3 卡牌类型</h3>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>标识</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>⚔️ 攻击卡</td>
+<td>红色</td>
+<td>造成伤害</td>
+</tr>
+<tr>
+<td>🛡️ 技能卡</td>
+<td>蓝色</td>
+<td>格挡、抽牌、增益、减益</td>
+</tr>
+<tr>
+<td>⭐ 能力卡</td>
+<td>金色</td>
+<td>永久效果（打出后整场生效），消耗型</td>
+</tr>
+<tr>
+<td>🗡️ 装备卡</td>
+<td>绿色</td>
+<td><strong>新增类型</strong>。打出后装备到武器/防具槽，持续生效至被替换。消耗型</td>
+</tr>
+</tbody>
+</table>
+<h3 id="24">2.4 轮盘系统</h3>
+<p>轮盘是地图上的特殊节点（类似商店），消耗战斗中获得的魔晶随机获取奖励。</p>
+<h4 id="_4">魔晶获取</h4>
+<table>
+<thead>
+<tr>
+<th>敌人类型</th>
+<th>魔晶掉落</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>普通敌人</td>
+<td>1-3 枚（按章节递增）</td>
+</tr>
+<tr>
+<td>精英敌人</td>
+<td>5-8 枚</td>
+</tr>
+<tr>
+<td>Boss</td>
+<td>10-15 枚</td>
+</tr>
+</tbody>
+</table>
+<p>魔晶在每章结束时<strong>清零</strong>，不可带入下一章。</p>
+<h4 id="_5">轮盘等级</h4>
+<table>
+<thead>
+<tr>
+<th>等级</th>
+<th>消耗</th>
+<th>奖励池</th>
+<th>出现章节</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>一道轮盘</td>
+<td>5 魔晶</td>
+<td>普通卡牌、初级药剂</td>
+<td>第 1-2 章</td>
+</tr>
+<tr>
+<td>二道轮盘</td>
+<td>10 魔晶</td>
+<td>稀有卡牌、中级药剂、普通遗物</td>
+<td>第 2-3 章</td>
+</tr>
+<tr>
+<td>三道轮盘</td>
+<td>20 魔晶</td>
+<td>稀有+卡牌、高级药剂、稀有遗物</td>
+<td>第 3-4 章</td>
+</tr>
+<tr>
+<td>七彩轮盘</td>
+<td>35 魔晶</td>
+<td>传说卡牌、顶级药剂、传说遗物、移除卡</td>
+<td>第 4-5 章</td>
+</tr>
+</tbody>
+</table>
+<p><strong>七彩轮盘风险</strong>: 约 15% 概率转出"轮空"——魔晶不退还。</p>
+<h4 id="_6">轮盘转盘表现</h4>
+<p>玩家点击"转动"按钮后：
+1. 指针在奖励图标间快速旋转（2-3秒动画）
+2. 指针逐步减速，最终停在某个奖励图标上
+3. 奖励以特效动画出现
+4. 七彩轮盘的黑色区域（轮空）通常占 1-2 格</p>
+<h3 id="25">2.5 地图节点类型</h3>
+<table>
+<thead>
+<tr>
+<th>节点</th>
+<th>图标</th>
+<th>功能</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>普通战斗</td>
+<td>👾</td>
+<td>击杀敌人获魔晶 + 选卡奖励（3选1，可跳过）</td>
+</tr>
+<tr>
+<td>精英战</td>
+<td>💀</td>
+<td>更难敌人 + 遗物 + 更多魔晶 + 卡牌（优秀保底）</td>
+</tr>
+<tr>
+<td>轮盘</td>
+<td>🎰</td>
+<td>消耗魔晶转动轮盘，随机奖励</td>
+</tr>
+<tr>
+<td>营地</td>
+<td>🏕️</td>
+<td>回复 30% HP 或 升级一张卡牌</td>
+</tr>
+<tr>
+<td>命运事件</td>
+<td>❓</td>
+<td>随机剧情事件，多重选择 + 风险/回报</td>
+</tr>
+<tr>
+<td>Boss</td>
+<td>👹</td>
+<td>章节关底，通关存档 + 解锁新内容</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Boss 前必有 1 个营地</strong>。</p>
+<h3 id="26">2.6 章节框架</h3>
+<table>
+<thead>
+<tr>
+<th>章</th>
+<th>名称</th>
+<th>节点数</th>
+<th>Boss</th>
+<th>解锁角色</th>
+<th>解锁遗物</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>末日降临</td>
+<td>15</td>
+<td>变异蚁后</td>
+<td>盛元</td>
+<td>15</td>
+</tr>
+<tr>
+<td>2</td>
+<td>绿洲崛起</td>
+<td>18</td>
+<td>尸猿王</td>
+<td>金英</td>
+<td>20</td>
+</tr>
+<tr>
+<td>3</td>
+<td>秘境深处</td>
+<td>20</td>
+<td>不鲁得守护兽（四尾魔蜥）</td>
+<td>红发</td>
+<td>20</td>
+</tr>
+<tr>
+<td>4</td>
+<td>圣城陨落</td>
+<td>20</td>
+<td>安禄德圣子 + 宫殿巨人（双Boss）</td>
+<td>—</td>
+<td>20</td>
+</tr>
+<tr>
+<td>5</td>
+<td>天界之路</td>
+<td>22</td>
+<td>翼人管理者（3阶段）</td>
+<td>莉莲（隐藏）</td>
+<td>25</td>
+</tr>
+</tbody>
+</table>
+<p>每章通关约 <strong>45-60 分钟</strong>，全程约 <strong>4-5 小时</strong>。</p>
+<hr />
+<h2 id="3">3. 可选角色</h2>
+<h3 id="31">3.1 角色总览</h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>角色</th>
+<th>HP</th>
+<th>职业</th>
+<th>核心机制</th>
+<th>关键词</th>
+<th>难度</th>
+<th>获得方式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>叶默</td>
+<td>75</td>
+<td>荣耀工匠+绿园使</td>
+<td>锻造升级+荆棘植物</td>
+<td>锻造·荆棘</td>
+<td>★★☆</td>
+<td>初始</td>
+</tr>
+<tr>
+<td>2</td>
+<td>墨夜</td>
+<td>68</td>
+<td>冰系法师</td>
+<td>冰霜叠控+范围法术</td>
+<td>冰霜·天怒</td>
+<td>★★★</td>
+<td>初始</td>
+</tr>
+<tr>
+<td>3</td>
+<td>温静</td>
+<td>70</td>
+<td>战士（杀戮玫瑰）</td>
+<td>标记连击+暴击输出</td>
+<td>标记·连击</td>
+<td>★★☆</td>
+<td>初始</td>
+</tr>
+<tr>
+<td>4</td>
+<td>盛元</td>
+<td>80</td>
+<td>狂战士（复仇者）</td>
+<td>低血复仇+血祭自伤</td>
+<td>复仇·血祭</td>
+<td>★★★★</td>
+<td>第1章通关</td>
+</tr>
+<tr>
+<td>5</td>
+<td>金英</td>
+<td>65</td>
+<td>神罚使者</td>
+<td>治疗蓄能→神圣伤害</td>
+<td>神罚·亲和</td>
+<td>★★★</td>
+<td>第2章通关</td>
+</tr>
+<tr>
+<td>6</td>
+<td>红发</td>
+<td>60</td>
+<td>丧尸操控者</td>
+<td>丧尸召唤+牺牲爆发</td>
+<td>召唤·牺牲</td>
+<td>★★★★</td>
+<td>第3章通关</td>
+</tr>
+<tr>
+<td>7</td>
+<td>莉莲</td>
+<td>72</td>
+<td>圣教骑士</td>
+<td>战甲攻/防双模式切换</td>
+<td>战甲·过热</td>
+<td>★★★★★</td>
+<td>通关5章+特殊条件</td>
+</tr>
+</tbody>
+</table>
+<h3 id="32">3.2 初始牌组模板</h3>
+<p>所有角色开局自带 12 张基础牌：</p>
+<table>
+<thead>
+<tr>
+<th>卡名</th>
+<th>费用</th>
+<th>类型</th>
+<th>效果</th>
+<th>数量</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>斩击</td>
+<td>1</td>
+<td>攻击</td>
+<td>造成 6 点伤害</td>
+<td>5</td>
+</tr>
+<tr>
+<td>防御</td>
+<td>1</td>
+<td>技能</td>
+<td>获得 5 点格挡</td>
+<td>5</td>
+</tr>
+<tr>
+<td>角色专属牌 A</td>
+<td>1-2</td>
+<td>各异</td>
+<td>体现角色特色</td>
+<td>1</td>
+</tr>
+<tr>
+<td>角色专属牌 B</td>
+<td>1-2</td>
+<td>各异</td>
+<td>体现角色特色</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<h3 id="33">3.3 叶默 · 详细设定</h3>
+<p><strong>初始遗物：自然之杖</strong></p>
+<blockquote>
+<p>每场战斗开始：随机获得 1 张「生长」（0费技能：获得3格挡，将1张手牌升级至本场战斗结束）</p>
+</blockquote>
+<p><strong>独特关键词：</strong></p>
+<p><strong>🔨 锻造</strong>
+- 战斗中临时升级卡牌。锻造后的卡牌本场战斗效果提升（伤害/格挡 +30%~50%）
+- 每张卡最多锻造 1 次（可通过特定卡牌增加锻造次数）
+- 锻造效果在卡牌回到牌堆后<strong>保留</strong>
+- 营地升级为<strong>永久</strong>，锻造为<strong>临时</strong>（本场有效），两者可叠加</p>
+<p><strong>🌿 荆棘</strong>
+- 回合结束时对所有敌人造成 N 点伤害
+- 叶默的植物系卡牌可生成荆棘层数
+- 荆棘层数无上限</p>
+<p><strong>卡池分布（~80张）：</strong>
+- 锻造系（40%）：基础卡→锻造→强化攻击/防御
+- 植物系（35%）：荆棘叠层、生命回复、缠绕减益
+- 通用/装备（25%）：战刃沙尘、臂盾、弩等武器卡</p>
+<h3 id="34">3.4 墨夜 · 详细设定</h3>
+<p><strong>初始遗物：冰晶护符</strong></p>
+<blockquote>
+<p>每施加 3 层冰霜，额外获得 1 点精神力（每回合最多触发 2 次）</p>
+</blockquote>
+<p><strong>独特关键词：</strong></p>
+<p><strong>❄️ 冰霜</strong>
+- 每层冰霜使敌人造成的伤害 -5%（最多 10 层 = -50%）
+- 叠满 8 层触发<strong>冻结</strong>（跳过下回合）
+- 冻结后冰霜清零</p>
+<p><strong>🌪️ 天怒</strong>
+- 部分高级法术带"天怒"标签
+- 每场战斗首次使用天怒法术造成<strong>双倍伤害</strong>
+- 墨夜标志性大招「天怒风帆」为天怒标签</p>
+<p><strong>卡池分布（~80张）：</strong>
+- 冰霜控制（45%）：叠冰霜、冻结、减速
+- 冰系AOE（30%）：多重冰锥、冰风暴、冰环
+- 防御/过牌（25%）：冰盾、寒气护体、冥想</p>
+<h3 id="35">3.5 温静 · 详细设定</h3>
+<p><strong>初始遗物：玫瑰印记</strong></p>
+<blockquote>
+<p>每回合首次对被标记敌人造成伤害时，追加 3 点伤害</p>
+</blockquote>
+<p><strong>独特关键词：</strong></p>
+<p><strong>🎯 杀戮标记</strong>
+- 对敌人施加标记（持续 2 回合）
+- 对被标记敌人：攻击伤害 +25%、暴击率 +15%
+- 部分卡牌可<strong>引爆</strong>标记造成额外伤害</p>
+<p><strong>⚡ 连击</strong>
+- 本回合每打出 3 张攻击牌（可配置），触发一次额外效果
+- 效果池：抽 1 张 / +1 精神力 / 全体 4 伤
+- 鼓励快节奏出牌风格</p>
+<p><strong>卡池分布（~80张）：</strong>
+- 标记连击（40%）：施加标记、引爆、连击技
+- 暴击直伤（35%）：高伤攻击、穿甲、暴击强化
+- 机动/过牌（25%）：闪避、位移、抽牌</p>
+<h3 id="36">3.6 盛元 · 详细设定</h3>
+<p><strong>初始遗物：亡者意志</strong></p>
+<blockquote>
+<p>HP 低于 50% 时，每回合开始获得 1 点额外精神力。HP 低于 25% 时改为 2 点。</p>
+</blockquote>
+<p><strong>独特关键词：</strong></p>
+<p><strong>💢 复仇</strong>
+- 每损失 5 点 HP，获得 1 层复仇
+- 每层复仇使下一张攻击牌伤害 +2
+- 复仇在使用攻击牌后清零</p>
+<p><strong>🩸 血祭</strong>
+- 部分卡牌消耗自身 HP 换取力量/格挡/伤害
+- 典型牌：「血怒」（损失 3HP，获得 3 力量）、「以伤换伤」（损失 5HP，造成 20 伤害）</p>
+<p><strong>卡池分布（~75张）：</strong>
+- 复仇输出（40%）：复仇触发、低血量增益
+- 血祭系列（30%）：自伤换力量/伤害
+- 坦克生存（30%）：高格挡、生命回复</p>
+<h3 id="37">3.7 金英 · 详细设定</h3>
+<p><strong>初始遗物：神圣之触</strong></p>
+<blockquote>
+<p>每回复 4 点 HP，对随机敌人造成 3 点神圣伤害（无视格挡）</p>
+</blockquote>
+<p><strong>独特关键词：</strong></p>
+<p><strong>✨ 神罚</strong>
+- 神圣伤害<strong>无视格挡</strong>
+- 部分卡牌可将累计治疗量转化为神圣伤害输出
+- 核心机制：<strong>治疗 = 弹药</strong></p>
+<p><strong>💚 亲和之触</strong>
+- 每回合结束时，若本回合未受到伤害，回复 2 HP
+- 遗物「神罚使者之印」可将触发条件放宽为"受伤 ≤3 HP"</p>
+<p><strong>卡池分布（~75张）：</strong>
+- 治疗回复（40%）：回复 HP、群体治疗
+- 神圣输出（30%）：无视格挡伤害、治疗转化
+- 防御护盾（30%）：高格挡、减伤光环</p>
+<h3 id="38">3.8 红发 · 详细设定</h3>
+<p><strong>初始遗物：意识结晶</strong></p>
+<blockquote>
+<p>每有 1 只存活丧尸，每回合获得 1 点额外格挡（最多 +4）</p>
+</blockquote>
+<p><strong>独特关键词：</strong></p>
+<p><strong>🧟 召唤丧尸</strong>
+- 在敌方前排召唤丧尸随从
+- 丧尸拥有独立 HP（5-20），每回合自动攻击随机敌人（3-8 伤害）
+- 可被敌人攻击（吸收火力）
+- <strong>最多同时存在 4 只丧尸</strong>（遗物可 +1）
+- 丧尸死亡时给红发 +2 格挡</p>
+<p><strong>💀 狂物之鸣</strong>
+- 红发标志性大招
+- 牺牲所有存活丧尸，每只对全体敌人造成 8 点伤害
+- 清场型技能</p>
+<p><strong>卡池分布（~75张）：</strong>
+- 召唤丧尸（45%）：召唤/强化/复制丧尸
+- 丧尸牺牲（25%）：牺牲丧尸换取爆发效果
+- 生存/控制（30%）：恐惧减益、自我回复</p>
+<h3 id="39">3.9 莉莲 · 详细设定（隐藏角色）</h3>
+<p><strong>解锁条件：</strong> 通关全部 5 章 + 在第 5 章触发特殊事件「金色圣光之谜」</p>
+<p><strong>初始遗物：机械战甲核心</strong></p>
+<blockquote>
+<p>每回合可免费切换 1 次战甲模式（额外切换消耗 1 精神力）</p>
+</blockquote>
+<p><strong>独特关键词：</strong></p>
+<p><strong>🤖 战甲模式</strong>
+- ⚔️ <strong>攻击模式</strong>: 所有攻击伤害 +30%，每回合结束损失 2 HP
+- 🛡️ <strong>防御模式</strong>: 所有格挡 +30%，每回合结束回复 2 HP
+- 部分卡牌在不同模式下拥有<strong>完全不同</strong>的效果（双面卡）</p>
+<p><strong>⚙️ 过热</strong>
+- 每切换 3 次模式触发过热
+- 过热效果：下回合无法切换，但获得 2 力量 + 2 敏捷
+- 管理切换节奏是莉莲的核心玩法</p>
+<p><strong>卡池分布（~80张）：</strong>
+- 双面卡（40%）：攻/防模式下效果不同
+- 模式强化（30%）：过热增益、切换触发效果
+- 骑士通用（30%）：物理攻击、战术指挥</p>
+<hr />
+<h2 id="4">4. 卡牌图鉴</h2>
+<h3 id="41">4.1 卡牌设计规范</h3>
+<h4 id="75-80">稀有度分布（每角色 ~75-80 张）</h4>
+<table>
+<thead>
+<tr>
+<th>稀有度</th>
+<th>颜色</th>
+<th>数量</th>
+<th>掉落权重</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>普通</td>
+<td>⬜ 白</td>
+<td>25</td>
+<td>60%</td>
+</tr>
+<tr>
+<td>优秀</td>
+<td>🟩 绿</td>
+<td>25</td>
+<td>25%</td>
+</tr>
+<tr>
+<td>稀有</td>
+<td>🟦 蓝</td>
+<td>15</td>
+<td>10%</td>
+</tr>
+<tr>
+<td>史诗</td>
+<td>🟪 紫</td>
+<td>7</td>
+<td>4%</td>
+</tr>
+<tr>
+<td>传说</td>
+<td>🟧 橙</td>
+<td>3</td>
+<td>1%</td>
+</tr>
+</tbody>
+</table>
+<h4 id="_7">卡牌升级规则</h4>
+<p><strong>🏕️ 营地升级（永久）</strong>
+- 攻击卡: 伤害 +3~4
+- 技能卡: 格挡 +3~4 或费用 -1
+- 能力卡: 效果数值 +50%
+- 装备卡: 属性 +1
+- 传说卡不可升级</p>
+<p><strong>🔨 叶默锻造（临时，仅本场战斗）</strong>
+- 可对已升级卡再次锻造
+- 同一张卡可被多次锻造（递增效果）
+- 锻造后数值增量约 25-40%</p>
+<h4 id="_8">卡牌费用范围</h4>
+<table>
+<thead>
+<tr>
+<th>费用</th>
+<th>占比</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0 费</td>
+<td>~10%</td>
+<td>低效果，通常有过牌/条件</td>
+</tr>
+<tr>
+<td>1 费</td>
+<td>~50%</td>
+<td>标准效果</td>
+</tr>
+<tr>
+<td>2 费</td>
+<td>~30%</td>
+<td>强力效果</td>
+</tr>
+<tr>
+<td>3 费</td>
+<td>~8%</td>
+<td>决定性效果</td>
+</tr>
+<tr>
+<td>4 费</td>
+<td>~2%</td>
+<td>传说级大招</td>
+</tr>
+</tbody>
+</table>
+<h3 id="42-80">4.2 叶默完整卡表（80张·范例）</h3>
+<h4 id="25_1">普通卡（25张）</h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>卡名</th>
+<th>费</th>
+<th>类</th>
+<th>效果</th>
+<th>升级后</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>锻造打击</td>
+<td>1</td>
+<td>攻</td>
+<td>6伤 · 锻造:+3伤</td>
+<td>8伤 · 锻造:+5伤</td>
+</tr>
+<tr>
+<td>2</td>
+<td>强化护甲</td>
+<td>1</td>
+<td>技</td>
+<td>5甲 · 锻造:+3甲</td>
+<td>7甲 · 锻造:+5甲</td>
+</tr>
+<tr>
+<td>3</td>
+<td>藤鞭</td>
+<td>1</td>
+<td>攻</td>
+<td>4伤 · 施加1层缠绕</td>
+<td>6伤 · 施加2层缠绕</td>
+</tr>
+<tr>
+<td>4</td>
+<td>采集</td>
+<td>0</td>
+<td>技</td>
+<td>3甲 · 抽1张</td>
+<td>4甲 · 抽2张</td>
+</tr>
+<tr>
+<td>5</td>
+<td>植物生长</td>
+<td>1</td>
+<td>能</td>
+<td>获得3荆棘</td>
+<td>获得5荆棘</td>
+</tr>
+<tr>
+<td>6</td>
+<td>精准切割</td>
+<td>1</td>
+<td>攻</td>
+<td>9伤</td>
+<td>13伤</td>
+</tr>
+<tr>
+<td>7</td>
+<td>附魔刀刃</td>
+<td>1</td>
+<td>技</td>
+<td>下张攻击+4伤</td>
+<td>+6伤 · 抽1张</td>
+</tr>
+<tr>
+<td>8</td>
+<td>快速锻造</td>
+<td>0</td>
+<td>技</td>
+<td>升级手牌中1张卡</td>
+<td>升级2张</td>
+</tr>
+<tr>
+<td>9</td>
+<td>树皮甲</td>
+<td>2</td>
+<td>技</td>
+<td>8甲 · 获得2荆棘</td>
+<td>10甲 · 获得4荆棘</td>
+</tr>
+<tr>
+<td>10</td>
+<td>连砍</td>
+<td>1</td>
+<td>攻</td>
+<td>3伤 · 3伤（两次）</td>
+<td>4伤 · 4伤</td>
+</tr>
+<tr>
+<td>11</td>
+<td>根须缠绕</td>
+<td>2</td>
+<td>技</td>
+<td>施加3层缠绕 · 抽1</td>
+<td>施加5层缠绕</td>
+</tr>
+<tr>
+<td>12</td>
+<td>采集刀刃</td>
+<td>2</td>
+<td>攻</td>
+<td>8伤 · 获2魔晶</td>
+<td>10伤 · 获3魔晶</td>
+</tr>
+<tr>
+<td>13-25</td>
+<td><em>(12张普通卡，遵循同上设计模板)</em></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="25_2">优秀卡（25张·代表）</h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>卡名</th>
+<th>费</th>
+<th>类</th>
+<th>效果</th>
+<th>升级后</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>战刃·沙尘(形态1)</td>
+<td>2</td>
+<td>装</td>
+<td>+1力量 · 每回合1次+3伤</td>
+<td>+2力量 · +4伤</td>
+</tr>
+<tr>
+<td>2</td>
+<td>荆棘之墙</td>
+<td>2</td>
+<td>技</td>
+<td>8甲 · +4荆棘</td>
+<td>10甲 · +6荆棘</td>
+</tr>
+<tr>
+<td>3</td>
+<td>双重锻造</td>
+<td>2</td>
+<td>技</td>
+<td>升级手牌中2张卡</td>
+<td>升级3张</td>
+</tr>
+<tr>
+<td>4</td>
+<td>吸血藤</td>
+<td>2</td>
+<td>攻</td>
+<td>7伤 · 回复3HP</td>
+<td>7伤 · 回复5HP</td>
+</tr>
+<tr>
+<td>5</td>
+<td>自然之力</td>
+<td>1</td>
+<td>能</td>
+<td>每回合开始获得2荆棘</td>
+<td>每回合3荆棘</td>
+</tr>
+<tr>
+<td>6</td>
+<td>附魔：坚韧</td>
+<td>1</td>
+<td>技</td>
+<td>选1张手牌·格挡+4(本场)</td>
+<td>格挡+6 · 抽1</td>
+</tr>
+<tr>
+<td>7-25</td>
+<td><em>(19张优秀卡，遵循同上设计模板)</em></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="15">稀有卡（15张·代表）</h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>卡名</th>
+<th>费</th>
+<th>类</th>
+<th>效果</th>
+<th>升级后</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>战刃·沙尘(形态2)</td>
+<td>2</td>
+<td>装</td>
+<td>+2力量 · 每回合1次6伤 · 沙尘</td>
+<td>+3力量 · +8伤</td>
+</tr>
+<tr>
+<td>2</td>
+<td>自然之怒</td>
+<td>3</td>
+<td>攻</td>
+<td>伤害=荆棘层数×3</td>
+<td>×4</td>
+</tr>
+<tr>
+<td>3</td>
+<td>大师锻造</td>
+<td>2</td>
+<td>能</td>
+<td>每回合开始升级手牌中随机1张</td>
+<td>费用降至1</td>
+</tr>
+<tr>
+<td>4</td>
+<td>绿园之庇护</td>
+<td>2</td>
+<td>能</td>
+<td>每回合获得=荆棘层数的格挡</td>
+<td>费用降至1</td>
+</tr>
+<tr>
+<td>5</td>
+<td>采集大师</td>
+<td>1</td>
+<td>技</td>
+<td>抽3张 · 其中攻击卡费-1</td>
+<td>抽4张</td>
+</tr>
+<tr>
+<td>6-15</td>
+<td><em>(10张稀有卡，遵循同上设计模板)</em></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="7">史诗卡（7张）</h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>卡名</th>
+<th>费</th>
+<th>类</th>
+<th>效果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>战刃·沙尘(终极)</td>
+<td>3</td>
+<td>装</td>
+<td>+3力 · +25攻速 · 吸血+2 · 每回合1次沙尘暴击(10伤)</td>
+</tr>
+<tr>
+<td>2</td>
+<td>荆棘风暴</td>
+<td>2</td>
+<td>攻</td>
+<td>全体敌人受到荆棘×2伤害 · 消耗</td>
+</tr>
+<tr>
+<td>3</td>
+<td>瞬间锻造</td>
+<td>0</td>
+<td>技</td>
+<td>升级手牌中所有卡 · 消耗</td>
+</tr>
+<tr>
+<td>4</td>
+<td>变异花园</td>
+<td>3</td>
+<td>能</td>
+<td>每回合获得5荆棘 · 回合结束回复3HP</td>
+</tr>
+<tr>
+<td>5-7</td>
+<td><em>(3张史诗卡)</em></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="3_1">传说卡（3张）</h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>卡名</th>
+<th>费</th>
+<th>类</th>
+<th>效果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>宇宙之盒</td>
+<td>3</td>
+<td>能</td>
+<td>存储当前手牌(最多5张)·下回合取回且费用-1 · 消耗</td>
+</tr>
+<tr>
+<td>2</td>
+<td>荣耀领域</td>
+<td>2</td>
+<td>能</td>
+<td>所有锻造后的卡牌费用-1(最低0)·永续</td>
+</tr>
+<tr>
+<td>3</td>
+<td>自然化身</td>
+<td>3</td>
+<td>能</td>
+<td>每回合开始: 获2荆棘+回复3HP+升级随机1张 · 消耗</td>
+</tr>
+</tbody>
+</table>
+<h3 id="43">4.3 全角色卡池摘要</h3>
+<table>
+<thead>
+<tr>
+<th>角色</th>
+<th>总数</th>
+<th>核心机制卡</th>
+<th>标志性传说</th>
+<th>风格</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>叶默</td>
+<td>80</td>
+<td>锻造升级、荆棘叠层、装备锻造</td>
+<td>宇宙之盒、荣耀领域、自然化身</td>
+<td>均衡锻造</td>
+</tr>
+<tr>
+<td>墨夜</td>
+<td>80</td>
+<td>冰霜叠层、冻结控制、冰系AOE</td>
+<td>天怒风帆、极寒领域、冰晶化身</td>
+<td>控场法术</td>
+</tr>
+<tr>
+<td>温静</td>
+<td>80</td>
+<td>杀戮标记、连击触发、暴击</td>
+<td>死亡莲华、玫瑰风暴、无尽连击</td>
+<td>速攻暴击</td>
+</tr>
+<tr>
+<td>盛元</td>
+<td>75</td>
+<td>复仇叠层、血祭自伤、低血增益</td>
+<td>不灭意志、血之盛宴、复仇化身</td>
+<td>狂战复仇</td>
+</tr>
+<tr>
+<td>金英</td>
+<td>75</td>
+<td>治疗蓄能、神圣转化、防御光环</td>
+<td>神之裁决、圣光普照、不朽守护</td>
+<td>治疗反击</td>
+</tr>
+<tr>
+<td>红发</td>
+<td>75</td>
+<td>召唤丧尸、牺牲爆发、恐惧控制</td>
+<td>亡灵大军、狂物之鸣、丧尸之王</td>
+<td>召唤人海</td>
+</tr>
+<tr>
+<td>莉莲</td>
+<td>80</td>
+<td>战甲切换、双面卡、过热管理</td>
+<td>金色圣光、终极过热、战甲解放</td>
+<td>双模切换</td>
+</tr>
+</tbody>
+</table>
+<p><strong>总卡池规模：~545 张</strong></p>
+<h3 id="44">4.4 卡牌获取途径</h3>
+<table>
+<thead>
+<tr>
+<th>途径</th>
+<th>获得</th>
+<th>选择数</th>
+<th>稀有度权重(白/绿/蓝/紫/橙)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>普通战斗胜利</td>
+<td>选1张·可跳过</td>
+<td>3选1</td>
+<td>60/25/10/4/1</td>
+</tr>
+<tr>
+<td>精英战胜利</td>
+<td>选1张·优秀保底</td>
+<td>3选1</td>
+<td>0/50/35/12/3</td>
+</tr>
+<tr>
+<td>轮盘节点</td>
+<td>随机获卡(不可选)</td>
+<td>—</td>
+<td>取决于轮盘等级</td>
+</tr>
+<tr>
+<td>命运事件</td>
+<td>特定选择奖励</td>
+<td>事件决定</td>
+<td>事件决定</td>
+</tr>
+<tr>
+<td>Boss战利品</td>
+<td>选1张稀有+卡·不可跳过</td>
+<td>3选1</td>
+<td>稀有保底·33%史诗/传说</td>
+</tr>
+<tr>
+<td>营地训练</td>
+<td>选1张卡升级(非获新卡)</td>
+<td>—</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5">5. 敌人图鉴</h2>
+<h3 id="51">5.1 敌人设计规范</h3>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>血量倍率</th>
+<th>伤害倍率</th>
+<th>特殊说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🔹 普通</td>
+<td>×1.0</td>
+<td>×1.0</td>
+<td>—</td>
+</tr>
+<tr>
+<td>💀 精英</td>
+<td>×2.5</td>
+<td>×1.5</td>
+<td>每章 2-3 种</td>
+</tr>
+<tr>
+<td>👹 Boss</td>
+<td>×5.0</td>
+<td>×2.0</td>
+<td>独特 AI 模式，2-3 阶段</td>
+</tr>
+</tbody>
+</table>
+<p>*倍率以同章节普通丧尸为基础值。</p>
+<h3 id="52-1">5.2 第1章 · 末日降临</h3>
+<h4 id="4_1">普通敌人（4种）</h4>
+<table>
+<thead>
+<tr>
+<th>敌人</th>
+<th>HP</th>
+<th>行动模式</th>
+<th>魔晶</th>
+<th>特殊</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🧟 普通丧尸</td>
+<td>40-50</td>
+<td>T1: 攻击6 · T2: 攻击8 · 循环</td>
+<td>1</td>
+<td>最基础敌人</td>
+</tr>
+<tr>
+<td>🧟 进化丧尸</td>
+<td>52-62</td>
+<td>T1: 攻击7 · T2: 攻击9 · T3: 强化(+2力)</td>
+<td>1</td>
+<td>会自我强化</td>
+</tr>
+<tr>
+<td>🪲 变异黑甲虫</td>
+<td>32-40</td>
+<td>T1: 攻击5 · T2: 酸液喷射(4伤+2伤/回合·2回合)</td>
+<td>1</td>
+<td>DOT伤害</td>
+</tr>
+<tr>
+<td>🐀 变异鼠群</td>
+<td>25-35(×2-3)</td>
+<td>每只: 攻击4 · 随机目标</td>
+<td>1/只</td>
+<td>多目标教学</td>
+</tr>
+</tbody>
+</table>
+<h4 id="2_1">精英敌人（2种）</h4>
+<table>
+<thead>
+<tr>
+<th>敌人</th>
+<th>HP</th>
+<th>行动模式</th>
+<th>掉落</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>💀 铁臂丧尸</td>
+<td>110-130</td>
+<td>T1: 巨臂猛击(18伤) · T2: 防御(10甲) · T3: 横扫(12伤+2虚弱)</td>
+<td>遗物+5魔晶</td>
+</tr>
+<tr>
+<td>💀 变异巨蚁</td>
+<td>90-110</td>
+<td>T1: 蚁酸(8伤+2易伤) · T2: 召唤小蚁(30HP) · T3: 撕咬(10×2)</td>
+<td>遗物+5魔晶</td>
+</tr>
+</tbody>
+</table>
+<h4 id="boss">Boss：变异蚁后</h4>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>HP</th>
+<th>行动模式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第1阶段 (100%-60%)</td>
+<td>250</td>
+<td>轮流: 蚁酸喷射(12伤+2易伤) → 召唤2只兵蚁(35HP) → 撕咬(9×2)</td>
+</tr>
+<tr>
+<td>第2阶段 (60%-0%)</td>
+<td>—</td>
+<td>新增: 暴怒撕咬(18伤) · 每3回合蚁群风暴(全体8伤+2中毒) · 不再召唤</td>
+</tr>
+</tbody>
+</table>
+<p><strong>通关奖励</strong>: 稀有卡3选1 + 解锁盛元</p>
+<h3 id="53-2">5.3 第2章 · 绿洲崛起</h3>
+<h4 id="5_1">普通敌人（5种）</h4>
+<table>
+<thead>
+<tr>
+<th>敌人</th>
+<th>HP</th>
+<th>行动模式</th>
+<th>魔晶</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🧟 二级丧尸</td>
+<td>55-68</td>
+<td>T1: 攻击10 · T2: 防御(6甲)+攻击6</td>
+<td>2</td>
+</tr>
+<tr>
+<td>🐺 变异狼</td>
+<td>45-55</td>
+<td>T1: 撕咬8 · T2: 撕裂(6伤+1易伤)</td>
+<td>2</td>
+</tr>
+<tr>
+<td>🪲 成年黑甲虫</td>
+<td>50-60</td>
+<td>T1: 甲壳防御(12甲) · T2: 酸液爆射(全体6伤+1中毒)</td>
+<td>2</td>
+</tr>
+<tr>
+<td>🪱 白蛆虫</td>
+<td>70-85</td>
+<td>T1: 撞击(14伤) · T2: 蜷缩(8甲+回复5HP)</td>
+<td>2</td>
+</tr>
+<tr>
+<td>🕷️ 变异蜘蛛</td>
+<td>40-50</td>
+<td>T1: 蛛网(2缠绕) · T2: 毒咬(5伤+3中毒)</td>
+<td>2</td>
+</tr>
+</tbody>
+</table>
+<h4 id="3_2">精英敌人（3种）</h4>
+<table>
+<thead>
+<tr>
+<th>敌人</th>
+<th>HP</th>
+<th>行动模式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>💀 喷毒丧尸</td>
+<td>130-150</td>
+<td>轮流: 毒雾(全体8伤+3中毒) → 爪击(14伤) → 毒液弹(10伤+5中毒)</td>
+</tr>
+<tr>
+<td>💀 变异暴熊</td>
+<td>160-180</td>
+<td>T1: 咆哮(+4力) · T2: 熊掌(8×2) · T3: 狂暴冲撞(20伤)</td>
+</tr>
+<tr>
+<td>💀 变异蝎王</td>
+<td>140-160</td>
+<td>交替: 毒尾刺(8伤+5中毒) → 巨钳(12伤+1虚弱) → 防御姿态(15甲)</td>
+</tr>
+</tbody>
+</table>
+<h4 id="boss_1">Boss：尸猿王</h4>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>HP</th>
+<th>行动模式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第1阶段</td>
+<td>320</td>
+<td>每3回合: 猿臂猛击(10×2) → 咆哮(+3力+召唤2只变异猿猴40HP) → 裂风之爪(全体15伤)</td>
+</tr>
+<tr>
+<td>第2阶段 (50%HP)</td>
+<td>—</td>
+<td>愤怒: 所有伤害+5 · 每回合攻击(14伤) · 不再召唤 · 新增甩尾(全体10伤+击退)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>通关奖励</strong>: 稀有卡3选1 + 解锁金英</p>
+<h3 id="54-3">5.4 第3章 · 秘境深处</h3>
+<h4 id="6">普通敌人（6种）</h4>
+<table>
+<thead>
+<tr>
+<th>敌人</th>
+<th>HP</th>
+<th>行动模式</th>
+<th>魔晶</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🧟 四级丧尸</td>
+<td>68-80</td>
+<td>T1: 伏击(11伤) · T2: 连击(6×2) · T3: 防御(8甲)+强化(+2力)</td>
+<td>3</td>
+</tr>
+<tr>
+<td>🌿 变异食人花</td>
+<td>60-75</td>
+<td>T1: 藤蔓缠绕(5伤+2缠绕) · T2: 吞噬(18伤,仅对被缠绕目标)</td>
+<td>3</td>
+</tr>
+<tr>
+<td>🐸 血蛙</td>
+<td>40-50(×2-3)</td>
+<td>腐蚀唾液(5伤+2腐蚀) · 群居成对出</td>
+<td>3</td>
+</tr>
+<tr>
+<td>🌳 变异树精</td>
+<td>85-100</td>
+<td>T1: 根须突刺(8伤+1缠绕) · T2: 树皮硬化(15甲) · T3: 荆棘散射(全体7伤)</td>
+<td>3</td>
+</tr>
+<tr>
+<td>🦎 变异巨蜥</td>
+<td>70-85</td>
+<td>T1: 甩尾(10伤) · T2: 撕咬(12伤+2流血)</td>
+<td>3</td>
+</tr>
+<tr>
+<td>👻 秘境幽魂</td>
+<td>50-60</td>
+<td>T1: 灵魂吸取(6伤+回复8HP) · T2: 虚无之触(9伤,无视50%格挡)</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+<h4 id="3_3">精英敌人（3种）</h4>
+<table>
+<thead>
+<tr>
+<th>敌人</th>
+<th>HP</th>
+<th>行动模式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>💀 尸童</td>
+<td>100-120</td>
+<td>极快节奏: 偷袭(8伤,穿甲) → 闪避(2层) → 连环撕咬(5×3) · 每2回合多动1次</td>
+</tr>
+<tr>
+<td>💀 巨型食人花</td>
+<td>180-200</td>
+<td>缠绕之网(全体5伤+3缠绕) → 消化液(15伤) → 进食(回复20HP)</td>
+</tr>
+<tr>
+<td>💀 秘境守护石像</td>
+<td>200</td>
+<td>石拳(12伤+2易伤) → 地震(全体10伤) → 石化凝视(1层石化·无法出牌1回合)</td>
+</tr>
+</tbody>
+</table>
+<h4 id="boss_2">Boss：四尾魔蜥（不鲁得守护兽）</h4>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>HP</th>
+<th>行动模式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>全程</td>
+<td>380</td>
+<td>4尾轮换: ①甩尾(12伤) ②水波之盾(12甲+回复8HP) ③极寒之息(全体10伤+2冰霜) ④多重冰锥(8×2,随机)</td>
+</tr>
+<tr>
+<td>愤怒(HP&lt;40%)</td>
+<td>—</td>
+<td>每回合双动: 随机2个技能 · 不再使用水波之盾</td>
+</tr>
+</tbody>
+</table>
+<p><strong>通关奖励</strong>: 稀有卡3选1 + 解锁红发</p>
+<h3 id="55-4">5.5 第4章 · 圣城陨落</h3>
+<h4 id="5_2">普通敌人（5种）</h4>
+<table>
+<thead>
+<tr>
+<th>敌人</th>
+<th>HP</th>
+<th>行动模式</th>
+<th>魔晶</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>⚔️ 圣城步兵</td>
+<td>70-85</td>
+<td>T1: 剑击(10伤) · T2: 盾牌格挡(10甲+3反伤)</td>
+<td>3</td>
+</tr>
+<tr>
+<td>🏹 圣城弓手</td>
+<td>55-65</td>
+<td>T1: 瞄准(+3伤) · T2: 精准射击(10伤+穿透3)</td>
+<td>3</td>
+</tr>
+<tr>
+<td>🧙 圣城祭司</td>
+<td>55-65</td>
+<td>T1: 圣光治疗(全体回复12HP) · T2: 圣光弹(7伤,无视格挡)</td>
+<td>3</td>
+</tr>
+<tr>
+<td>🧟 五级丧尸</td>
+<td>80-95</td>
+<td>T1: 猛击(15伤) · T2: 感染撕咬(8伤+2感染)</td>
+<td>3</td>
+</tr>
+<tr>
+<td>🧟 巨型头颅丧尸</td>
+<td>90-105</td>
+<td>T1: 触须钩击(6伤+拉取) · T2: 吞噬(16伤,若目标被拉取)</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+<h4 id="3_4">精英敌人（3种）</h4>
+<table>
+<thead>
+<tr>
+<th>敌人</th>
+<th>HP</th>
+<th>行动模式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>💀 圣骑士团长·哈洛</td>
+<td>220</td>
+<td>圣光斩(14伤+2虚弱) → 骑士守护(全体12甲) → 审判之锤(20伤)</td>
+</tr>
+<tr>
+<td>💀 地狱三头犬</td>
+<td>250</td>
+<td>三头各独立: 火焰吐息(全体8+2灼烧) · 冰霜撕咬(10+2冰霜) · 剧毒之牙(6+4中毒)</td>
+</tr>
+<tr>
+<td>💀 圣城审判官</td>
+<td>180</td>
+<td>审判宣言(2层罪孽·每层+20%受伤) → 裁决之剑(16伤,对罪孽+50%)</td>
+</tr>
+</tbody>
+</table>
+<h4 id="boss-boss">Boss：安禄德圣子 + 宫殿巨人（双Boss战）</h4>
+<table>
+<thead>
+<tr>
+<th>Boss</th>
+<th>HP</th>
+<th>行动模式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>安禄德圣子</td>
+<td>280</td>
+<td>T1: 血统压制(全体8伤+1虚弱+1易伤) · T2: 血祭(自损10HP,巨人+20HP) · T3: 圣光裁决(18伤)</td>
+</tr>
+<tr>
+<td>宫殿巨人</td>
+<td>400</td>
+<td>T1: 巨拳砸击(20伤) · T2: 横扫(全体12伤) · T3: 震地咆哮(15伤+全体1层眩晕)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>特殊机制</strong>: 安禄德死亡→巨人狂暴(+5力,每回合双动) · 巨人死亡→安禄德血祭召唤茧怪(250HP新Boss)</p>
+<h3 id="56-5">5.6 第5章 · 天界之路</h3>
+<h4 id="5_3">普通敌人（5种）</h4>
+<table>
+<thead>
+<tr>
+<th>敌人</th>
+<th>HP</th>
+<th>行动模式</th>
+<th>魔晶</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>👼 下级翼人战士</td>
+<td>75-90</td>
+<td>T1: 俯冲(12伤) · T2: 羽翼防御(10甲) · T3: 光矛投掷(8×2)</td>
+<td>4</td>
+</tr>
+<tr>
+<td>⚒️ 矮人锻造师</td>
+<td>90-105</td>
+<td>T1: 锻造武器(+3力全体) · T2: 重锤(18伤) · T3: 修理(回复全体20HP)</td>
+<td>4</td>
+</tr>
+<tr>
+<td>🌀 空间裂隙生物</td>
+<td>60-70</td>
+<td>T1: 闪现(50%闪避) · T2: 裂隙切割(10伤,穿透5) · T3: 传送(换位+回复10HP)</td>
+<td>4</td>
+</tr>
+<tr>
+<td>👿 九星丧尸</td>
+<td>100-120</td>
+<td>T1: 毁灭之爪(16伤+2易伤) · T2: 再生(回复25HP) · T3: 尸爆(全体18伤,自损15HP)</td>
+<td>4</td>
+</tr>
+<tr>
+<td>🐉 远古龙种</td>
+<td>110-130</td>
+<td>T1: 龙息(全体12伤+2灼烧) · T2: 尾击(14伤) · T3: 龙威(全体-2力)</td>
+<td>4</td>
+</tr>
+</tbody>
+</table>
+<h4 id="3_5">精英敌人（3种）</h4>
+<table>
+<thead>
+<tr>
+<th>敌人</th>
+<th>HP</th>
+<th>行动模式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>💀 翼人指挥官</td>
+<td>230</td>
+<td>指挥(召唤2只翼人战士50HP) → 天罚之矛(16伤+2穿透) → 神圣光环(全体+3力+10甲)</td>
+</tr>
+<tr>
+<td>💀 天界审判者</td>
+<td>260</td>
+<td>审判之眼(标记·下回合伤害×2) → 裁决光束(20伤) → 净化之焰(全体10伤+移除增益)</td>
+</tr>
+<tr>
+<td>💀 远古守护者</td>
+<td>300</td>
+<td>远古咆哮(全体12伤+1恐惧) → 石化践踏(18伤+1石化) → 地裂(全体15伤)</td>
+</tr>
+</tbody>
+</table>
+<h4 id="boss3">最终Boss：翼人管理者（3阶段）</h4>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>触发</th>
+<th>行动模式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第1阶段: 观察者</td>
+<td>100% HP (350)</td>
+<td>数据收集(1层分析·每层+10%受伤) → 能量弹幕(6×3随机) → 护盾矩阵(25甲)</td>
+</tr>
+<tr>
+<td>第2阶段: 战斗形态</td>
+<td>HP&lt;70%</td>
+<td>变身战斗天使: 双翼光刃(12×2) · 天界审判(25伤) · 召唤增援(2只翼人精英100HP) · HP每降25%额外召唤</td>
+</tr>
+<tr>
+<td>第3阶段: 最终形态</td>
+<td>HP&lt;30%</td>
+<td>每回合双动 · 技能池: 毁灭光束(30伤)/次元裂隙(全体20伤+2易伤)/自我修复(回复40HP+20甲)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>通关奖励</strong>: 通关动画 + 解锁莉莲 + 解锁 Ascension 模式</p>
+<h3 id="57">5.7 敌人阵容统计</h3>
+<table>
+<thead>
+<tr>
+<th>章节</th>
+<th>普通</th>
+<th>精英</th>
+<th>Boss</th>
+<th>总计</th>
+<th>难度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第1章</td>
+<td>4</td>
+<td>2</td>
+<td>1</td>
+<td>7</td>
+<td>✦ 入门</td>
+</tr>
+<tr>
+<td>第2章</td>
+<td>5</td>
+<td>3</td>
+<td>1</td>
+<td>9</td>
+<td>✦✦ 进阶</td>
+</tr>
+<tr>
+<td>第3章</td>
+<td>6</td>
+<td>3</td>
+<td>1</td>
+<td>10</td>
+<td>✦✦✦ 挑战</td>
+</tr>
+<tr>
+<td>第4章</td>
+<td>5</td>
+<td>3</td>
+<td>1(双Boss)</td>
+<td>9</td>
+<td>✦✦✦✦ 硬核</td>
+</tr>
+<tr>
+<td>第5章</td>
+<td>5</td>
+<td>3</td>
+<td>1(3阶段)</td>
+<td>9</td>
+<td>✦✦✦✦✦ 传说</td>
+</tr>
+<tr>
+<td><strong>总计</strong></td>
+<td><strong>25</strong></td>
+<td><strong>14</strong></td>
+<td><strong>5</strong></td>
+<td><strong>44</strong></td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6_1">6. 遗物图鉴</h2>
+<h3 id="61">6.1 遗物设计规范</h3>
+<table>
+<thead>
+<tr>
+<th>稀有度</th>
+<th>数量</th>
+<th>主要获取方式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>初始遗物</td>
+<td>7</td>
+<td>角色自带</td>
+</tr>
+<tr>
+<td>普通</td>
+<td>15</td>
+<td>精英掉落 60% · 轮盘 · 事件</td>
+</tr>
+<tr>
+<td>优秀</td>
+<td>15</td>
+<td>精英掉落 25% · Boss · 轮盘</td>
+</tr>
+<tr>
+<td>稀有</td>
+<td>10</td>
+<td>精英掉落 10% · Boss · 七彩轮盘</td>
+</tr>
+<tr>
+<td>Boss遗物</td>
+<td>6+</td>
+<td>章节 Boss 通关奖励</td>
+</tr>
+<tr>
+<td>角色专属</td>
+<td>21</td>
+<td>仅对应角色可见 · 精英掉落 5%</td>
+</tr>
+<tr>
+<td>事件专属</td>
+<td>5</td>
+<td>特定命运事件</td>
+</tr>
+</tbody>
+</table>
+<p><strong>总计：~79 个遗物</strong></p>
+<h3 id="62-7">6.2 初始遗物（7个）</h3>
+<table>
+<thead>
+<tr>
+<th>遗物</th>
+<th>角色</th>
+<th>效果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🌿 自然之杖</td>
+<td>叶默</td>
+<td>每场战斗开始: 随机获1张「生长」(0费:3甲+升级1张手牌)</td>
+</tr>
+<tr>
+<td>❄️ 冰晶护符</td>
+<td>墨夜</td>
+<td>每施加3层冰霜，获得1精神力（每回合最多2次）</td>
+</tr>
+<tr>
+<td>🌹 玫瑰印记</td>
+<td>温静</td>
+<td>每回合首次对被标记敌人造成伤害时追加3伤</td>
+</tr>
+<tr>
+<td>💀 亡者意志</td>
+<td>盛元</td>
+<td>HP&lt;50%:+1精神力/回合 · HP&lt;25%:+2精神力/回合</td>
+</tr>
+<tr>
+<td>✨ 神圣之触</td>
+<td>金英</td>
+<td>每回复4HP，对随机敌人造成3点神圣伤害(无视格挡)</td>
+</tr>
+<tr>
+<td>🧠 意识结晶</td>
+<td>红发</td>
+<td>每有1只存活丧尸，每回合+1格挡（最多+4）</td>
+</tr>
+<tr>
+<td>⚙️ 机械战甲核心</td>
+<td>莉莲</td>
+<td>每回合可免费切换1次战甲模式（额外切换1精神力）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="63-15">6.3 普通遗物（15个·白色品质）</h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>遗物</th>
+<th>效果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>🔍 夜视护目镜</td>
+<td>前3回合敌人意图显示精确伤害值（无波动）</td>
+</tr>
+<tr>
+<td>2</td>
+<td>🛡️ 石肤护符</td>
+<td>每场战斗开始获得 3 格挡</td>
+</tr>
+<tr>
+<td>3</td>
+<td>👁️ 感知石</td>
+<td>每回合开始，若手牌 ≤ 3 张，抽 1 张</td>
+</tr>
+<tr>
+<td>4</td>
+<td>🧤 采集手套</td>
+<td>击杀敌人额外获得 1 魔晶</td>
+</tr>
+<tr>
+<td>5</td>
+<td>💎 魔晶碎片</td>
+<td>每章开始时获得 5 魔晶</td>
+</tr>
+<tr>
+<td>6</td>
+<td>💊 急救包</td>
+<td>每场非Boss战斗胜利后回复 3 HP</td>
+</tr>
+<tr>
+<td>7</td>
+<td>🔨 铁匠之锤</td>
+<td>在营地升级卡牌时，可额外升级 1 张（共2张）</td>
+</tr>
+<tr>
+<td>8</td>
+<td>🪙 幸运硬币</td>
+<td>轮盘消耗 -1 魔晶（最低 1）</td>
+</tr>
+<tr>
+<td>9</td>
+<td>📖 战术手册</td>
+<td>每场战斗首次使用技能卡后抽 1 张</td>
+</tr>
+<tr>
+<td>10</td>
+<td>🎒 小背包</td>
+<td>药水槽位 +1（可携带 3 瓶）</td>
+</tr>
+<tr>
+<td>11</td>
+<td>🎭 路人面具</td>
+<td>拾取时可从牌组中移除 1 张卡</td>
+</tr>
+<tr>
+<td>12</td>
+<td>🍞 旅粮袋</td>
+<td>最大 HP +6</td>
+</tr>
+<tr>
+<td>13</td>
+<td>🏷️ 古族护符</td>
+<td>轮盘消费 -10%（向下取整）</td>
+</tr>
+<tr>
+<td>14</td>
+<td>🍂 金榆树叶</td>
+<td>回合结束时若HP满，回复 2 HP</td>
+</tr>
+<tr>
+<td>15</td>
+<td>🗺️ 残破地图</td>
+<td>地图上可看到 1 个额外连线节点</td>
+</tr>
+</tbody>
+</table>
+<h3 id="64-15">6.4 优秀遗物（15个·绿色品质）</h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>遗物</th>
+<th>效果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>🧪 免疫药剂瓶</td>
+<td>免疫中毒和流血</td>
+</tr>
+<tr>
+<td>2</td>
+<td>⚖️ 均衡宝珠</td>
+<td>每场战斗第 1 回合，双方伤害 -50%</td>
+</tr>
+<tr>
+<td>3</td>
+<td>🗝️ 秘境钥匙碎片</td>
+<td>精英战奖励升级：选卡变为 4 选 1</td>
+</tr>
+<tr>
+<td>4</td>
+<td>🧵 金色布片</td>
+<td>每章可抵挡 1 次致命伤害（回复至 1 HP）</td>
+</tr>
+<tr>
+<td>5</td>
+<td>✨ 附魔台</td>
+<td>获得装备卡时，随机附加 1 个属性（+1力/+1敏/+2甲）</td>
+</tr>
+<tr>
+<td>6</td>
+<td>💉 血蛙爪尖</td>
+<td>攻击卡穿透 +3（无视 3 点格挡）</td>
+</tr>
+<tr>
+<td>7</td>
+<td>🌳 柳树皮护甲</td>
+<td>回合结束时若本回合未受到伤害，获得 3 格挡</td>
+</tr>
+<tr>
+<td>8</td>
+<td>🫗 空间水壶</td>
+<td>所有药水效果 +25%</td>
+</tr>
+<tr>
+<td>9</td>
+<td>🔥 焦竹果实·红</td>
+<td>力量 +1</td>
+</tr>
+<tr>
+<td>10</td>
+<td>💨 焦竹果实·绿</td>
+<td>敏捷 +1</td>
+</tr>
+<tr>
+<td>11</td>
+<td>🥩 变异虫肉干</td>
+<td>最大HP +10，每场战斗开始回复 2 HP</td>
+</tr>
+<tr>
+<td>12</td>
+<td>⛓️ 战兽项圈</td>
+<td>召唤物 HP +30%</td>
+</tr>
+<tr>
+<td>13</td>
+<td>🖤 墨鱼汁粉</td>
+<td>每场战斗首次造成伤害时 +4 额外伤害</td>
+</tr>
+<tr>
+<td>14</td>
+<td>💧 圣水</td>
+<td>每章可使用 1 次：回复 40% 最大HP（Boss战前自动提示）</td>
+</tr>
+<tr>
+<td>15</td>
+<td>👁️‍🗨️ 远视药水瓶</td>
+<td>每场战斗前 2 回合，精神力 +1</td>
+</tr>
+</tbody>
+</table>
+<h3 id="65-10">6.5 稀有遗物（10个·蓝色品质）</h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>遗物</th>
+<th>效果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>🌿 自然之杖(复制品)</td>
+<td>每场战斗随机获得 1 张 0 费临时卡</td>
+</tr>
+<tr>
+<td>2</td>
+<td>🗡️ 血色之剑</td>
+<td>力量 +2 · 每回合开始损失 1 HP</td>
+</tr>
+<tr>
+<td>3</td>
+<td>🏹 魔力之弩</td>
+<td>每回合第 1 张攻击牌 +4 伤害</td>
+</tr>
+<tr>
+<td>4</td>
+<td>💎 四级魔晶</td>
+<td>每章初始获得 10 魔晶 · 轮盘奖励品质 +1 级</td>
+</tr>
+<tr>
+<td>5</td>
+<td>🌳 八级金榆果实</td>
+<td>每场战斗开始随机 +60% 力量/敏捷/格挡（持续2回合）</td>
+</tr>
+<tr>
+<td>6</td>
+<td>🔑 完整秘境钥匙</td>
+<td>宝箱/事件奖励双倍（金钱+魔晶）</td>
+</tr>
+<tr>
+<td>7</td>
+<td>📜 契约皮卷</td>
+<td>获得能力卡的概率 +25%</td>
+</tr>
+<tr>
+<td>8</td>
+<td>🎰 七彩轮盘碎片</td>
+<td>每次轮盘有 10% 概率免费（不消耗魔晶）</td>
+</tr>
+<tr>
+<td>9</td>
+<td>🏛️ 荣耀联盟徽章</td>
+<td>每解锁 1 个角色（含当前），最大HP +2</td>
+</tr>
+<tr>
+<td>10</td>
+<td>🌀 布落图腾</td>
+<td>每使用 3 张能力卡，获得 1 点精神力</td>
+</tr>
+</tbody>
+</table>
+<h3 id="66-boss6">6.6 Boss遗物（6个·章节通关奖励）</h3>
+<table>
+<thead>
+<tr>
+<th>遗物</th>
+<th>来源</th>
+<th>增益</th>
+<th>代价</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🐜 蚁后之颚</td>
+<td>第1章</td>
+<td>每回合精神力 +1</td>
+<td>营地无法回复HP</td>
+</tr>
+<tr>
+<td>🐒 尸猿之魂</td>
+<td>第2章</td>
+<td>所有攻击伤害 +25%</td>
+<td>每回合开始随机弃 1 张牌</td>
+</tr>
+<tr>
+<td>🦎 魔蜥之尾</td>
+<td>第3章</td>
+<td>每回合可多抽 2 张牌</td>
+<td>最大HP -15</td>
+</tr>
+<tr>
+<td>👑 圣城之印</td>
+<td>第4章</td>
+<td>精英战后奖励选 2 次</td>
+<td>普通战不再奖励卡牌选择</td>
+</tr>
+<tr>
+<td>✨ 天界碎片</td>
+<td>第5章</td>
+<td>每章开始自选 1 张史诗+卡</td>
+<td>所有敌人HP +15%</td>
+</tr>
+<tr>
+<td>🟣 金色圣光</td>
+<td>任意Boss(2%)</td>
+<td>力+敏各+2 · 免疫负面 · +1精神力/回合</td>
+<td>极低概率(约2%)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="67-321">6.7 角色专属遗物（每角色3个·共21个）</h3>
+<h4 id="_9">叶默</h4>
+<table>
+<thead>
+<tr>
+<th>遗物</th>
+<th>效果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🛠️ 便携锻造台</td>
+<td>锻造效果 +50%</td>
+</tr>
+<tr>
+<td>🌱 变异种子袋</td>
+<td>每场战斗荆棘从2层开始</td>
+</tr>
+<tr>
+<td>⚔️ 战刃碎片</td>
+<td>每锻造5次，永久+1力量（本局）</td>
+</tr>
+</tbody>
+</table>
+<h4 id="_10">墨夜</h4>
+<table>
+<thead>
+<tr>
+<th>遗物</th>
+<th>效果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>❄️ 极寒结晶</td>
+<td>冰霜上限12层 · 冻结阈值降至6层</td>
+</tr>
+<tr>
+<td>📜 古武术秘籍</td>
+<td>天怒标签法术伤害 +30%</td>
+</tr>
+<tr>
+<td>💨 风帆碎片</td>
+<td>每使用3张技能卡，获得1点额外精神力</td>
+</tr>
+</tbody>
+</table>
+<h4 id="_11">温静</h4>
+<table>
+<thead>
+<tr>
+<th>遗物</th>
+<th>效果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🌹 血色玫瑰</td>
+<td>标记持续+1回合 · 加成+10%</td>
+</tr>
+<tr>
+<td>⚡ 连击计数器</td>
+<td>连击触发阈值从3降为2</td>
+</tr>
+<tr>
+<td>🗡️ 暗杀者匕首</td>
+<td>引爆标记伤害 +50%</td>
+</tr>
+</tbody>
+</table>
+<h4 id="_12">盛元</h4>
+<table>
+<thead>
+<tr>
+<th>遗物</th>
+<th>效果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>💢 复仇誓言</td>
+<td>复仇每层伤害+3（原+2）</td>
+</tr>
+<tr>
+<td>🩸 血之契约</td>
+<td>血祭卡自伤减半</td>
+</tr>
+<tr>
+<td>⚰️ 不灭意志碎片</td>
+<td>HP&lt;10%触发1次: 回复30%HP+力量+3（每章1次）</td>
+</tr>
+</tbody>
+</table>
+<h4 id="_13">金英</h4>
+<table>
+<thead>
+<tr>
+<th>遗物</th>
+<th>效果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>✨ 圣光增幅器</td>
+<td>神圣伤害 +2（全局）</td>
+</tr>
+<tr>
+<td>💚 治疗圣杯</td>
+<td>所有治疗量 +25%</td>
+</tr>
+<tr>
+<td>⚜️ 神罚使者之印</td>
+<td>亲和之触额外+1HP · 条件放宽</td>
+</tr>
+</tbody>
+</table>
+<h4 id="_14">红发</h4>
+<table>
+<thead>
+<tr>
+<th>遗物</th>
+<th>效果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🧟 丧尸精华</td>
+<td>丧尸最大数量 +1（最多5只）</td>
+</tr>
+<tr>
+<td>🔮 共鸣水晶</td>
+<td>丧尸死亡时额外 +2 格挡</td>
+</tr>
+<tr>
+<td>💀 狂物核心</td>
+<td>狂物之鸣每牺牲1只丧尸+3伤害</td>
+</tr>
+</tbody>
+</table>
+<h4 id="_15">莉莲</h4>
+<table>
+<thead>
+<tr>
+<th>遗物</th>
+<th>效果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>⚙️ 散热模块</td>
+<td>过热阈值从3升至4</td>
+</tr>
+<tr>
+<td>⚔️ 攻击增幅器</td>
+<td>攻击模式加成 +15%（总+45%）</td>
+</tr>
+<tr>
+<td>🛡️ 防御增幅器</td>
+<td>防御模式加成 +15%（总+45%）+回复+1</td>
+</tr>
+</tbody>
+</table>
+<h3 id="68-5">6.8 事件专属遗物（5个·命运事件获取）</h3>
+<table>
+<thead>
+<tr>
+<th>遗物</th>
+<th>事件</th>
+<th>效果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🪦 破损轮盘</td>
+<td>废弃轮盘点</td>
+<td>最大HP-5 · 轮盘消费永久-2魔晶</td>
+</tr>
+<tr>
+<td>🌱 神秘种子</td>
+<td>变异花园</td>
+<td>每3场战斗后升级牌组中随机1张卡（永久）</td>
+</tr>
+<tr>
+<td>🗡️ 诅咒之刃</td>
+<td>暗影祭坛</td>
+<td>力量+3 · 战斗中无法获得格挡</td>
+</tr>
+<tr>
+<td>💎 丧尸结晶</td>
+<td>丧尸巢穴</td>
+<td>每击杀8个敌人，最大HP+1（上限+20）</td>
+</tr>
+<tr>
+<td>🪙 命运硬币</td>
+<td>神秘商人</td>
+<td>每场战斗开始: 50%+1精神力/50%-1精神力</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="7_1">7. 关卡设计</h2>
+<h3 id="71">7.1 地图结构规范</h3>
+<ul>
+<li><strong>架构</strong>: 楼层制，每章 3-4 层水平楼层</li>
+<li><strong>方向</strong>: 从底部第 1 层出发，逐层向上到达顶层 Boss</li>
+<li><strong>连线</strong>: 每层 4-6 个节点，连线连接，只能向上不能回退</li>
+<li><strong>生成</strong>: 基于随机种子的布局生成，同章不同 run 排列不同</li>
+</ul>
+<h3 id="72">7.2 节点分布公式</h3>
+<table>
+<thead>
+<tr>
+<th>节点类型</th>
+<th>占比</th>
+<th>每章数量（15-22节点）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>👾 普通战斗</td>
+<td>~50%</td>
+<td>7-11</td>
+</tr>
+<tr>
+<td>❓ 命运事件</td>
+<td>~20%</td>
+<td>3-4</td>
+</tr>
+<tr>
+<td>🎰 轮盘</td>
+<td>~12%</td>
+<td>2-3</td>
+</tr>
+<tr>
+<td>🏕️ 营地</td>
+<td>~8%</td>
+<td>1-2</td>
+</tr>
+<tr>
+<td>💀 精英</td>
+<td>~10%</td>
+<td>2-3</td>
+</tr>
+<tr>
+<td>👹 Boss</td>
+<td>固定</td>
+<td>1（顶层）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>分布约束</strong>:
+- Boss 前必有 1 个营地
+- 每层至少有 2 条可选路线
+- 精英不出现于第 1 层
+- 营地不出现在第 1 层（除第 1 章教学外）
+- 轮盘随机出现在第 1-2 层（不在 Boss 层）</p>
+<h3 id="73">7.3 各章地图概要</h3>
+<table>
+<thead>
+<tr>
+<th>章节</th>
+<th>节点</th>
+<th>层数</th>
+<th>轮盘等级</th>
+<th>营地数</th>
+<th>特色</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第1章</td>
+<td>15</td>
+<td>3</td>
+<td>一道</td>
+<td>2</td>
+<td>教学导向·线性为主</td>
+</tr>
+<tr>
+<td>第2章</td>
+<td>18</td>
+<td>3</td>
+<td>一道+二道</td>
+<td>2</td>
+<td>分支增多·兽潮事件</td>
+</tr>
+<tr>
+<td>第3章</td>
+<td>20</td>
+<td>4</td>
+<td>一道+二道+三道</td>
+<td>2</td>
+<td>秘境主题·最多分支</td>
+</tr>
+<tr>
+<td>第4章</td>
+<td>20</td>
+<td>4</td>
+<td>二道+三道+七彩</td>
+<td>2</td>
+<td>人类敌人·双Boss</td>
+</tr>
+<tr>
+<td>第5章</td>
+<td>22</td>
+<td>4</td>
+<td>三道+七彩</td>
+<td>2</td>
+<td>天界主题·3阶段Boss</td>
+</tr>
+</tbody>
+</table>
+<h3 id="74">7.4 特殊地图机制</h3>
+<p><strong>🔮 节点预览</strong>
+玩家可看到当前层及下一层的节点类型（名称/图标），但无法看到具体敌人阵容。Boss 节点始终可见。精英节点有特殊红光标记。</p>
+<p><strong>🔀 分支路线</strong>
+每层至少 2 条可选路线，路径之间不可跳跃切换（除特殊事件外）。路线差异体现在：战斗数量、轮盘等级、是否有营地/精英。</p>
+<p><strong>⚠️ 燃烧节点（Ascension 10+ 解锁）</strong>
+部分普通战斗节点变为「燃烧」状态——敌人 +25% HP 和伤害，但掉落升级（魔晶 +2，稀有度 +1 级）。</p>
+<p><strong>🌀 隐藏房间</strong>
+约 5% 概率在地图上出现隐藏房间节点（?图标）。可能是免费遗物、超级轮盘（0魔晶）、或隐藏Boss。</p>
+<h3 id="75">7.5 章节间过渡</h3>
+<table>
+<thead>
+<tr>
+<th>过渡阶段</th>
+<th>发生内容</th>
+<th>玩家操作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🎬 过场动画</td>
+<td>播放章节间剧情插画（1-2分钟）</td>
+<td>观看/跳过</td>
+</tr>
+<tr>
+<td>💾 自动存档</td>
+<td>通关Boss后自动创建存档点</td>
+<td>死亡后可从本章重开</td>
+</tr>
+<tr>
+<td>⭐ Boss奖励</td>
+<td>稀有卡3选1 + Boss遗物 + 解锁角色(1-3章)</td>
+<td>选择奖励</td>
+</tr>
+<tr>
+<td>💎 魔晶重置</td>
+<td>所有魔晶清零</td>
+<td>—</td>
+</tr>
+<tr>
+<td>🔄 牌组继承</td>
+<td>牌组、遗物、最大HP、药水继承至下一章</td>
+<td>—</td>
+</tr>
+<tr>
+<td>🏕️ 满血回复</td>
+<td>进入下一章 HP 回复至最大</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="8">8. 命运事件</h2>
+<h3 id="81">8.1 事件设计规范</h3>
+<ul>
+<li>每个事件 2-3 个选项，均有风险/回报权衡</li>
+<li>事件融入原著剧情元素（角色、地点、道具）</li>
+<li>部分事件有前置条件（持有特定遗物/卡牌/角色）</li>
+<li>事件结果不可逆</li>
+<li>每章 7 个事件（第1-5章共 35 个）</li>
+<li>全局事件按章节分池，不跨章出现</li>
+</ul>
+<h3 id="82">8.2 事件分类</h3>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>数量</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🟢 友好</td>
+<td>~12</td>
+<td>纯收益/选择增益方向</td>
+</tr>
+<tr>
+<td>🟡 风险</td>
+<td>~15</td>
+<td>高风险高回报/可能损失HP或卡</td>
+</tr>
+<tr>
+<td>🔴 诅咒</td>
+<td>~5</td>
+<td>获得强力遗物但有代价</td>
+</tr>
+<tr>
+<td>🟣 特殊</td>
+<td>~3</td>
+<td>只能通过特定条件触发</td>
+</tr>
+</tbody>
+</table>
+<h3 id="83-17">8.3 第1章事件（7个）</h3>
+<table>
+<thead>
+<tr>
+<th>事件名</th>
+<th>类型</th>
+<th>选项A</th>
+<th>选项B</th>
+<th>选项C</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🛒 末日前的准备</td>
+<td>🟢</td>
+<td>去药店: 3瓶药水</td>
+<td>去装备店: 1张随机装备卡</td>
+<td>去超市: 旅粮袋遗物</td>
+</tr>
+<tr>
+<td>📻 学校广播室</td>
+<td>🟡</td>
+<td>广播求援: 50%获2卡/50%强制战斗</td>
+<td>开启轮盘: 临时彩色轮盘(10魔晶)</td>
+<td>离开</td>
+</tr>
+<tr>
+<td>👤 幸存者求救</td>
+<td>🟢</td>
+<td>施救: -5HP,获随机普通遗物</td>
+<td>教他生存: 移除1张卡</td>
+<td>无视</td>
+</tr>
+<tr>
+<td>🐕 流浪狗</td>
+<td>🟣</td>
+<td>喂食(消耗药水): 获战兽项圈</td>
+<td>收留: HP-8,获地皇犬卡</td>
+<td>不理</td>
+</tr>
+<tr>
+<td>🏚️ 废弃储藏室</td>
+<td>🟡</td>
+<td>搜索: 50%获10魔晶+药水/50%遇敌</td>
+<td>直接取: 5魔晶</td>
+<td>离开</td>
+</tr>
+<tr>
+<td>🧪 药品柜</td>
+<td>🟢</td>
+<td>拿免疫药剂: 获免疫药剂瓶</td>
+<td>拿进化药剂: 升级2张随机卡(本局)</td>
+<td>全拿: -12HP</td>
+</tr>
+<tr>
+<td>📡 无线电信号</td>
+<td>🟡</td>
+<td>回应: 获下章地图信息(揭示2节点)</td>
+<td>忽略: 无事</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<h3 id="84-27">8.4 第2章事件（7个·代表）</h3>
+<table>
+<thead>
+<tr>
+<th>事件名</th>
+<th>类型</th>
+<th>选项A</th>
+<th>选项B</th>
+<th>选项C</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🏠 天湖别苑</td>
+<td>🟢</td>
+<td>建立营地: 升级2张卡+回复30%HP</td>
+<td>清理周边: 3连战(奖励×3)</td>
+<td>侦查: 揭示所有节点</td>
+</tr>
+<tr>
+<td>💰 聚宝盆</td>
+<td>🟡</td>
+<td>打开: 稀有遗物,但触发精英战</td>
+<td>只取部分: 20魔晶</td>
+<td>离开</td>
+</tr>
+<tr>
+<td>⚔️ 巡逻队</td>
+<td>🟡</td>
+<td>加入: 1张稀有卡+-30%HP</td>
+<td>避开: 无事</td>
+<td>—</td>
+</tr>
+<tr>
+<td>🧟 尸猿巢穴</td>
+<td>🔴</td>
+<td>偷蛋: 史诗装备卡,强制Boss级尸猿战</td>
+<td>摧毁: +15魔晶+移除负面状态</td>
+<td>离开</td>
+</tr>
+<tr>
+<td>🌿 变异花园</td>
+<td>🟢</td>
+<td>采集果实: 获3张随机植物系卡</td>
+<td>种植种子: 获神秘种子遗物</td>
+<td>烧毁: +20魔晶</td>
+</tr>
+<tr>
+<td>🤝 交易商队</td>
+<td>🟢</td>
+<td>交易: 移除1卡+1稀有卡</td>
+<td>护送: HP-10+随机优秀遗物</td>
+<td>抢劫: 30魔晶+1诅咒</td>
+</tr>
+<tr>
+<td>🏚️ 废弃锻造台</td>
+<td>🟣</td>
+<td>修理(需叶默/盛元): 升级3张卡(永久)</td>
+<td>拆解: 获附魔台遗物</td>
+<td>离开</td>
+</tr>
+</tbody>
+</table>
+<h3 id="85-3-5">8.5 第3-5章事件摘要</h3>
+<table>
+<thead>
+<tr>
+<th>章节</th>
+<th>代表性事件</th>
+<th>主题</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>第3章</td>
+<td>古族交易、秘境入口、宝石山矿洞、不落城遗迹、血蛙沼泽、人面菇洞穴、布落圣城使者</td>
+<td>秘境探索·古族交易</td>
+</tr>
+<tr>
+<td>第4章</td>
+<td>圣城囚徒、圣殿密道、难民庇护、暗影祭坛、骑士的挑战、审判官的裁决、红发的选择</td>
+<td>圣城战争·道德抉择</td>
+</tr>
+<tr>
+<td>第5章</td>
+<td>天界传送门、造物者的试验、最终试炼、翼人的考验、成神之路、金色圣光之谜、轮回的真相</td>
+<td>天界揭秘·终极抉择</td>
+</tr>
+</tbody>
+</table>
+<h3 id="86">8.6 特殊条件触发事件</h3>
+<table>
+<thead>
+<tr>
+<th>事件</th>
+<th>触发条件</th>
+<th>效果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🟣 地皇犬觉醒</td>
+<td>持有「地皇犬」卡 + 累计喂食3次</td>
+<td>地皇犬升级为史诗版本（伤害+8,HP+15）</td>
+</tr>
+<tr>
+<td>🟣 红发的觉醒</td>
+<td>第3章后 + 红发已解锁 + 持有「意识结晶」</td>
+<td>红发牌组解锁1张隐藏传说卡</td>
+</tr>
+<tr>
+<td>🟣 金色圣光</td>
+<td>任意章节 · 约3%概率</td>
+<td>获传说遗物「金色圣光战甲」线索，隐藏任务线</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="9">9. 局外系统</h2>
+<h3 id="91">9.1 进化者等阶（角色等级）</h3>
+<p>每个角色独立的经验条，通关章节获得经验。</p>
+<table>
+<thead>
+<tr>
+<th>等阶</th>
+<th>所需经验</th>
+<th>解锁内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>普通人</td>
+<td>0</td>
+<td>初始状态</td>
+</tr>
+<tr>
+<td>一星</td>
+<td>100</td>
+<td>解锁 2 张优秀卡 + 初始HP +3</td>
+</tr>
+<tr>
+<td>二星</td>
+<td>250</td>
+<td>解锁 1 张稀有卡 + 解锁 1 个角色专属遗物</td>
+</tr>
+<tr>
+<td>三星</td>
+<td>500</td>
+<td>解锁 1 张史诗卡 + 初始HP +3</td>
+</tr>
+<tr>
+<td>四星</td>
+<td>800</td>
+<td>解锁 2 张优秀卡 + 初始HP +2</td>
+</tr>
+<tr>
+<td>五星</td>
+<td>1200</td>
+<td>解锁 1 张稀有卡 + 解锁 1 个角色专属遗物</td>
+</tr>
+<tr>
+<td>六星</td>
+<td>1600</td>
+<td>解锁 1 张史诗卡 + 初始HP +2</td>
+</tr>
+<tr>
+<td>七星</td>
+<td>2000</td>
+<td>解锁 2 张稀有卡 + 初始HP +2</td>
+</tr>
+<tr>
+<td>八星</td>
+<td>2500</td>
+<td>解锁 1 张史诗卡 + 解锁 1 个角色专属遗物</td>
+</tr>
+<tr>
+<td>九星</td>
+<td>3000</td>
+<td>解锁 1 张传说卡 + 初始HP +5</td>
+</tr>
+<tr>
+<td>十星</td>
+<td>5000</td>
+<td>解锁最终传说卡 + 初始遗物升级 + 解锁角色皮肤</td>
+</tr>
+</tbody>
+</table>
+<p><strong>经验获取</strong>: 通关Boss +150 · 通关章节 +100 · 击杀精英 +50 · 成就 +25~100</p>
+<h3 id="92-ascension">9.2 挑战难度（Ascension）</h3>
+<p>通关全部 5 章后解锁。共 20 级，逐级解锁。</p>
+<table>
+<thead>
+<tr>
+<th>等级</th>
+<th>难度变化（累加）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Asc 1</td>
+<td>精英战数量 +1</td>
+</tr>
+<tr>
+<td>Asc 2</td>
+<td>普通敌人伤害 +1</td>
+</tr>
+<tr>
+<td>Asc 3</td>
+<td>轮盘消耗 +2 魔晶</td>
+</tr>
+<tr>
+<td>Asc 4</td>
+<td>敌人 HP +5%</td>
+</tr>
+<tr>
+<td>Asc 5</td>
+<td>敌人 HP +10%，伤害 +1</td>
+</tr>
+<tr>
+<td>Asc 6</td>
+<td>营地回复降为 20% HP</td>
+</tr>
+<tr>
+<td>Asc 7</td>
+<td>精英敌人新增 1 种技能</td>
+</tr>
+<tr>
+<td>Asc 8</td>
+<td>初始HP -5</td>
+</tr>
+<tr>
+<td>Asc 9</td>
+<td>Boss HP +15%</td>
+</tr>
+<tr>
+<td>Asc 10</td>
+<td><strong>燃烧节点</strong>解锁 · Boss 新增技能</td>
+</tr>
+<tr>
+<td>Asc 11</td>
+<td>普通战不再掉落优秀+卡</td>
+</tr>
+<tr>
+<td>Asc 12</td>
+<td>敌人伤害 +2</td>
+</tr>
+<tr>
+<td>Asc 13</td>
+<td>轮盘消耗 +5 魔晶</td>
+</tr>
+<tr>
+<td>Asc 14</td>
+<td>初始HP -8</td>
+</tr>
+<tr>
+<td>Asc 15</td>
+<td>营地不再满血回复（回复 50%）</td>
+</tr>
+<tr>
+<td>Asc 16</td>
+<td>敌人 HP +20%</td>
+</tr>
+<tr>
+<td>Asc 17</td>
+<td>Boss 伤害 +25%</td>
+</tr>
+<tr>
+<td>Asc 18</td>
+<td>精英数量再 +1</td>
+</tr>
+<tr>
+<td>Asc 19</td>
+<td>所有敌人伤害 +3</td>
+</tr>
+<tr>
+<td>Asc 20</td>
+<td><strong>双Boss战</strong>（每章Boss后1/3概率出现第2个Boss）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Ascension 模式特殊规则</strong>: 死亡 = 完全重开（无章节重试）</p>
+<h3 id="93">9.3 存档与死亡机制</h3>
+<h4 id="_16">存档规则</h4>
+<ul>
+<li><strong>自动存档点</strong>: 每章通关 Boss 后</li>
+<li><strong>存档内容</strong>: 角色、牌组、遗物、最大HP、药水、章节进度</li>
+<li><strong>存档数量</strong>: 每角色最多 3 个存档槽</li>
+<li><strong>章节重开</strong>: 可从任意已通关章节开始新 run（使用当时的牌组状态）</li>
+</ul>
+<h4 id="_17">死亡处理</h4>
+<p>死亡时弹出选项：
+1. <strong>从本章开头重新开始</strong>（保留章节开始时的牌组/遗物状态）
+2. <strong>从第一章完全重开</strong>（清除所有进度）
+3. <strong>返回主菜单</strong></p>
+<h3 id="94">9.4 主菜单结构</h3>
+<div class="codehilite"><pre><span></span><code>📖 继续游戏（读取最近章节存档）
+🆕 新游戏
+  ├── 选择章节（已解锁的章节）
+  ├── 选择角色（7人·含解锁状态）
+  └── 选择难度（普通/Ascension 1-20）
+📊 图鉴
+  ├── 🃏 卡牌图鉴（~545张·按角色分类）
+  ├── 💎 遗物图鉴（~79个）
+  ├── 👹 敌人图鉴（44种·击杀解锁详情）
+  └── ❓ 事件记录（35个·触发后解锁）
+🏆 成就
+📈 统计（各角色胜率/速通/最高Ascension等）
+⚙️ 设置
+</code></pre></div>
+
+<h3 id="95">9.5 成就系统（代表）</h3>
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th>成就</th>
+<th>条件</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>通关</td>
+<td>末日幸存者</td>
+<td>首次通关第1章</td>
+</tr>
+<tr>
+<td>通关</td>
+<td>绿洲领主</td>
+<td>首次通关第2章</td>
+</tr>
+<tr>
+<td>通关</td>
+<td>秘境征服者</td>
+<td>首次通关第3章</td>
+</tr>
+<tr>
+<td>通关</td>
+<td>圣城毁灭者</td>
+<td>首次通关第4章</td>
+</tr>
+<tr>
+<td>通关</td>
+<td>天界超越者</td>
+<td>首次通关第5章</td>
+</tr>
+<tr>
+<td>角色</td>
+<td>工匠大师</td>
+<td>叶默通关</td>
+</tr>
+<tr>
+<td>角色</td>
+<td>冰霜女王</td>
+<td>墨夜通关</td>
+</tr>
+<tr>
+<td>角色</td>
+<td>杀戮绽放</td>
+<td>温静通关</td>
+</tr>
+<tr>
+<td>角色</td>
+<td>复仇之魂</td>
+<td>盛元通关</td>
+</tr>
+<tr>
+<td>角色</td>
+<td>神罚降临</td>
+<td>金英通关</td>
+</tr>
+<tr>
+<td>角色</td>
+<td>亡者军团</td>
+<td>红发通关</td>
+</tr>
+<tr>
+<td>角色</td>
+<td>战甲解放</td>
+<td>莉莲通关</td>
+</tr>
+<tr>
+<td>挑战</td>
+<td>登峰造极</td>
+<td>Ascension 20 通关</td>
+</tr>
+<tr>
+<td>挑战</td>
+<td>急速通关</td>
+<td>2小时内通关全部5章</td>
+</tr>
+<tr>
+<td>挑战</td>
+<td>无伤Boss</td>
+<td>无伤击败任一Boss</td>
+</tr>
+<tr>
+<td>战斗</td>
+<td>一击必杀</td>
+<td>单次伤害超过 100</td>
+</tr>
+<tr>
+<td>战斗</td>
+<td>荆棘之王</td>
+<td>荆棘层数达到 50</td>
+</tr>
+<tr>
+<td>战斗</td>
+<td>亡者大军</td>
+<td>同时控制 5 只丧尸</td>
+</tr>
+<tr>
+<td>收集</td>
+<td>卡牌大师</td>
+<td>解锁全部卡牌</td>
+</tr>
+<tr>
+<td>收集</td>
+<td>遗物收藏家</td>
+<td>解锁全部遗物</td>
+</tr>
+<tr>
+<td>隐藏</td>
+<td>金色圣光</td>
+<td>获得金色圣光战甲遗物</td>
+</tr>
+<tr>
+<td>隐藏</td>
+<td>真结局</td>
+<td>莉莲通关 Ascension 20</td>
+</tr>
+</tbody>
+</table>
+<h3 id="96">9.6 游戏设置</h3>
+<table>
+<thead>
+<tr>
+<th>分类</th>
+<th>设置项</th>
+<th>默认值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🎮 游戏</td>
+<td>战斗速度(1x/2x/4x) · 快速模式(跳过动画)</td>
+<td>1x · 关闭</td>
+</tr>
+<tr>
+<td>🖥️ 画面</td>
+<td>分辨率 · 全屏/窗口 · 画质 · 粒子效果</td>
+<td>1920×1080 · 全屏 · 高 · 开</td>
+</tr>
+<tr>
+<td>🔊 音频</td>
+<td>主音量 · 音效 · 背景音乐 · 语音</td>
+<td>80% · 100% · 80% · 100%</td>
+</tr>
+<tr>
+<td>🌐 语言</td>
+<td>界面语言 · 字幕语言</td>
+<td>简体中文</td>
+</tr>
+<tr>
+<td>💿 数据</td>
+<td>云存档 · 重置进度 · 导入/导出</td>
+<td>开启</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="10">10. 附录：总规模统计</h2>
+<h3 id="101">10.1 内容规模总览</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>规模</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>📖 剧情章节</td>
+<td>5 章</td>
+</tr>
+<tr>
+<td>👤 可操作角色</td>
+<td>7 人（3 初始 + 3 解锁 + 1 隐藏）</td>
+</tr>
+<tr>
+<td>🃏 总卡牌数</td>
+<td>~545 张（每角色 75-80 张）</td>
+</tr>
+<tr>
+<td>💎 总遗物数</td>
+<td>~79 个</td>
+</tr>
+<tr>
+<td>👹 敌人种类</td>
+<td>44 种（25 普通 + 14 精英 + 5 Boss）</td>
+</tr>
+<tr>
+<td>❓ 命运事件</td>
+<td>35 个（每章 7 个）+ 3 特殊条件事件</td>
+</tr>
+<tr>
+<td>🗺️ 地图节点类型</td>
+<td>6 种</td>
+</tr>
+<tr>
+<td>🎰 轮盘等级</td>
+<td>4 级（一道/二道/三道/七彩）</td>
+</tr>
+<tr>
+<td>⭐ 进化者等阶</td>
+<td>每角色 10 阶（普通→十星）</td>
+</tr>
+<tr>
+<td>🔥 挑战难度</td>
+<td>Ascension 1-20 级</td>
+</tr>
+<tr>
+<td>🏆 成就</td>
+<td>~25 个（含隐藏）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="102">10.2 卡牌类型分布（全角色合计）</h3>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>数量</th>
+<th>占比</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>⚔️ 攻击卡</td>
+<td>~180</td>
+<td>~33%</td>
+</tr>
+<tr>
+<td>🛡️ 技能卡</td>
+<td>~180</td>
+<td>~33%</td>
+</tr>
+<tr>
+<td>⭐ 能力卡</td>
+<td>~110</td>
+<td>~20%</td>
+</tr>
+<tr>
+<td>🗡️ 装备卡</td>
+<td>~75</td>
+<td>~14%</td>
+</tr>
+</tbody>
+</table>
+<h3 id="103-1">10.3 战斗数值参考（基础值·第1章）</h3>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>数值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>角色基础HP</td>
+<td>60-80</td>
+</tr>
+<tr>
+<td>基础攻击卡伤害</td>
+<td>6（斩击）</td>
+</tr>
+<tr>
+<td>基础防御卡格挡</td>
+<td>5（防御）</td>
+</tr>
+<tr>
+<td>每回合精神力</td>
+<td>3</td>
+</tr>
+<tr>
+<td>每回合抽牌</td>
+<td>5</td>
+</tr>
+<tr>
+<td>普通丧尸HP</td>
+<td>40-50</td>
+</tr>
+<tr>
+<td>普通丧尸伤害</td>
+<td>6-8</td>
+</tr>
+<tr>
+<td>第1章Boss HP</td>
+<td>250</td>
+</tr>
+</tbody>
+</table>
+<h3 id="104">10.4 设计参考来源</h3>
+<ul>
+<li><strong>原著小说</strong>: 《轮盘世界》（约 1739 章，300 万+字）</li>
+<li><strong>核心玩法参考</strong>: 《杀戮尖塔》(Slay the Spire)</li>
+<li><strong>剧情模式参考</strong>: 《欺诈之地》(Griftlands)</li>
+<li><strong>双职业参考</strong>: 《怪物火车》(Monster Train)</li>
+</ul>
+<hr />
+<blockquote>
+<p><strong>文档状态</strong>: 策划阶段 v1.0
+<strong>下一步</strong>: 进入详细实现规划（writing-plans skill）
+<strong>维护</strong>: 本 GDD 为活文档，随开发推进持续更新</p>
+</blockquote>
+  </div>
+</div>
+
+<!-- Back to Top -->
+<button class="back-to-top" onclick="scrollToTop()" title="回到顶部">⬆</button>
+
+<script>
+// Scroll to top
+function scrollToTop() {
+  document.getElementById("mainContent").scrollTo({ top: 0, behavior: "smooth" });
+}
+
+// TOC active state on scroll
+const mainEl = document.getElementById("mainContent");
+const tocLinks = document.querySelectorAll(".toc-link");
+const headings = [];
+
+// Collect all heading positions
+document.querySelectorAll(".content-container h2, .content-container h3").forEach(h => {
+  headings.push({ id: h.id, el: h });
+});
+
+function updateActiveLink() {
+  const scrollTop = mainEl.scrollTop + 80;
+  let activeId = null;
+
+  for (const h of headings) {
+    if (h.el.offsetTop <= scrollTop) {
+      activeId = h.id;
+    }
+  }
+
+  tocLinks.forEach(link => {
+    link.classList.toggle("active", link.getAttribute("href") === "#" + activeId);
+  });
+}
+
+mainEl.addEventListener("scroll", updateActiveLink);
+
+// Smooth scroll for TOC links
+tocLinks.forEach(link => {
+  link.addEventListener("click", function(e) {
+    e.preventDefault();
+    const targetId = this.getAttribute("href").slice(1);
+    const target = document.getElementById(targetId);
+    if (target) {
+      mainEl.scrollTo({ top: target.offsetTop - 60, behavior: "smooth" });
+    }
+  });
+});
+</script>
+
+</body>
+</html>
