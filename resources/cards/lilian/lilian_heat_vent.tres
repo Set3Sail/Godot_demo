@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=5 format=3]
+[ext_resource type="Script" path="res://scripts/data/card_data.gd" id="1_card"]
+[ext_resource type="Script" path="res://scripts/data/effect_data.gd" id="2_e"]
+
+[sub_resource type="Resource" id="ef0"]
+script = ExtResource("2_e")
+type = 9
+target = 0
+base_value = 1
+status_id = "heat_vent"
+
+[resource]
+script = ExtResource("1_card")
+card_id = "lilian_heat_vent"
+card_name = "散热"
+character = "莉莲"
+card_type = 1
+rarity = 0
+cost = 0
+effects = Array[ExtResource("2_e")]([SubResource("ef0")])
+keywords = Array[String](["过热"])
+description = "过热计数器-1，抽1张牌"

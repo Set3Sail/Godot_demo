@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=5 format=3]
+[ext_resource type="Script" path="res://scripts/data/card_data.gd" id="1_card"]
+[ext_resource type="Script" path="res://scripts/data/effect_data.gd" id="2_e"]
+
+[sub_resource type="Resource" id="ef0"]
+script = ExtResource("2_e")
+type = 9
+target = 0
+base_value = 0
+status_id = "perfect_form"
+
+[resource]
+script = ExtResource("1_card")
+card_id = "lilian_perfect_form"
+card_name = "完美形态"
+character = "莉莲"
+card_type = 2
+rarity = 2
+cost = 2
+effects = Array[ExtResource("2_e")]([SubResource("ef0")])
+keywords = Array[String](["战甲"])
+description = "两种模式加成同时生效"
+exhaust_on_use = true

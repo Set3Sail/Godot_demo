@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=5 format=3]
+[ext_resource type="Script" path="res://scripts/data/card_data.gd" id="1_card"]
+[ext_resource type="Script" path="res://scripts/data/effect_data.gd" id="2_e"]
+
+[sub_resource type="Resource" id="ef0"]
+script = ExtResource("2_e")
+type = 9
+target = 2
+base_value = 10
+status_id = "dark_explosion"
+
+[resource]
+script = ExtResource("1_card")
+card_id = "hongfa_dark_explosion"
+card_name = "暗影爆发"
+character = "红发"
+card_type = 0
+rarity = 1
+cost = 2
+effects = Array[ExtResource("2_e")]([SubResource("ef0")])
+keywords = Array[String](["牺牲"])
+description = "牺牲1只丧尸，对所有敌人造成10点伤害"

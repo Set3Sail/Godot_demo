@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="CardData" load_steps=5 format=3]
+[ext_resource type="Script" path="res://scripts/data/card_data.gd" id="1_card"]
+[ext_resource type="Script" path="res://scripts/data/effect_data.gd" id="2_e"]
+
+[sub_resource type="Resource" id="ef0"]
+script = ExtResource("2_e")
+type = 9
+target = 0
+base_value = 0
+status_id = "divine_realm"
+
+[resource]
+script = ExtResource("1_card")
+card_id = "jinying_divine_realm"
+card_name = "神域"
+character = "金英"
+card_type = 2
+rarity = 4
+cost = 2
+effects = Array[ExtResource("2_e")]([SubResource("ef0")])
+keywords = Array[String](["神罚"])
+description = "所有治疗效果翻倍，每次治疗时对随机敌人造成等量的神圣伤害"
+exhaust_on_use = true
