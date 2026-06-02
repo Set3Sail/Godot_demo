@@ -1,0 +1,54 @@
+[gd_scene load_steps=2 format=3 uid="uid://d0w1xm42yqo0u"]
+
+[ext_resource type="Script" uid="uid://e1x2yn53zrp1v" path="res://scripts/ui/card_widget.gd" id="1_card_widget"]
+
+[node name="CardWidget" type="Control"]
+custom_minimum_size = Vector2(120, 180)
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_card_widget")
+
+[node name="TypeBg" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.3, 0.3, 0.3, 0.6)
+
+[node name="CostLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 6.0
+offset_top = 6.0
+offset_right = 36.0
+offset_bottom = 30.0
+text = "1"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="NameLabel" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -50.0
+offset_top = 6.0
+offset_right = 50.0
+offset_bottom = 30.0
+text = "卡牌名称"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="DescLabel" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -54.0
+offset_top = -60.0
+offset_right = 54.0
+offset_bottom = -6.0
+text = "效果描述"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
