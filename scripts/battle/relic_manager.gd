@@ -4,7 +4,7 @@ class_name RelicManager
 extends Node
 
 var relics: Array[RelicData] = []
-var _effect_resolver: EffectResolver
+var _effect_resolver  # EffectResolver 引用（无类型标注，打破循环依赖）
 
 signal relic_triggered(relic: RelicData, timing: String, result: Dictionary)
 signal relic_gained(relic: RelicData)
@@ -12,7 +12,7 @@ signal relic_removed(relic: RelicData)
 signal relic_charge_changed(relic: RelicData, current_charges: int)
 
 
-func setup(resolver: EffectResolver) -> void:
+func setup(resolver) -> void:  # resolver: 打破循环依赖
     _effect_resolver = resolver
 
 

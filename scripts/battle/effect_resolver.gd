@@ -8,7 +8,7 @@ var _resource_manager: ResourceManager
 var _card_manager: CardManager
 var _status_manager: StatusManager
 var _enemy_manager: EnemyManager  # EnemyManager 引用
-var _relic_manager: RelicManager  # RelicManager 引用
+var _relic_manager  # RelicManager 引用（无类型标注，打破循环依赖）
 
 
 signal effect_about_to_execute(effect: EffectData, target: Node)
@@ -26,7 +26,7 @@ func setup(
     cm: CardManager,
     sm: StatusManager,
     em: EnemyManager,
-    rem: RelicManager
+    rem  # RelicManager 引用（无类型标注）
 ) -> void:
     _resource_manager = rm
     _card_manager = cm
