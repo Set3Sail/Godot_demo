@@ -42,3 +42,15 @@ func _ready() -> void:
 	battle_mgr._turn_sm.request_end_turn()
 	await get_tree().create_timer(1.0).timeout
 	print("Turn ended. New round: ", battle_mgr._turn_sm.round_number)
+
+	# 打出第一张卡
+	var card: CardData = battle_mgr._card_mgr.hand[0]
+	var target: Node = battle_mgr._enemy_mgr.get_frontmost_enemy()
+	if target:
+		battle_mgr.play_card(card, target)
+		print("Played: ", card.card_name, " -> Enemy HP: ", battle_mgr._resource_mgr.get_enemy_hp(target))
+
+	# 结束回合
+	battle_mgr._turn_sm.request_end_turn()
+	await get_tree().create_timer(1.0).timeout
+	print("Turn ended. New round: ", battle_mgr._turn_sm.round_number)
