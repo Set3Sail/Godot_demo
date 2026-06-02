@@ -8,6 +8,14 @@ var card_data: CardData
 signal card_clicked(card: CardData)
 
 
+func _ready() -> void:
+	# 让所有子节点不拦截点击，事件穿透到 CardWidget 的 _gui_input
+	mouse_filter = MOUSE_FILTER_STOP
+	for child in get_children():
+		if child is Control:
+			child.mouse_filter = MOUSE_FILTER_IGNORE
+
+
 func setup(card: CardData) -> void:
 	card_data = card
 	_refresh_display()
