@@ -7,13 +7,13 @@ extends Node
 @export var hand_size: int = 5
 @export var energy_per_turn: int = 3
 
-@onready var _turn_sm: TurnStateMachine = $TurnStateMachine
-@onready var _card_mgr: CardManager = $CardManager
-@onready var _resource_mgr: ResourceManager = $ResourceManager
-@onready var _status_mgr: StatusManager = $StatusManager
-@onready var _effect_resolver: EffectResolver = $EffectResolver
-@onready var _enemy_mgr: EnemyManager = $EnemyManager
-@onready var _relic_mgr: RelicManager = $RelicManager
+@onready var _turn_sm := $TurnStateMachine
+@onready var _card_mgr := $CardManager
+@onready var _resource_mgr := $ResourceManager
+@onready var _status_mgr := $StatusManager
+@onready var _effect_resolver := $EffectResolver
+@onready var _enemy_mgr := $EnemyManager
+@onready var _relic_mgr := $RelicManager
 
 var _player_deck: Array[CardData] = []
 var _enemy_configs: Array[EnemyData] = []
