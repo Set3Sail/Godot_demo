@@ -72,7 +72,7 @@ func play_card(card: CardData, target: Node) -> void:
 		card_discarded.emit(card)
 
 	if hand.is_empty():
-\t\thand_emptied.emit()
+			hand_emptied.emit()
 
 
 ## 弃所有手牌

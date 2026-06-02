@@ -13,8 +13,8 @@ var _enemy_ai_map: Dictionary = {}            # Node -> IntentData
 var _enemy_pattern_index: Dictionary = {}     # Node -> int
 var _crystal_drops: Dictionary = {}           # Node -> crystal count
 
-	var _resource_manager: ResourceManager
-	var _status_manager: StatusManager
+var _resource_manager: ResourceManager
+var _status_manager: StatusManager
 signal enemy_intent_revealed(enemy: Node, intent: IntentData)
 signal enemy_acted(enemy: Node, intent: IntentData, result: Dictionary)
 signal enemy_spawned(enemy: Node, slot_index: int)
