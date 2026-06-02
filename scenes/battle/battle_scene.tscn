@@ -1,0 +1,98 @@
+[gd_scene format=3 uid="uid://nbdjue87qimh"]
+
+[ext_resource type="Script" uid="uid://dlqwee3b0rhlg" path="res://scenes/battle/battle_test.gd" id="1_7hnyd"]
+[ext_resource type="Script" uid="uid://6p6v0f55jl4j" path="res://scripts/battle/battle_manager.gd" id="1_ww1p6"]
+[ext_resource type="Script" uid="uid://c5fvc2ttlex64" path="res://scripts/battle/turn_state_machine.gd" id="2_7hnyd"]
+[ext_resource type="Script" uid="uid://c0oc377wkwjvc" path="res://scripts/battle/card_manager.gd" id="3_dddu7"]
+[ext_resource type="Script" uid="uid://c72upbucf3ckb" path="res://scripts/battle/resource_manager.gd" id="4_3511k"]
+[ext_resource type="Script" uid="uid://dp662sf5ftliy" path="res://scripts/battle/status_manager.gd" id="5_puhd7"]
+[ext_resource type="Script" uid="uid://chnbxg5btulom" path="res://scripts/battle/effect_resolver.gd" id="6_mpswg"]
+[ext_resource type="Script" uid="uid://b2l3dwd0tixt5" path="res://scripts/battle/enemy_manager.gd" id="7_te27b"]
+[ext_resource type="Script" uid="uid://bg4omd0kkkf0x" path="res://scripts/battle/relic_manager.gd" id="8_7i1my"]
+[ext_resource type="Script" uid="uid://csmt64ioh6uyv" path="res://scripts/battle/equipment_manager.gd" id="9_7s01p"]
+[ext_resource type="Script" path="res://scripts/ui/hand_ui.gd" id="10_hand_ui"]
+
+[node name="BattleScene" type="Node" unique_id=1996710457]
+script = ExtResource("1_7hnyd")
+
+[node name="BattleManager" type="Node" parent="." unique_id=1533950084]
+script = ExtResource("1_ww1p6")
+
+[node name="TurnStateMachine" type="Node" parent="BattleManager" unique_id=1088777408]
+script = ExtResource("2_7hnyd")
+
+[node name="CardManager" type="Node" parent="BattleManager" unique_id=1687836992]
+script = ExtResource("3_dddu7")
+
+[node name="ResourceManager" type="Node" parent="BattleManager" unique_id=1207943705]
+script = ExtResource("4_3511k")
+
+[node name="StatusManager" type="Node" parent="BattleManager" unique_id=2130982160]
+script = ExtResource("5_puhd7")
+
+[node name="EffectResolver" type="Node" parent="BattleManager" unique_id=1227381027]
+script = ExtResource("6_mpswg")
+
+[node name="EnemyManager" type="Node" parent="BattleManager" unique_id=666727372]
+script = ExtResource("7_te27b")
+
+[node name="RelicManager" type="Node" parent="BattleManager" unique_id=1553625422]
+script = ExtResource("8_7i1my")
+
+[node name="EquipmentManager" type="Node" parent="BattleManager" unique_id=1632506684]
+script = ExtResource("9_7s01p")
+
+[node name="CharacterMechanics" type="Node" parent="BattleManager" unique_id=2078278064]
+
+[node name="HUD" type="Control" parent="." unique_id=650439671]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="TopBar" type="Control" parent="HUD" unique_id=897432600]
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="StatusPanel" type="Control" parent="HUD" unique_id=621442524]
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="PlayerArea" type="Control" parent="." unique_id=2024129787]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="HandArea" type="HBoxContainer" parent="PlayerArea" unique_id=1421680634]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("10_hand_ui")
+
+[node name="EnemyArea" type="Control" parent="." unique_id=932704803]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="EnemySlots" type="HBoxContainer" parent="EnemyArea" unique_id=1385783933]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="AllySlots" type="HBoxContainer" parent="EnemyArea" unique_id=533841740]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="EffectsLayer" type="Control" parent="." unique_id=1847338669]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+mouse_filter = 2
+
+[node name="Player" type="Node" parent="." unique_id=2087834437 groups=["player"]]

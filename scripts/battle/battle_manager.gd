@@ -14,6 +14,7 @@ extends Node
 @onready var _effect_resolver := $EffectResolver
 @onready var _enemy_mgr := $EnemyManager
 @onready var _relic_mgr := $RelicManager
+@onready var _equipment_mgr := $EquipmentManager
 
 var _player_deck: Array[CardData] = []
 var _enemy_configs: Array[EnemyData] = []
@@ -57,6 +58,9 @@ func play_card(card: CardData, target: Node) -> void:
 
 func _setup_dependencies() -> void:
 	_effect_resolver.setup(_resource_mgr, _card_mgr, _status_mgr, _enemy_mgr, _relic_mgr)
+	_enemy_mgr.setup(_resource_mgr, _status_mgr)
+	_relic_mgr.setup(_effect_resolver)
+	_equipment_mgr.setup(_effect_resolver)
 
 
 func _connect_signals() -> void:
