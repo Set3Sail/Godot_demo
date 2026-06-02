@@ -20,4 +20,4 @@ enum StatusCategory { BUFF, DEBUFF }
 
 ## 计算剩余回合的影响
 func should_remove_after_tick(current_duration: int) -> bool:
-    return stack_type == StackType.DURATION_ONLY and current_duration <= 1
+	return stack_type == StackType.DURATION_ONLY and current_duration <= 1

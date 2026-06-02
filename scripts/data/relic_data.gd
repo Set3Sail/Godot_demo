@@ -24,17 +24,17 @@ var current_charges: int = 0
 
 ## 初始化充能
 func init_charges() -> void:
-    current_charges = max_charges
+	current_charges = max_charges
 
 
 ## 检查是否有足够充能触发
 func can_trigger() -> bool:
-    if max_charges == -1:
-        return true
-    return current_charges >= charges_per_trigger
+	if max_charges == -1:
+		return true
+	return current_charges >= charges_per_trigger
 
 
 ## 消耗充能
 func consume_charge() -> void:
-    if max_charges > 0:
-        current_charges = maxi(0, current_charges - charges_per_trigger)
+	if max_charges > 0:
+		current_charges = maxi(0, current_charges - charges_per_trigger)

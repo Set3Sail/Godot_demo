@@ -17,14 +17,14 @@ class_name EffectData
 extends Resource
 
 enum EffectType {
-    DAMAGE, BLOCK, DRAW, GAIN_ENERGY,
-    BUFF, DEBUFF, HEAL,
-    MODIFY_STAT, REMOVE_STATUS, SPECIAL
+	DAMAGE, BLOCK, DRAW, GAIN_ENERGY,
+	BUFF, DEBUFF, HEAL,
+	MODIFY_STAT, REMOVE_STATUS, SPECIAL
 }
 
 enum EffectTarget {
-    SELF, SINGLE_ENEMY, ALL_ENEMIES,
-    RANDOM_ENEMY, ALL_ALLIES, FRONTMOST_ENEMY
+	SELF, SINGLE_ENEMY, ALL_ENEMIES,
+	RANDOM_ENEMY, ALL_ALLIES, FRONTMOST_ENEMY
 }
 
 @export var type: EffectType = EffectType.DAMAGE
@@ -41,30 +41,30 @@ enum EffectTarget {
 
 ## 返回此效果的人类可读描述
 func get_description() -> String:
-    var desc: String = ""
-    match type:
-        EffectType.DAMAGE:
-            desc = "造成 %d 点伤害" % base_value
-        EffectType.BLOCK:
-            desc = "获得 %d 点格挡" % base_value
-        EffectType.DRAW:
-            desc = "抽 %d 张牌" % base_value
-        EffectType.GAIN_ENERGY:
-            desc = "获得 %d 点精神力" % base_value
-        EffectType.BUFF:
-            desc = "获得 %d 层 %s" % [status_stacks, status_id]
-        EffectType.DEBUFF:
-            desc = "施加 %d 层 %s" % [status_stacks, status_id]
-        EffectType.HEAL:
-            desc = "回复 %d 点 HP" % base_value
-        EffectType.MODIFY_STAT:
-            desc = "修改属性: %s %+d" % [status_id, base_value]
-        EffectType.REMOVE_STATUS:
-            desc = "移除状态: %s" % status_id
-        EffectType.SPECIAL:
-            desc = "特殊效果"
-    if repeat_count > 1:
-        desc += " ×%d" % repeat_count
-    if not condition.is_empty():
-        desc += " [条件: %s]" % condition
-    return desc
+	var desc: String = ""
+	match type:
+		EffectType.DAMAGE:
+			desc = "造成 %d 点伤害" % base_value
+		EffectType.BLOCK:
+			desc = "获得 %d 点格挡" % base_value
+		EffectType.DRAW:
+			desc = "抽 %d 张牌" % base_value
+		EffectType.GAIN_ENERGY:
+			desc = "获得 %d 点精神力" % base_value
+		EffectType.BUFF:
+			desc = "获得 %d 层 %s" % [status_stacks, status_id]
+		EffectType.DEBUFF:
+			desc = "施加 %d 层 %s" % [status_stacks, status_id]
+		EffectType.HEAL:
+			desc = "回复 %d 点 HP" % base_value
+		EffectType.MODIFY_STAT:
+			desc = "修改属性: %s %+d" % [status_id, base_value]
+		EffectType.REMOVE_STATUS:
+			desc = "移除状态: %s" % status_id
+		EffectType.SPECIAL:
+			desc = "特殊效果"
+	if repeat_count > 1:
+		desc += " ×%d" % repeat_count
+	if not condition.is_empty():
+		desc += " [条件: %s]" % condition
+	return desc

@@ -13,33 +13,33 @@ var visited_nodes: Array[int] = []   # 已访问节点
 
 
 func get_node(node_id: int) -> MapNode:
-    return nodes.get(node_id)
+	return nodes.get(node_id)
 
 
 func get_current_node() -> MapNode:
-    return nodes.get(current_node_id)
+	return nodes.get(current_node_id)
 
 
 func get_available_next_nodes() -> Array[MapNode]:
-    if current_node_id == -1:
-        return []
-    var next: Array[MapNode] = []
-    if current_node_id in connections:
-        for next_id in connections[current_node_id]:
-            var node: MapNode = nodes.get(next_id)
-            if node and node.floor > get_current_node().floor:
-                next.append(node)
-    return next
+	if current_node_id == -1:
+		return []
+	var next: Array[MapNode] = []
+	if current_node_id in connections:
+		for next_id in connections[current_node_id]:
+			var node: MapNode = nodes.get(next_id)
+			if node and node.floor > get_current_node().floor:
+				next.append(node)
+	return next
 
 
 func move_to_node(node_id: int) -> void:
-    if current_node_id != -1:
-        visited_nodes.append(current_node_id)
-    current_node_id = node_id
+	if current_node_id != -1:
+		visited_nodes.append(current_node_id)
+	current_node_id = node_id
 
 
 func is_complete() -> bool:
-    if current_node_id == -1:
-        return false
-    var node: MapNode = get_current_node()
-    return node and node.node_type == MapConfig.NodeType.BOSS
+	if current_node_id == -1:
+		return false
+	var node: MapNode = get_current_node()
+	return node and node.node_type == MapConfig.NodeType.BOSS

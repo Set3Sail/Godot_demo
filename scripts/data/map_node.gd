@@ -14,22 +14,22 @@ var is_revealed: bool = false  # 是否对玩家可见
 
 
 func get_type_name() -> String:
-    match node_type:
-        MapConfig.NodeType.BATTLE: return "普通战斗"
-        MapConfig.NodeType.ELITE:  return "精英战"
-        MapConfig.NodeType.WHEEL:  return "轮盘"
-        MapConfig.NodeType.CAMP:   return "营地"
-        MapConfig.NodeType.EVENT:  return "命运事件"
-        MapConfig.NodeType.BOSS:   return "Boss"
-    return "未知"
+	match node_type:
+		MapConfig.NodeType.BATTLE: return "普通战斗"
+		MapConfig.NodeType.ELITE:  return "精英战"
+		MapConfig.NodeType.WHEEL:  return "轮盘"
+		MapConfig.NodeType.CAMP:   return "营地"
+		MapConfig.NodeType.EVENT:  return "命运事件"
+		MapConfig.NodeType.BOSS:   return "Boss"
+	return "未知"
 
 
 func get_icon() -> String:
-    match node_type:
-        MapConfig.NodeType.BATTLE: return "👾"
-        MapConfig.NodeType.ELITE:  return "💀"
-        MapConfig.NodeType.WHEEL:  return "🎰"
-        MapConfig.NodeType.CAMP:   return "🏕️"
-        MapConfig.NodeType.EVENT:  return "❓"
-        MapConfig.NodeType.BOSS:   return "👹"
-    return "❓"
+	match node_type:
+		MapConfig.NodeType.BATTLE: return "👾"
+		MapConfig.NodeType.ELITE:  return "💀"
+		MapConfig.NodeType.WHEEL:  return "🎰"
+		MapConfig.NodeType.CAMP:   return "🏕️"
+		MapConfig.NodeType.EVENT:  return "❓"
+		MapConfig.NodeType.BOSS:   return "👹"
+	return "❓"

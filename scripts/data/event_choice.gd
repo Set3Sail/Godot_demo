@@ -4,8 +4,8 @@ class_name EventChoice
 extends Resource
 
 enum ChoiceResult { GAIN_CARD, GAIN_RELIC, GAIN_CRYSTALS, REMOVE_CARD,
-    UPGRADE_CARD, HEAL, DAMAGE, RANDOM_COMBAT, GAIN_EQUIPMENT,
-    UPGRADE_RANDOM, REMOVE_CURSE, NOTHING }
+	UPGRADE_CARD, HEAL, DAMAGE, RANDOM_COMBAT, GAIN_EQUIPMENT,
+	UPGRADE_RANDOM, REMOVE_CURSE, NOTHING }
 
 @export var choice_text: String = ""       # 选项描述
 @export var result_type: ChoiceResult = ChoiceResult.NOTHING

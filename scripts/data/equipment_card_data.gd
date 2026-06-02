@@ -13,5 +13,5 @@ enum EquipmentSlot { WEAPON, ARMOR, ACCESSORY }
 
 
 func _init() -> void:
-    card_type = CardType.EQUIPMENT
-    exhaust_on_use = true
+	card_type = CardType.EQUIPMENT
+	exhaust_on_use = true

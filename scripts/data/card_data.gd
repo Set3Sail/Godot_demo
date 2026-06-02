@@ -30,38 +30,38 @@ var _temporary_modifiers: Dictionary = {}              # 临时数值修正
 
 ## 创建此卡牌的独立运行时副本
 func create_runtime_copy() -> CardData:
-    var copy := CardData.new()
-    copy.card_id = card_id
-    copy.card_name = card_name
-    copy.character = character
-    copy.card_type = card_type
-    copy.rarity = rarity
-    copy.cost = cost
-    copy.effects = effects  # EffectData 是 Resource, 共享引用
-    copy.keywords = keywords.duplicate()
-    copy.is_upgraded = is_upgraded
-    copy.is_forged = is_forged
-    copy.forge_count = forge_count
-    copy.upgrade_version = upgrade_version
-    copy.exhaust_on_use = exhaust_on_use or card_type in [CardType.ABILITY, CardType.EQUIPMENT]
-    copy.description = description
-    copy.art_path = art_path
-    copy._forge_max = _forge_max
-    copy._temporary_modifiers = _temporary_modifiers.duplicate()
-    return copy
+	var copy := CardData.new()
+	copy.card_id = card_id
+	copy.card_name = card_name
+	copy.character = character
+	copy.card_type = card_type
+	copy.rarity = rarity
+	copy.cost = cost
+	copy.effects = effects  # EffectData 是 Resource, 共享引用
+	copy.keywords = keywords.duplicate()
+	copy.is_upgraded = is_upgraded
+	copy.is_forged = is_forged
+	copy.forge_count = forge_count
+	copy.upgrade_version = upgrade_version
+	copy.exhaust_on_use = exhaust_on_use or card_type in [CardType.ABILITY, CardType.EQUIPMENT]
+	copy.description = description
+	copy.art_path = art_path
+	copy._forge_max = _forge_max
+	copy._temporary_modifiers = _temporary_modifiers.duplicate()
+	return copy
 
 
 ## 获取当前有效费用（考虑遗物/能力修正）
 func get_effective_cost() -> int:
-    var c: int = cost + _temporary_modifiers.get("cost_modifier", 0)
-    return clampi(c, 0, 99)
+	var c: int = cost + _temporary_modifiers.get("cost_modifier", 0)
+	return clampi(c, 0, 99)
 
 
 ## 检查是否拥有指定关键词
 func has_keyword(kw: String) -> bool:
-    return kw in keywords
+	return kw in keywords
 
 
 ## 是否为消耗卡
 func is_exhaust_card() -> bool:
-    return exhaust_on_use
+	return exhaust_on_use
